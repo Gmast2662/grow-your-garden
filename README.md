@@ -169,6 +169,7 @@ grow-your-garden/
 ├── styles.css         # Game styling
 ├── README.md          # This file
 ├── UPDATE_LOG.md      # Development history
+├── CHANGELOG.md       # Complete technical changelog
 └── LICENSE            # MIT License
 ```
 
