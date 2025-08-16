@@ -300,12 +300,15 @@ body {
     background: #f8f9fa;
     cursor: pointer;
     /* Improve touch handling on mobile */
-    touch-action: manipulation;
+    touch-action: none;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+    /* Ensure canvas is properly positioned for touch events */
+    position: relative;
+    z-index: 1;
 }
 
 .garden-info {

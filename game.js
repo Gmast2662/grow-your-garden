@@ -606,10 +606,20 @@ class GardenGame {
         addBtnListener(this.canvas, 'mousemove', (e) => this.handleMouseMove(e));
         
         // Touch event listeners for mobile
+        let touchStartTime = 0;
+        let touchStartPos = { x: 0, y: 0 };
+        
         addBtnListener(this.canvas, 'touchstart', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            this.handleCanvasClick(e);
+            
+            const touch = e.touches[0];
+            const rect = this.canvas.getBoundingClientRect();
+            touchStartPos.x = touch.clientX - rect.left;
+            touchStartPos.y = touch.clientY - rect.top;
+            touchStartTime = Date.now();
+            
+            console.log('Touch start detected:', touchStartPos.x, touchStartPos.y);
         });
         
         addBtnListener(this.canvas, 'touchmove', (e) => {
@@ -621,6 +631,39 @@ class GardenGame {
         addBtnListener(this.canvas, 'touchend', (e) => {
             e.preventDefault();
             e.stopPropagation();
+            
+            // Only trigger click if it's a short tap (not a scroll)
+            const touchEndTime = Date.now();
+            const touchDuration = touchEndTime - touchStartTime;
+            
+            if (touchDuration < 300) { // Less than 300ms = tap
+                const touch = e.changedTouches[0];
+                const rect = this.canvas.getBoundingClientRect();
+                const x = touch.clientX - rect.left;
+                const y = touch.clientY - rect.top;
+                
+                // Check if touch ended near where it started (to avoid scroll-triggered clicks)
+                const distance = Math.sqrt(
+                    Math.pow(x - touchStartPos.x, 2) + Math.pow(y - touchStartPos.y, 2)
+                );
+                
+                if (distance < 20) { // Less than 20px movement = tap
+                    console.log('Touch tap detected, triggering click');
+                    this.handleCanvasClick({ 
+                        clientX: touch.clientX, 
+                        clientY: touch.clientY,
+                        touches: [touch]
+                    });
+                } else {
+                    console.log('Touch movement too large, ignoring:', distance);
+                }
+            }
+        });
+        
+        // Fallback touch event for better mobile compatibility
+        addBtnListener(this.canvas, 'click', (e) => {
+            // This will handle both mouse clicks and touch events that bubble up
+            console.log('Canvas click event triggered');
         });
         
         // Seed selection
