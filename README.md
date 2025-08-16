@@ -2,6 +2,8 @@
 
 A feature-rich, browser-based gardening simulation game built with vanilla JavaScript, HTML5 Canvas, and CSS3. Plant seeds, manage resources, upgrade tools, and grow your perfect garden!
 
+This game is still in progress and you may experience some bugs, try to only do 1 slot as more than that could cause issues.
+
 ![Grow Your Garden](https://img.shields.io/badge/Status-Complete-brightgreen)
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-yellow)
 ![HTML5](https://img.shields.io/badge/HTML5-Canvas-orange)
