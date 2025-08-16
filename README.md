@@ -31,7 +31,7 @@ A feature-rich, browser-based gardening simulation game built with vanilla JavaS
 - **Weather Effects**: Dynamic weather affecting growth rates
 
 ### 🎯 **Progression Systems**
-- **Achievement System**: 15+ achievements to unlock
+- **Achievement System**: 8 achievements to unlock
 - **Garden Challenges**: Daily and weekly challenges with rewards
 - **Statistics Tracking**: Comprehensive game statistics with admin panel usage tracking
 - **Endless Seasonal Gardening**: No win condition - garden forever through seasonal cycles

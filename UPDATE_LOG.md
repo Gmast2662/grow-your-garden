@@ -286,6 +286,8 @@ This document tracks all updates, bug fixes, and new features added to the Grow 
 - **Cross-Slot Interference**: Eliminated through deep copy implementation and save slot verification
 - **Data Corruption**: Fixed with comprehensive validation and emergency recovery systems
 - **Background Processing Conflicts**: Resolved with proper state isolation during admin commands
+- **Garden Expansion Persistence**: Fixed garden size not being saved/loaded properly when switching slots
+- **Admin Panel Cleanup**: Removed redundant "Show Stats" button from admin panel
 - Mobile touch controls for garden interaction
 - Visual effects and particle system
 - Admin panel garden commands (harvest, water, fertilize all)

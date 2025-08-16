@@ -101,6 +101,21 @@ This document contains every single update, bug fix, and change made to Grow You
 - **Styling**: Sound button now has consistent styling with other header buttons
 - **Persistence**: Sound state is properly saved and restored when loading games
 
+### Garden Expansion Persistence Fix
+- **Issue**: Garden size was resetting to 8x8 when switching save slots or reloading
+- **Root Cause**: `gridSize` and `cellSize` were not being updated after loading `gardenSize` from save data
+- **Solution**: Added proper initialization of `gridSize` and `cellSize` in the `loadGame()` function
+- **Technical Details**: 
+  - Updated `loadGame()` to set `this.gridSize = this.gardenSize` after loading garden size
+  - Added `this.cellSize = Math.floor(600 / this.gridSize)` calculation
+  - Ensures garden dimensions persist correctly across save slot switches
+- **Result**: Garden expansion now properly persists when switching slots or reloading the game
+
+### Admin Panel Interface Cleanup
+- **Removed Redundant Button**: Eliminated "Show Stats" button from admin panel
+- **Reason**: Statistics are already visible in the main game interface
+- **Result**: Cleaner, more focused admin panel interface
+
 ## 🔧 Admin Panel Improvements (v1.4.0)
 
 ### Fixed Admin Panel Garden Commands

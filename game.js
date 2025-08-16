@@ -4531,7 +4531,11 @@ class GardenGame {
                 if (data.seasonDay) this.seasonDay = data.seasonDay;
                 if (data.seasonMultiplier) this.seasonMultiplier = data.seasonMultiplier;
                 if (data.seasonStartTime) this.seasonStartTime = data.seasonStartTime;
-                if (data.gardenSize) this.gardenSize = data.gardenSize;
+                if (data.gardenSize) {
+                    this.gardenSize = data.gardenSize;
+                    this.gridSize = this.gardenSize;
+                    this.cellSize = Math.floor(600 / this.gridSize);
+                }
                 if (data.expansionCost) this.expansionCost = data.expansionCost;
                 if (data.stats) this.stats = data.stats;
                 if (data.challenges) this.challenges = data.challenges;
