@@ -5,11 +5,28 @@ This document tracks all updates, bug fixes, and new features added to the Grow 
 ## 🆕 Latest Update - Bug Fixes & Improvements
 
 ### 🐛 Bug Fixes
+- **Fixed Copyright Year**: Updated LICENSE file to show correct year (2025) and proper formatting
+  - Changed copyright notice from "2024" to "2025" to reflect current year
+  - Fixed spacing in "Copyright (c) 2025 [Avi]" for proper formatting
+  - Ensures legal accuracy and professional presentation
 - **Fixed Seed Selection Issue**: Resolved problem where seeds become unselectable after some time
   - Added `ensureSeedEventListeners()` function to re-establish click handlers
   - Improved pointer events and cursor styling for out-of-stock seeds
   - Fixed event listener management in `updateShopDisplay()`
   - Seeds now remain clickable throughout the game session
+- **Fixed Button Event Listeners**: Resolved issues where buttons would stop working after some time
+  - Added `removeEventListener` before `addEventListener` in `addBtnListener` helper function
+  - Prevents duplicate event listeners from accumulating and causing conflicts
+  - Added debugging console logs to tool button clicks for troubleshooting
+  - Added verification checks to ensure button elements are found during initialization
+- **Fixed Harvest Tool Conflict**: Resolved issue where harvest tool would prevent seed planting
+  - Reordered conditions in `handleCellClick()` to prioritize seed planting over harvest tool
+  - Added `cell.plant` check to harvest condition to prevent conflicts
+  - Planting now works correctly even when harvest tool is selected
+- **Fixed Game Loop Interference**: Removed `updateShopDisplay()` from game loop to prevent UI conflicts
+  - Continuous shop display updates were interfering with event listeners
+  - Shop display now only updates when necessary (selection changes, planting, etc.)
+  - Improved overall UI responsiveness and button reliability
 - **Fixed Plant Visual Stage Display**: Resolved issue where plants showed golden border (harvestable) but still appeared as seeds visually
   - Fixed legacy stage system that was capping visual stages at stage 2 (small)
   - Updated plant stage calculation to use proper growth stage system (0-4)

@@ -41,6 +41,14 @@ This game is still in progress and you may experience some bugs, try to only do 
 - **Admin Panel**: Debug tools and creative mode
 - **Sound Effects**: Immersive audio feedback
 
+## 💻 System Requirements
+
+- **Browser**: Modern web browser (Chrome 60+, Firefox 55+, Safari 12+, Edge 79+)
+- **Storage**: LocalStorage support (enabled by default in modern browsers)
+- **Audio**: Web Audio API support (for sound effects)
+- **Memory**: Minimal requirements - works on most devices
+- **Internet**: Required only for initial load, then works offline
+
 ## 🚀 Quick Start
 
 ### **Play Online**
@@ -67,7 +75,7 @@ This game is still in progress and you may experience some bugs, try to only do 
    ```
 
 3. **Open your browser**
-   - Navigate to `http://localhost:8000`
+   - Navigate to `http://localhost:8000` (this opens the game on your local computer)
    - Start gardening!
 
 ## 🎮 How to Play
@@ -90,6 +98,18 @@ This game is still in progress and you may experience some bugs, try to only do 
 - Reach **10,000 score** to win the game
 - Score is earned by harvesting plants and completing challenges
 - Using the admin panel disables winning (creative mode)
+
+## 🎮 Controls
+
+### **Mouse/Touch Controls**
+- **Click/Tap**: Select seeds, tools, and garden cells
+- **Drag**: Move around the garden (mobile)
+- **Scroll**: Navigate shop items
+
+### **Keyboard Shortcuts**
+- **R**: Refresh game
+- **F5**: Reload page
+- **Ctrl+S**: Save game (automatic)
 
 ## 🌱 Plant Types
 
@@ -194,6 +214,17 @@ Contributions are welcome! Here's how you can help:
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
+## 🆕 Recent Updates
+
+### **Latest Version (v1.3.0)**
+- ✅ Fixed seed selection and button responsiveness issues
+- ✅ Improved shop display and UI consistency
+- ✅ Enhanced mobile experience
+- ✅ Fixed plant growth stage display
+- ✅ Updated copyright year to 2025
+
+*See [UPDATE_LOG.md](UPDATE_LOG.md) for complete changelog*
+
 ## 📝 Development History
 
 See [UPDATE_LOG.md](UPDATE_LOG.md) for a detailed history of all updates, bug fixes, and new features.
@@ -212,6 +243,20 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Game Design**: Inspired by classic farming simulation games and Grow a Garden (Roblox)
 - **AI Assistance**: Developed with help from Claude AI
 - **Community**: Thanks to all players and contributors
+
+## 🔧 Troubleshooting
+
+### **Common Issues**
+- **Game won't load**: Try refreshing the page or clearing browser cache
+- **Saves not working**: Ensure LocalStorage is enabled in your browser
+- **Buttons not responding**: Try refreshing the page
+- **Mobile issues**: Use landscape mode for better experience
+
+### **Browser Compatibility**
+- **Chrome/Edge**: Full support, recommended
+- **Firefox**: Full support
+- **Safari**: Full support (including mobile)
+- **Internet Explorer**: Not supported
 
 ## 📞 Support
 

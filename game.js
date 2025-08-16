@@ -540,6 +540,8 @@ class GardenGame {
         // Helper function to add event listeners and track them
         const addBtnListener = (element, event, handler) => {
             if (element) {
+                // Remove any existing listeners first to prevent duplicates
+                element.removeEventListener(event, handler);
                 element.addEventListener(event, handler);
                 this.eventListeners.push({ element, event, handler });
             }
@@ -576,10 +578,22 @@ class GardenGame {
         });
         
         // Tool selection
-        addBtnListener(document.getElementById('water-btn'), 'click', () => this.selectTool('water'));
-        addBtnListener(document.getElementById('fertilizer-btn'), 'click', () => this.selectTool('fertilizer'));
-        addBtnListener(document.getElementById('harvest-btn'), 'click', () => this.selectTool('harvest'));
-        addBtnListener(document.getElementById('shovel-btn'), 'click', () => this.selectTool('shovel'));
+        addBtnListener(document.getElementById('water-btn'), 'click', () => {
+            console.log('Water button clicked!');
+            this.selectTool('water');
+        });
+        addBtnListener(document.getElementById('fertilizer-btn'), 'click', () => {
+            console.log('Fertilizer button clicked!');
+            this.selectTool('fertilizer');
+        });
+        addBtnListener(document.getElementById('harvest-btn'), 'click', () => {
+            console.log('Harvest button clicked!');
+            this.selectTool('harvest');
+        });
+        addBtnListener(document.getElementById('shovel-btn'), 'click', () => {
+            console.log('Shovel button clicked!');
+            this.selectTool('shovel');
+        });
         
         // Tool upgrade buttons
         addBtnListener(document.getElementById('upgrade-water-btn'), 'click', () => this.upgradeTool('water'));
@@ -611,6 +625,16 @@ class GardenGame {
             this.adjustCanvasForMobile();
             this.draw(); // Redraw with new canvas size
         });
+        
+        // Test if event listeners are working
+        console.log('Event listeners added. Testing...');
+        setTimeout(() => {
+            console.log('Testing button elements...');
+            const waterBtn = document.getElementById('water-btn');
+            const harvestBtn = document.getElementById('harvest-btn');
+            console.log('Water button found:', !!waterBtn);
+            console.log('Harvest button found:', !!harvestBtn);
+        }, 1000);
     }
     
     adjustCanvasForMobile() {
@@ -645,6 +669,8 @@ class GardenGame {
         // Helper function to add event listeners and track them
         const addBtnListener = (element, event, handler) => {
             if (element) {
+                // Remove any existing listeners first to prevent duplicates
+                element.removeEventListener(event, handler);
                 element.addEventListener(event, handler);
                 this.eventListeners.push({ element, event, handler });
             }
@@ -1667,12 +1693,12 @@ class GardenGame {
         console.log('Cell data:', cell);
         console.log('Has sprinkler here:', hasSprinklerHere);
         
-        if (this.currentTool === 'harvest') {
-            console.log('Attempting to harvest');
-            this.harvestPlant(row, col);
-        } else if (this.selectedSeed && !cell.plant && !hasSprinklerHere) {
+        if (this.selectedSeed && !cell.plant && !hasSprinklerHere) {
             console.log('Attempting to plant');
             this.plantSeed(row, col);
+        } else if (this.currentTool === 'harvest' && cell.plant) {
+            console.log('Attempting to harvest');
+            this.harvestPlant(row, col);
         } else if (this.currentTool === 'water' && cell.plant && !cell.watered && cell.waterCooldown <= Date.now()) {
             console.log('Attempting to water');
             this.waterPlant(row, col);
@@ -2728,10 +2754,7 @@ class GardenGame {
         this.checkAchievements();
         this.generateChallenges();
         
-        // Update shop display periodically to ensure it stays current
-        if (this.canvas && this.ctx) {
-            this.updateShopDisplay();
-        }
+        // Note: updateShopDisplay is now only called when needed, not in the game loop
         
         // Update particles
         this.updateParticles();
