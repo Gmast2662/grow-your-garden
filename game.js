@@ -2528,8 +2528,12 @@ class GardenGame {
                         // Handle out of stock styling
                         if (inventory.stock <= 0) {
                             seedElement.classList.add('out-of-stock');
+                            seedElement.style.pointerEvents = 'none';
+                            seedElement.style.cursor = 'not-allowed';
                         } else {
                             seedElement.classList.remove('out-of-stock');
+                            seedElement.style.pointerEvents = 'auto';
+                            seedElement.style.cursor = 'pointer';
                         }
                         
                         // Remove any existing buy buttons
@@ -2537,10 +2541,6 @@ class GardenGame {
                         if (existingBuyButton) {
                             existingBuyButton.remove();
                         }
-                        
-                        // Ensure the seed element is clickable
-                        seedElement.style.pointerEvents = 'auto';
-                        seedElement.style.cursor = 'pointer';
                     } else {
                         seedElement.style.display = 'none';
                     }
@@ -2553,14 +2553,27 @@ class GardenGame {
         // Force a reflow to ensure the DOM updates
         document.body.offsetHeight;
         
-        // Ensure all seed elements have proper event listeners
-        document.querySelectorAll('.seed-item').forEach(item => {
-            if (!item.hasAttribute('data-seed')) {
-                console.warn('Seed item missing data-seed attribute:', item);
-            }
-        });
+        // Re-add event listeners to ensure they're not lost
+        this.ensureSeedEventListeners();
         
         console.log('Shop display update completed');
+    }
+    
+    ensureSeedEventListeners() {
+        // Remove any existing click listeners to prevent duplicates
+        document.querySelectorAll('.seed-item').forEach(item => {
+            const newItem = item.cloneNode(true);
+            item.parentNode.replaceChild(newItem, item);
+        });
+        
+        // Re-add event listeners to all seed items
+        document.querySelectorAll('.seed-item').forEach(item => {
+            if (item.hasAttribute('data-seed')) {
+                addBtnListener(item, 'click', () => {
+                    this.selectSeed(item.dataset.seed);
+                });
+            }
+        });
     }
     
     updateChallengesDisplay() {
