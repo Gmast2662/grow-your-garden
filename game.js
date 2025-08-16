@@ -608,20 +608,19 @@ class GardenGame {
         // Touch event listeners for mobile
         addBtnListener(this.canvas, 'touchstart', (e) => {
             e.preventDefault();
-            const touch = e.touches[0];
-            const rect = this.canvas.getBoundingClientRect();
-            const x = touch.clientX - rect.left;
-            const y = touch.clientY - rect.top;
-            this.handleCanvasClick({ offsetX: x, offsetY: y });
+            e.stopPropagation();
+            this.handleCanvasClick(e);
         });
         
         addBtnListener(this.canvas, 'touchmove', (e) => {
             e.preventDefault();
-            const touch = e.touches[0];
-            const rect = this.canvas.getBoundingClientRect();
-            const x = touch.clientX - rect.left;
-            const y = touch.clientY - rect.top;
-            this.handleMouseMove({ offsetX: x, offsetY: y });
+            e.stopPropagation();
+            this.handleMouseMove(e);
+        });
+        
+        addBtnListener(this.canvas, 'touchend', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
         });
         
         // Seed selection
@@ -749,8 +748,8 @@ class GardenGame {
                                   this.currentGame.hasUsedCreativeMode = true;
                                   this.currentGame.saveGame();
                               }
-                              adminModal.style.display = 'block';
-                              document.body.style.overflow = 'hidden'; // Prevent background scrolling
+            adminModal.style.display = 'block';
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
                           }
         });
         
@@ -1796,8 +1795,18 @@ class GardenGame {
         }
         
         const rect = this.canvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
+        
+        // Handle both mouse and touch events
+        let x, y;
+        if (e.touches && e.touches[0]) {
+            // Touch event
+            x = e.touches[0].clientX - rect.left;
+            y = e.touches[0].clientY - rect.top;
+        } else {
+            // Mouse event
+            x = e.clientX - rect.left;
+            y = e.clientY - rect.top;
+        }
         
         // Calculate the grid offset
         const gridWidth = this.gridSize * this.cellSize;
@@ -1826,8 +1835,18 @@ class GardenGame {
         }
         
         const rect = this.canvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
+        
+        // Handle both mouse and touch events
+        let x, y;
+        if (e.touches && e.touches[0]) {
+            // Touch event
+            x = e.touches[0].clientX - rect.left;
+            y = e.touches[0].clientY - rect.top;
+        } else {
+            // Mouse event
+            x = e.clientX - rect.left;
+            y = e.clientY - rect.top;
+        }
         
         // Calculate the grid offset
         const gridWidth = this.gridSize * this.cellSize;
@@ -5130,10 +5149,10 @@ let menuSystem;
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM Content Loaded - Initializing MenuSystem...');
     try {
-        menuSystem = new MenuSystem();
+    menuSystem = new MenuSystem();
         console.log('MenuSystem created successfully');
-        // Make menuSystem globally accessible for admin functions
-        window.menuSystem = menuSystem;
+    // Make menuSystem globally accessible for admin functions
+    window.menuSystem = menuSystem;
         console.log('MenuSystem added to window object');
     } catch (error) {
         console.error('Error creating MenuSystem:', error);
