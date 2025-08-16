@@ -270,6 +270,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Made with ❤️ by Avi**
+**Made with ❤️ by Avi (Gmast)**
 
 *If you enjoy this game, consider giving it a ⭐ on GitHub!*

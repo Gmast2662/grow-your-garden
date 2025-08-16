@@ -109,6 +109,8 @@ class GardenGame {
         this.selectedSprinkler = null;
         this.currentTool = 'water';
         this.isRunning = true;
+        this.hasUsedCreativeMode = false;
+        this.hasWon = false;
         
         // Garden grid setup
         this.gridSize = this.gardenSize;
@@ -404,10 +406,11 @@ class GardenGame {
             y: y,
             type: type,
             value: value,
-            life: 60, // 60 frames
-            maxLife: 60,
-            vx: (Math.random() - 0.5) * 2,
-            vy: -2 - Math.random() * 2
+            life: 90, // 90 frames for longer visibility
+            maxLife: 90,
+            vx: (Math.random() - 0.5) * 3,
+            vy: -3 - Math.random() * 2,
+            scale: 1 + Math.random() * 0.5 // Random size variation
         });
     }
     
@@ -427,9 +430,48 @@ class GardenGame {
             const alpha = particle.life / particle.maxLife;
             this.ctx.save();
             this.ctx.globalAlpha = alpha;
-            this.ctx.fillStyle = particle.type === 'money' ? '#FFD700' : '#00FF00';
-            this.ctx.font = '16px Arial';
-            this.ctx.fillText(`+${particle.value}`, particle.x, particle.y);
+            
+            // Different colors and styles for different particle types
+            switch (particle.type) {
+                case 'money':
+                    this.ctx.fillStyle = '#FFD700';
+                    this.ctx.strokeStyle = '#FFA500';
+                    this.ctx.lineWidth = 2;
+                    this.ctx.font = `${Math.floor(16 * (particle.scale || 1))}px Arial`;
+                    this.ctx.fillText(`+$${particle.value}`, particle.x, particle.y);
+                    this.ctx.strokeText(`+$${particle.value}`, particle.x, particle.y);
+                    break;
+                case 'water':
+                    this.ctx.fillStyle = '#87CEEB';
+                    this.ctx.font = `${Math.floor(20 * (particle.scale || 1))}px Arial`;
+                    this.ctx.fillText('💧', particle.x, particle.y);
+                    break;
+                case 'fertilizer':
+                    this.ctx.fillStyle = '#FFD700';
+                    this.ctx.font = `${Math.floor(20 * (particle.scale || 1))}px Arial`;
+                    this.ctx.fillText('🌱', particle.x, particle.y);
+                    break;
+                case 'plant':
+                    this.ctx.fillStyle = '#32CD32';
+                    this.ctx.font = `${Math.floor(20 * (particle.scale || 1))}px Arial`;
+                    this.ctx.fillText('🌱', particle.x, particle.y);
+                    break;
+                case 'upgrade':
+                    this.ctx.fillStyle = '#FF6B6B';
+                    this.ctx.font = `${Math.floor(24 * (particle.scale || 1))}px Arial`;
+                    this.ctx.fillText('⬆️', particle.x, particle.y);
+                    break;
+                case 'sprinkler':
+                    this.ctx.fillStyle = '#4A90E2';
+                    this.ctx.font = `${Math.floor(20 * (particle.scale || 1))}px Arial`;
+                    this.ctx.fillText('💧', particle.x, particle.y);
+                    break;
+                default:
+                    this.ctx.fillStyle = '#00FF00';
+                    this.ctx.font = `${Math.floor(16 * (particle.scale || 1))}px Arial`;
+                    this.ctx.fillText(`+${particle.value}`, particle.x, particle.y);
+            }
+            
             this.ctx.restore();
         });
     }
@@ -502,6 +544,18 @@ class GardenGame {
             
             oscillator.start(this.audioContext.currentTime);
             oscillator.stop(this.audioContext.currentTime + sound.duration);
+        }
+    }
+    
+    toggleSound() {
+        this.soundEnabled = !this.soundEnabled;
+        this.showMessage(`Sound ${this.soundEnabled ? 'enabled' : 'disabled'}!`, 'success');
+        this.saveGame();
+        
+        // Update button text
+        const soundBtn = document.getElementById('soundBtn');
+        if (soundBtn) {
+            soundBtn.textContent = this.soundEnabled ? '🔊 Sound' : '🔇 Sound';
         }
     }
     
@@ -604,6 +658,9 @@ class GardenGame {
         addBtnListener(document.getElementById('expandBtn'), 'click', () => this.expandGarden());
         addBtnListener(document.getElementById('upgrade-harvest-btn'), 'click', () => this.upgradeTool('harvest'));
         
+        // Sound toggle button
+        addBtnListener(document.getElementById('soundBtn'), 'click', () => this.toggleSound());
+        
         // Sprinkler shop
         document.querySelectorAll('.sprinkler-item').forEach(item => {
             addBtnListener(item, 'click', () => {
@@ -692,8 +749,8 @@ class GardenGame {
                                   this.currentGame.hasUsedCreativeMode = true;
                                   this.currentGame.saveGame();
                               }
-            adminModal.style.display = 'block';
-            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+                              adminModal.style.display = 'block';
+                              document.body.style.overflow = 'hidden'; // Prevent background scrolling
                           }
         });
         
@@ -1076,7 +1133,8 @@ class GardenGame {
         // Garden functions
         window.clearGarden = () => {
             this.garden = this.initializeGarden();
-            this.showMessage('Garden cleared!', 'success');
+            this.sprinklers = []; // Clear all sprinklers
+            this.showMessage('Garden and sprinklers cleared!', 'success');
             this.saveGame();
             // Update the UI to reflect the cleared garden
             this.updateUI();
@@ -1200,100 +1258,236 @@ class GardenGame {
             console.log(`Background processing status: ${status}`);
         };
         
+        // Emergency recovery command
+        window.emergencyReset = () => {
+            if (window.menuSystem && window.menuSystem.currentGame) {
+                const game = window.menuSystem.currentGame;
+                console.log(`Emergency reset for slot ${game.saveSlot}`);
+                
+                // Stop the current game
+                game.stopGame();
+                
+                // Clear any stuck states
+                game.selectedSeed = null;
+                game.selectedSprinkler = null;
+                game.currentTool = 'water';
+                
+                // Clear performance monitoring
+                game.lastPerformanceCheck = null;
+                game.performanceCheckCount = 0;
+                
+                // Clear particles and animations
+                if (game.particles) game.particles = [];
+                if (game.animations) game.animations = [];
+                
+                // Restart the game
+                game.isRunning = true;
+                game.gameLoop();
+                
+                // Force UI update
+                game.updateUI();
+                game.updateShopDisplay();
+                
+                window.menuSystem.currentGame.showMessage('Emergency reset completed! Game should be working again.', 'success');
+            } else {
+                alert('Error: No game instance found. Please start a game first.');
+            }
+        };
+        
         // ===== ADVANCED ADMIN FUNCTIONS =====
         
         // Challenge Management
         window.generateNewChallenges = () => {
-            this.generateChallenges();
-            this.updateChallengesDisplay();
-            this.showMessage('New challenges generated!', 'success');
+            if (window.menuSystem && window.menuSystem.currentGame) {
+                window.menuSystem.currentGame.generateChallenges();
+                window.menuSystem.currentGame.updateChallengesDisplay();
+                window.menuSystem.currentGame.showMessage('New challenges generated!', 'success');
+            } else {
+                console.error('No current game instance found');
+                alert('Error: No game instance found. Please start a game first.');
+            }
         };
         
         window.completeAllChallenges = () => {
-            if (this.challenges.daily && !this.challenges.daily.completed) {
-                this.challenges.daily.progress = this.challenges.daily.target;
-                this.completeChallenge(this.challenges.daily);
+            if (window.menuSystem && window.menuSystem.currentGame) {
+                if (window.menuSystem.currentGame.challenges.daily && !window.menuSystem.currentGame.challenges.daily.completed) {
+                    window.menuSystem.currentGame.challenges.daily.progress = window.menuSystem.currentGame.challenges.daily.target;
+                    window.menuSystem.currentGame.completeChallenge(window.menuSystem.currentGame.challenges.daily);
+                }
+                if (window.menuSystem.currentGame.challenges.weekly && !window.menuSystem.currentGame.challenges.weekly.completed) {
+                    window.menuSystem.currentGame.challenges.weekly.progress = window.menuSystem.currentGame.challenges.weekly.target;
+                    window.menuSystem.currentGame.completeChallenge(window.menuSystem.currentGame.challenges.weekly);
+                }
+                window.menuSystem.currentGame.updateChallengesDisplay();
+                window.menuSystem.currentGame.showMessage('All challenges completed!', 'success');
+            } else {
+                console.error('No current game instance found');
+                alert('Error: No game instance found. Please start a game first.');
             }
-            if (this.challenges.weekly && !this.challenges.weekly.completed) {
-                this.challenges.weekly.progress = this.challenges.weekly.target;
-                this.completeChallenge(this.challenges.weekly);
-            }
-            this.updateChallengesDisplay();
-            this.showMessage('All challenges completed!', 'success');
         };
         
         window.resetChallenges = () => {
-            this.challenges = {
-                daily: null,
-                weekly: null,
-                completed: []
-            };
-            this.generateChallenges();
-            this.updateChallengesDisplay();
-            this.showMessage('Challenges reset!', 'success');
+            if (window.menuSystem && window.menuSystem.currentGame) {
+                window.menuSystem.currentGame.challenges = {
+                    daily: null,
+                    weekly: null,
+                    completed: []
+                };
+                window.menuSystem.currentGame.generateChallenges();
+                window.menuSystem.currentGame.updateChallengesDisplay();
+                window.menuSystem.currentGame.showMessage('Challenges reset!', 'success');
+            } else {
+                console.error('No current game instance found');
+                alert('Error: No game instance found. Please start a game first.');
+            }
         };
         
         // Garden Management
         window.growAllPlants = () => {
-            let grownCount = 0;
-            for (let x = 0; x < this.gardenSize; x++) {
-                for (let y = 0; y < this.gardenSize; y++) {
-                    const plant = this.garden[x][y];
-                    if (plant && plant.type && !plant.isFullyGrown) {
-                        plant.plantedAt = Date.now() - (plant.growthTime * 0.9); // Set to 90% grown
-                        grownCount++;
+            if (window.menuSystem && window.menuSystem.currentGame) {
+                let grownCount = 0;
+                for (let x = 0; x < window.menuSystem.currentGame.gardenSize; x++) {
+                    for (let y = 0; y < window.menuSystem.currentGame.gardenSize; y++) {
+                        const cell = window.menuSystem.currentGame.garden[x][y];
+                        if (cell && cell.plant && cell.plant.type && !cell.plant.isFullyGrown) {
+                            const plantData = window.menuSystem.currentGame.plantTypes[cell.plant.type];
+                            if (plantData) {
+                                cell.plant.plantedAt = Date.now() - (plantData.growthTime * 1.1); // Set to 100% grown (fully mature)
+                                grownCount++;
+                            }
+                        }
                     }
                 }
+                window.menuSystem.currentGame.updateUI();
+                window.menuSystem.currentGame.draw();
+                window.menuSystem.currentGame.showMessage(`Grew ${grownCount} plants!`, 'success');
+            } else {
+                console.error('No current game instance found');
+                alert('Error: No game instance found. Please start a game first.');
             }
-            this.showMessage(`Grew ${grownCount} plants!`, 'success');
         };
         
         window.harvestAllPlants = () => {
-            let harvestedCount = 0;
-            let totalValue = 0;
-            for (let x = 0; x < this.gardenSize; x++) {
-                for (let y = 0; y < this.gardenSize; y++) {
-                    const plant = this.garden[x][y];
-                    if (plant && plant.type && this.getPlantGrowthStage(plant) >= this.growthStages.length - 1) {
-                        const value = this.getHarvestValue(plant);
-                        totalValue += value;
-                        this.garden[x][y] = null;
-                        harvestedCount++;
+            if (window.menuSystem && window.menuSystem.currentGame) {
+                try {
+                    let harvestedCount = 0;
+                    let totalValue = 0;
+                    for (let x = 0; x < window.menuSystem.currentGame.gardenSize; x++) {
+                        for (let y = 0; y < window.menuSystem.currentGame.gardenSize; y++) {
+                            const cell = window.menuSystem.currentGame.garden[x][y];
+                            if (cell && cell.plant && cell.plant.type && window.menuSystem.currentGame.getPlantGrowthStage(cell.plant) >= window.menuSystem.currentGame.growthStages.length - 1) {
+                                const value = window.menuSystem.currentGame.getHarvestValue(cell.plant);
+                                totalValue += value;
+                                // Remove the plant but keep the cell structure
+                                if (cell.plant) {
+                                    delete cell.plant;
+                                }
+                                harvestedCount++;
+                            }
+                        }
                     }
+                    window.menuSystem.currentGame.money += totalValue;
+                    window.menuSystem.currentGame.score += totalValue;
+                    
+                    // Force save and update
+                    window.menuSystem.currentGame.saveGame();
+                    window.menuSystem.currentGame.updateUI();
+                    window.menuSystem.currentGame.updateShopDisplay();
+                    window.menuSystem.currentGame.draw();
+                    
+                    window.menuSystem.currentGame.showMessage(`Harvested ${harvestedCount} plants for $${totalValue}!`, 'success');
+                } catch (error) {
+                    console.error('Error in harvestAllPlants:', error);
+                    window.menuSystem.currentGame.showMessage('Error during harvest. Try the emergency reset.', 'error');
                 }
+            } else {
+                console.error('No current game instance found');
+                alert('Error: No game instance found. Please start a game first.');
             }
-            this.money += totalValue;
-            this.score += totalValue;
-            this.updateUI();
-            this.showMessage(`Harvested ${harvestedCount} plants for $${totalValue}!`, 'success');
         };
         
         window.waterAllPlants = () => {
-            let wateredCount = 0;
-            for (let x = 0; x < this.gardenSize; x++) {
-                for (let y = 0; y < this.gardenSize; y++) {
-                    const plant = this.garden[x][y];
-                    if (plant && plant.type && !plant.isFullyGrown) {
-                        this.plantEffects.watered[`${x},${y}`] = Date.now();
-                        wateredCount++;
+            if (window.menuSystem && window.menuSystem.currentGame) {
+                try {
+                    let wateredCount = 0;
+                    let totalPlants = 0;
+                    const now = Date.now();
+                    
+                    for (let x = 0; x < window.menuSystem.currentGame.gardenSize; x++) {
+                        for (let y = 0; y < window.menuSystem.currentGame.gardenSize; y++) {
+                            const cell = window.menuSystem.currentGame.garden[x][y];
+                            if (cell && cell.plant && cell.plant.type) {
+                                totalPlants++;
+                                // Check if plant is not fully grown by comparing growth stage
+                                const growthStage = window.menuSystem.currentGame.getPlantGrowthStage(cell.plant);
+                                const maxStage = window.menuSystem.currentGame.growthStages.length - 1;
+                                
+                                if (growthStage < maxStage) {
+                                    // Use the same system as regular watering
+                                    cell.watered = true;
+                                    cell.wateredAt = now;
+                                    cell.waterCooldown = now + 8000;
+                                    wateredCount++;
+                                }
+                            }
+                        }
                     }
+                    
+
+                    
+                    window.menuSystem.currentGame.updateUI();
+                    window.menuSystem.currentGame.draw();
+                    window.menuSystem.currentGame.showMessage(`Watered ${wateredCount} plants!`, 'success');
+                } catch (error) {
+                    console.error('Error in waterAllPlants:', error);
+                    window.menuSystem.currentGame.showMessage('Error during watering. Try the emergency reset.', 'error');
                 }
+            } else {
+                console.error('No current game instance found');
+                alert('Error: No game instance found. Please start a game first.');
             }
-            this.showMessage(`Watered ${wateredCount} plants!`, 'success');
         };
         
         window.fertilizeAllPlants = () => {
-            let fertilizedCount = 0;
-            for (let x = 0; x < this.gardenSize; x++) {
-                for (let y = 0; y < this.gardenSize; y++) {
-                    const plant = this.garden[x][y];
-                    if (plant && plant.type && !plant.isFullyGrown) {
-                        this.plantEffects.fertilized[`${x},${y}`] = Date.now();
-                        fertilizedCount++;
+            if (window.menuSystem && window.menuSystem.currentGame) {
+                try {
+                    let fertilizedCount = 0;
+                    let totalPlants = 0;
+                    const now = Date.now();
+                    
+                    for (let x = 0; x < window.menuSystem.currentGame.gardenSize; x++) {
+                        for (let y = 0; y < window.menuSystem.currentGame.gardenSize; y++) {
+                            const cell = window.menuSystem.currentGame.garden[x][y];
+                            if (cell && cell.plant && cell.plant.type) {
+                                totalPlants++;
+                                // Check if plant is not fully grown by comparing growth stage
+                                const growthStage = window.menuSystem.currentGame.getPlantGrowthStage(cell.plant);
+                                const maxStage = window.menuSystem.currentGame.growthStages.length - 1;
+                                
+                                if (growthStage < maxStage) {
+                                    // Use the same system as regular fertilizing
+                                    cell.fertilized = true;
+                                    cell.fertilizedAt = now;
+                                    cell.fertilizerCooldown = now + 12000;
+                                    fertilizedCount++;
+                                }
+                            }
+                        }
                     }
+                    
+
+                    
+                    window.menuSystem.currentGame.updateUI();
+                    window.menuSystem.currentGame.draw();
+                    window.menuSystem.currentGame.showMessage(`Fertilized ${fertilizedCount} plants!`, 'success');
+                } catch (error) {
+                    console.error('Error in fertilizeAllPlants:', error);
+                    window.menuSystem.currentGame.showMessage('Error during fertilizing. Try the emergency reset.', 'error');
                 }
+            } else {
+                console.error('No current game instance found');
+                alert('Error: No game instance found. Please start a game first.');
             }
-            this.showMessage(`Fertilized ${fertilizedCount} plants!`, 'success');
         };
         
         // Statistics & Data
@@ -1383,19 +1577,7 @@ class GardenGame {
             input.click();
         };
         
-        // Game Control
-        window.setWinCondition = () => {
-            this.score = 10000;
-            this.updateUI();
-            this.showMessage('Win condition set! Check if you can win now.', 'success');
-        };
-        
-        window.resetWinCondition = () => {
-            this.score = 0;
-            this.hasWon = false;
-            this.updateUI();
-            this.showMessage('Win condition reset!', 'success');
-        };
+
         
         window.toggleCreativeMode = () => {
             this.hasUsedCreativeMode = !this.hasUsedCreativeMode;
@@ -1846,6 +2028,11 @@ class GardenGame {
             this.playSound('plant');
             this.achievementStats.plantsPlanted++;
             this.achievementStats.differentPlantsPlanted.add(seedType);
+            
+            // Add plant particle effect
+            const x = (col * this.cellSize) + (this.cellSize / 2);
+            const y = (row * this.cellSize) + (this.cellSize / 2);
+            this.addParticle(x, y, 'plant', '');
         
         // Save immediately to ensure plant is persisted
         this.saveGame();
@@ -1892,6 +2079,12 @@ class GardenGame {
             console.log(`${plantData.name} watered at ${new Date().toLocaleTimeString()}`);
             this.playSound('water');
             this.achievementStats.plantsWatered++;
+            
+            // Add water particle effect
+            const x = (col * this.cellSize) + (this.cellSize / 2);
+            const y = (row * this.cellSize) + (this.cellSize / 2);
+            this.addParticle(x, y, 'water', '');
+            
             this.updateUI();
         } else {
             this.showMessage('No water left!', 'error');
@@ -1920,6 +2113,12 @@ class GardenGame {
             console.log(`${plantData.name} fertilized at ${new Date().toLocaleTimeString()}`);
             this.playSound('fertilizer');
             this.achievementStats.plantsFertilized++;
+            
+            // Add fertilizer particle effect
+            const x = (col * this.cellSize) + (this.cellSize / 2);
+            const y = (row * this.cellSize) + (this.cellSize / 2);
+            this.addParticle(x, y, 'fertilizer', '');
+            
             this.updateUI();
         } else {
             this.showMessage('No fertilizer left!', 'error');
@@ -2506,6 +2705,12 @@ class GardenGame {
         this.updateChallengesDisplay();
         this.updateStatsDisplay();
         this.updateSeasonDisplay();
+        
+        // Update sound button text
+        const soundBtn = document.getElementById('soundBtn');
+        if (soundBtn) {
+            soundBtn.textContent = this.soundEnabled ? '🔊 Sound' : '🔇 Sound';
+        }
     }
     
     updateShopDisplay() {
@@ -2738,36 +2943,147 @@ class GardenGame {
     gameLoop() {
         if (!this.isRunning) return;
         
+        // Performance monitoring - check for potential issues
+        this.checkPerformance();
+        
         // CRITICAL: Only process if this is the active game instance
         if (window.menuSystem && window.menuSystem.currentGame && window.menuSystem.currentGame !== this) {
             console.log(`Game loop skipped for slot ${this.saveSlot} - not the active game`);
             return;
         }
         
-        // Update season
-        this.updateSeason();
+        try {
+            // Update season
+            this.updateSeason();
         
         this.updatePlants();
         this.checkRestock();
         this.updateWeather();
         this.checkAutoSave();
         this.checkAchievements();
-        this.generateChallenges();
-        
-        // Note: updateShopDisplay is now only called when needed, not in the game loop
-        
-        // Update particles
-        this.updateParticles();
-        
-        // Update session time
-        this.updateSessionTime();
+            this.generateChallenges();
+            
+            // Note: updateShopDisplay is now only called when needed, not in the game loop
+            
+            // Update particles
+            this.updateParticles();
+            
+            // Update session time
+            this.updateSessionTime();
         
         // Only draw if we have a canvas (for background processing, canvas might be null)
         if (this.canvas && this.ctx) {
             this.draw();
+            }
+        } catch (error) {
+            console.error(`Error in game loop for slot ${this.saveSlot}:`, error);
+            // Try to recover from the error
+            this.handleGameLoopError(error);
         }
         
         this.animationFrameId = requestAnimationFrame(() => this.gameLoop());
+    }
+    
+    checkPerformance() {
+        // Check if the game has been running too long without a break
+        const now = Date.now();
+        if (!this.lastPerformanceCheck) {
+            this.lastPerformanceCheck = now;
+            this.performanceCheckCount = 0;
+        }
+        
+        this.performanceCheckCount++;
+        
+        // Every 1000 frames (about 16 seconds at 60fps), do a performance check
+        if (this.performanceCheckCount >= 1000) {
+            const timeSinceLastCheck = now - this.lastPerformanceCheck;
+            const expectedTime = 1000 * (1000 / 60); // Expected time for 1000 frames at 60fps
+            
+            // If we're running significantly slower than expected, there might be a performance issue
+            if (timeSinceLastCheck > expectedTime * 1.5) {
+                console.warn(`Performance issue detected in slot ${this.saveSlot}. Expected ${expectedTime}ms, got ${timeSinceLastCheck}ms`);
+                this.optimizePerformance();
+            }
+            
+            this.lastPerformanceCheck = now;
+            this.performanceCheckCount = 0;
+        }
+        
+        // Check for memory leaks - if we have too many event listeners
+        if (this.eventListeners && this.eventListeners.length > 100) {
+            console.warn(`Too many event listeners (${this.eventListeners.length}) in slot ${this.saveSlot}. Cleaning up...`);
+            this.cleanupEventListeners();
+        }
+    }
+    
+    handleGameLoopError(error) {
+        console.error(`Handling game loop error for slot ${this.saveSlot}:`, error);
+        
+        // Try to save the current state before attempting recovery
+        try {
+            this.saveGame();
+        } catch (saveError) {
+            console.error(`Failed to save game after error:`, saveError);
+        }
+        
+        // Attempt to recover by reinitializing critical components
+        try {
+            // Reinitialize canvas if needed
+            if (!this.canvas || !this.ctx) {
+                this.initializeCanvas();
+            }
+            
+            // Clear any stuck states
+            this.selectedSeed = null;
+            this.selectedSprinkler = null;
+            this.currentTool = 'water';
+            
+            // Force a UI update
+            this.updateUI();
+            
+            console.log(`Recovery attempt completed for slot ${this.saveSlot}`);
+        } catch (recoveryError) {
+            console.error(`Failed to recover from game loop error:`, recoveryError);
+            // If recovery fails, stop the game to prevent further issues
+            this.stopGame();
+        }
+    }
+    
+    optimizePerformance() {
+        console.log(`Optimizing performance for slot ${this.saveSlot}`);
+        
+        // Clear any accumulated particles that might be causing slowdown
+        if (this.particles && this.particles.length > 50) {
+            this.particles = this.particles.slice(-20); // Keep only the last 20 particles
+        }
+        
+        // Clear any old animations
+        if (this.animations && this.animations.length > 10) {
+            this.animations = this.animations.slice(-5); // Keep only the last 5 animations
+        }
+        
+        // Force garbage collection hint (if available)
+        if (window.gc) {
+            window.gc();
+        }
+    }
+    
+    cleanupEventListeners() {
+        console.log(`Cleaning up event listeners for slot ${this.saveSlot}`);
+        
+        // Remove old event listeners, keeping only the most recent ones
+        if (this.eventListeners && this.eventListeners.length > 50) {
+            const recentListeners = this.eventListeners.slice(-30); // Keep only the last 30
+            
+            // Remove the old ones
+            this.eventListeners.slice(0, -30).forEach(({ element, event, handler }) => {
+                if (element && element.removeEventListener) {
+                    element.removeEventListener(event, handler);
+                }
+            });
+            
+            this.eventListeners = recentListeners;
+        }
     }
     
     removeEventListeners() {
@@ -3358,6 +3674,12 @@ class GardenGame {
         
         this.showMessage(`${toolType} tool upgraded to level ${this.toolLevels[toolType]}!`, 'success');
         this.playSound('achievement');
+        
+        // Add upgrade particle effect (show in center of screen)
+        const x = this.canvas.width / 2;
+        const y = this.canvas.height / 2;
+        this.addParticle(x, y, 'upgrade', toolType);
+        
         this.updateToolDisplay();
         this.updateUI();
         this.saveGame();
@@ -3533,6 +3855,12 @@ class GardenGame {
         // Update UI
         this.showMessage(`${this.selectedSprinkler} sprinkler placed!`, 'success');
         this.playSound('plant');
+        
+        // Add sprinkler particle effect
+        const x = (col * this.cellSize) + (this.cellSize / 2);
+        const y = (row * this.cellSize) + (this.cellSize / 2);
+        this.addParticle(x, y, 'sprinkler', '');
+        
         this.updateSprinklerDisplay();
         
         // Force immediate save with protection
@@ -4230,8 +4558,15 @@ class MenuSystem {
     }
     
     addMenuEventListeners() {
-        document.querySelectorAll('.new-btn').forEach(btn => {
+        console.log('Adding menu event listeners...');
+        
+        const newButtons = document.querySelectorAll('.new-btn');
+        console.log(`Found ${newButtons.length} new buttons`);
+        
+        newButtons.forEach((btn, index) => {
+            console.log(`Adding click listener to new button ${index + 1}`);
             btn.addEventListener('click', (e) => {
+                console.log('New button clicked!');
                 const saveSlot = e.target.closest('.save-slot');
                 if (!saveSlot) {
                     console.error('Could not find save-slot parent element');
@@ -4247,8 +4582,13 @@ class MenuSystem {
             });
         });
         
-        document.querySelectorAll('.load-btn').forEach(btn => {
+        const loadButtons = document.querySelectorAll('.load-btn');
+        console.log(`Found ${loadButtons.length} load buttons`);
+        
+        loadButtons.forEach((btn, index) => {
+            console.log(`Adding click listener to load button ${index + 1}`);
             btn.addEventListener('click', (e) => {
+                console.log('Load button clicked!');
                 const saveSlot = e.target.closest('.save-slot');
                 if (!saveSlot) {
                     console.error('Could not find save-slot parent element');
@@ -4263,6 +4603,8 @@ class MenuSystem {
                 this.loadGame(slot);
             });
         });
+        
+        console.log('Menu event listeners added successfully');
     }
     
     loadGame(slot) {
@@ -4786,9 +5128,17 @@ class MenuSystem {
 // Initialize the menu system when the page loads
 let menuSystem;
 document.addEventListener('DOMContentLoaded', () => {
-    menuSystem = new MenuSystem();
-    // Make menuSystem globally accessible for admin functions
-    window.menuSystem = menuSystem;
+    console.log('DOM Content Loaded - Initializing MenuSystem...');
+    try {
+        menuSystem = new MenuSystem();
+        console.log('MenuSystem created successfully');
+        // Make menuSystem globally accessible for admin functions
+        window.menuSystem = menuSystem;
+        console.log('MenuSystem added to window object');
+    } catch (error) {
+        console.error('Error creating MenuSystem:', error);
+        alert('Error initializing game. Please refresh the page.');
+    }
 });
 
 // Clean up background processing when page is unloaded

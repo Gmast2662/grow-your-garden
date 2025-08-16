@@ -4,7 +4,69 @@ This document tracks all updates, bug fixes, and new features added to the Grow 
 
 ## 🆕 Latest Update - Bug Fixes & Improvements
 
-### 🐛 Bug Fixes
+### 🐛 Bug Fixes And Changes
+- **Enhanced Visual Effects & Particle System**: Added comprehensive visual feedback throughout the game
+  - **Money Particles**: Enhanced gold particles with stroke effects when harvesting plants
+  - **Water Particles**: Blue water drop emojis (💧) appear when watering plants
+  - **Fertilizer Particles**: Golden plant emojis (🌱) appear when fertilizing plants
+  - **Plant Particles**: Green plant emojis (🌱) appear when planting seeds
+  - **Upgrade Particles**: Red upgrade arrows (⬆️) appear in center when upgrading tools
+  - **Sprinkler Particles**: Blue water drops (💧) appear when placing sprinklers
+  - **Improved Particle System**: Longer duration (90 frames), random size variation, and better movement
+  - **Enhanced Visual Feedback**: All game actions now have clear visual confirmation
+- **Enhanced Clear Garden Command & Moved Sound Toggle**: Improved garden clearing and reorganized sound controls
+  - Clear Garden command now also removes all sprinklers from the garden
+  - Moved sound toggle button from admin panel to main game header for easier access
+  - Added visual feedback for sound button (shows 🔊 when enabled, 🔇 when disabled)
+  - Sound button now has consistent styling with other header buttons
+  - Sound state is properly saved and restored when loading games
+- **Fixed Admin Panel Garden Commands**: Fixed issues with harvest, water, and fertilize all commands causing glitches
+  - Fixed "Harvest All Plants" command that was setting garden cells to null and breaking the grid
+  - Fixed "Water All Plants" and "Fertilize All Plants" commands that weren't working properly
+  - Fixed watering and fertilizing effects not showing visually by using the correct cell properties
+  - Admin commands now use the same system as regular watering/fertilizing (cell.watered, cell.fertilized)
+  - Added proper error handling with try-catch blocks to prevent game crashes
+  - Added automatic save and UI updates after garden operations
+  - Fixed growth stage checking logic for water and fertilize commands
+  - Commands now properly maintain garden structure and prevent grid disappearance
+  - Added error messages that suggest using emergency reset if issues occur
+- **Cleaned Up Admin Panel Interface**: Removed duplicate admin buttons and redundant commands for better usability
+  - Removed duplicate admin-modal-footer that was causing buttons to appear at bottom of screen
+  - Removed redundant "New Challenges" button (same functionality as "Reset Challenges")
+  - Removed admin warning text and restart background processing button
+  - Changed input placeholders from generic "Amount" to more descriptive text
+  - Admin panel now has cleaner, more organized interface
+  - All admin buttons are properly contained within the admin panel modal
+- **Added Performance Monitoring & Emergency Recovery**: Added comprehensive performance monitoring and emergency recovery system to prevent game glitches
+  - Added automatic performance monitoring that detects slowdowns and memory leaks
+  - Added error handling in game loop with automatic recovery attempts
+  - Added emergency reset command in admin panel to fix stuck games
+  - Added automatic cleanup of particles and animations to prevent memory issues
+  - Added event listener cleanup to prevent memory leaks
+  - Performance monitoring runs every 1000 frames and optimizes automatically
+  - Emergency reset button (🚨) in admin panel footer for manual recovery
+  - Games now automatically recover from errors instead of becoming unresponsive
+- **Made Name Different**: Made name different in README file and LICENSE, from "Avi" to "Avi (Gmast)"
+- **Fixed Admin Panel Commands**: Fixed all admin panel commands that weren't working properly
+  - Fixed `generateNewChallenges`, `completeAllChallenges`, `resetChallenges` functions
+  - Fixed `growAllPlants`, `harvestAllPlants`, `waterAllPlants`, `fertilizeAllPlants` functions
+  - All admin commands now properly access the current game instance via `window.menuSystem.currentGame`
+  - Fixed garden management commands to properly access plant objects within garden cells
+  - Added proper UI updates and drawing calls after garden management operations
+  - Changed "Grow All Plants" to make plants fully mature (100%) instead of 90% for better admin functionality
+  - Fixed context issues where admin functions couldn't find the current game instance
+  - Added error handling for when no game is active
+  - Admin panel commands now work correctly when a game is loaded
+- **Fixed Creative Mode Win Prevention**: Ensured players cannot win when creative mode (admin panel) has been used
+  - Added `hasUsedCreativeMode` and `hasWon` initialization to constructor
+  - Win condition already properly checks `!this.hasUsedCreativeMode` before allowing victory
+  - Players who use admin panel features are permanently prevented from winning normally
+  - Creative mode users can still earn achievements but cannot reach the win screen
+- **Removed Admin Panel Commands**: Cleaned up admin panel by removing unnecessary commands
+  - Removed "Set Win" and "Reset Win" buttons and functions from admin panel
+  - Removed "Restart Background Processing" button (no longer needed)
+  - Simplified admin panel interface for better usability
+  - Admin panel now focuses on essential debugging and creative mode features
 - **Fixed Copyright Year**: Updated LICENSE file to show correct year (2025) and proper formatting
   - Changed copyright notice from "2024" to "2025" to reflect current year
   - Fixed spacing in "Copyright (c) 2025 [Avi]" for proper formatting
@@ -278,6 +340,10 @@ This document tracks all updates, bug fixes, and new features added to the Grow 
 - Reduced garden expansion cost increase to 30%
 - Fixed plants showing as harvestable immediately after planting
 - Fixed sprinkler visibility interfering with plant display
+- Fixed creative mode win prevention
+- Cleaned up admin panel interface
+- Removed unnecessary admin commands
+- Fixed copyright year and formatting
 
 ---
 
@@ -291,6 +357,9 @@ This document tracks all updates, bug fixes, and new features added to the Grow 
 - Seasonal seed availability in shop
 - Price display problems
 - Cross-slot interference
+- Creative mode win prevention
+- Admin panel interface cleanup
+- Copyright year and formatting
 
 ---
 
