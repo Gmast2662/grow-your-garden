@@ -666,10 +666,10 @@ class GardenGame {
                                   this.currentGame.hasUsedCreativeMode = true;
                                   this.currentGame.saveGame();
                               }
-                              adminModal.style.display = 'block';
-                              document.body.style.overflow = 'hidden'; // Prevent background scrolling
+            adminModal.style.display = 'block';
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
                           }
-                      });
+        });
         
         // Close admin modal
         addBtnListener(closeAdminBtn, 'click', () => {
@@ -1786,9 +1786,9 @@ class GardenGame {
             
         // Create the plant with growth stages
         const plantObject = {
-            type: seedType,
-            stage: 0,
-            plantedAt: Date.now(),
+                    type: seedType,
+                    stage: 0,
+                    plantedAt: Date.now(),
             isFullyGrown: false,
             growthStage: 0
         };
@@ -1796,14 +1796,14 @@ class GardenGame {
         // Create the garden cell with the plant
         this.garden[row][col] = {
             plant: plantObject,
-            watered: false,
-            wateredAt: null,
-            waterCooldown: 0,
-            fertilized: false,
-            fertilizedAt: null,
-            fertilizerCooldown: 0,
-            plantedAt: Date.now()
-        };
+                watered: false,
+                wateredAt: null,
+                waterCooldown: 0,
+                fertilized: false,
+                fertilizedAt: null,
+                fertilizerCooldown: 0,
+                plantedAt: Date.now()
+            };
         
         console.log(`Plant created for slot ${this.saveSlot} at [${row}, ${col}]:`, JSON.stringify(this.garden[row][col]));
         
@@ -1816,16 +1816,16 @@ class GardenGame {
         
         console.log(`Plant successfully created at [${row}, ${col}]:`, this.garden[row][col].plant);
             
-        this.showMessage(`Planted ${seedData.name}!`, 'success');
-        this.playSound('plant');
-        this.achievementStats.plantsPlanted++;
-        this.achievementStats.differentPlantsPlanted.add(seedType);
+            this.showMessage(`Planted ${seedData.name}!`, 'success');
+            this.playSound('plant');
+            this.achievementStats.plantsPlanted++;
+            this.achievementStats.differentPlantsPlanted.add(seedType);
         
         // Save immediately to ensure plant is persisted
         this.saveGame();
         
         // Update UI immediately and force redraw
-        this.updateUI();
+            this.updateUI();
         this.draw(); // Force immediate redraw to show the new plant
         
         // Clear seed selection after successful planting
@@ -1835,8 +1835,8 @@ class GardenGame {
         });
         
         // Update shop display after clearing selection
-        this.updateShopDisplay();
-        
+            this.updateShopDisplay();
+            
         // Force another save and update after a brief delay to ensure everything is saved
         setTimeout(() => {
             this.saveGame();
@@ -2333,20 +2333,20 @@ class GardenGame {
         
         // Only draw sprinkler background if there's no plant
         if (!hasPlant) {
-            this.ctx.fillStyle = sprinklerData.color;
+        this.ctx.fillStyle = sprinklerData.color;
             this.ctx.globalAlpha = 0.6;
             this.ctx.fillRect(offsetX + col * this.cellSize + 2, offsetY + row * this.cellSize + 2, 
                              this.cellSize - 4, this.cellSize - 4);
-            this.ctx.globalAlpha = 1;
+        this.ctx.globalAlpha = 1;
         }
         
         // Draw sprinkler icon - only show if no plant, or as tiny indicator if plant present
         if (!hasPlant) {
-            this.ctx.font = `${this.cellSize * 0.4}px Arial`;
-            this.ctx.textAlign = 'center';
-            this.ctx.textBaseline = 'middle';
-            this.ctx.fillStyle = 'white';
-            this.ctx.fillText(sprinklerData.icon, x, y);
+        this.ctx.font = `${this.cellSize * 0.4}px Arial`;
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        this.ctx.fillStyle = 'white';
+        this.ctx.fillText(sprinklerData.icon, x, y);
         } else {
             // Just show a tiny dot in the corner when plant is present
             this.ctx.fillStyle = sprinklerData.color;
@@ -2509,8 +2509,8 @@ class GardenGame {
                         
                         // Update the stock display
                         const stockElement = seedElement.querySelector('.seed-stock');
-                        if (stockElement) {
-                            stockElement.textContent = `Stock: ${inventory.stock}`;
+                if (stockElement) {
+                    stockElement.textContent = `Stock: ${inventory.stock}`;
                         }
                         
                         // Update the price display
@@ -2526,10 +2526,14 @@ class GardenGame {
                         }
                         
                         // Handle out of stock styling
-                        if (inventory.stock <= 0) {
+                    if (inventory.stock <= 0) {
                             seedElement.classList.add('out-of-stock');
-                        } else {
+                            seedElement.style.pointerEvents = 'none';
+                            seedElement.style.cursor = 'not-allowed';
+                    } else {
                             seedElement.classList.remove('out-of-stock');
+                            seedElement.style.pointerEvents = 'auto';
+                            seedElement.style.cursor = 'pointer';
                         }
                         
                         // Remove any existing buy buttons
@@ -2537,10 +2541,6 @@ class GardenGame {
                         if (existingBuyButton) {
                             existingBuyButton.remove();
                         }
-                        
-                        // Ensure the seed element is clickable
-                        seedElement.style.pointerEvents = 'auto';
-                        seedElement.style.cursor = 'pointer';
                     } else {
                         seedElement.style.display = 'none';
                     }
@@ -2553,14 +2553,27 @@ class GardenGame {
         // Force a reflow to ensure the DOM updates
         document.body.offsetHeight;
         
-        // Ensure all seed elements have proper event listeners
-        document.querySelectorAll('.seed-item').forEach(item => {
-            if (!item.hasAttribute('data-seed')) {
-                console.warn('Seed item missing data-seed attribute:', item);
-            }
-        });
+        // Re-add event listeners to ensure they're not lost
+        this.ensureSeedEventListeners();
         
         console.log('Shop display update completed');
+    }
+    
+    ensureSeedEventListeners() {
+        // Remove any existing click listeners to prevent duplicates
+        document.querySelectorAll('.seed-item').forEach(item => {
+            const newItem = item.cloneNode(true);
+            item.parentNode.replaceChild(newItem, item);
+        });
+        
+        // Re-add event listeners to all seed items
+        document.querySelectorAll('.seed-item').forEach(item => {
+            if (item.hasAttribute('data-seed')) {
+                addBtnListener(item, 'click', () => {
+                    this.selectSeed(item.dataset.seed);
+                });
+            }
+        });
     }
     
     updateChallengesDisplay() {

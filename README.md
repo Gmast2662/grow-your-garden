@@ -209,7 +209,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🙏 Acknowledgments
 
 - **Emoji Icons**: Built-in browser emoji support
-- **Game Design**: Inspired by classic farming simulation games
+- **Game Design**: Inspired by classic farming simulation games and Grow a Garden (Roblox)
 - **AI Assistance**: Developed with help from Claude AI
 - **Community**: Thanks to all players and contributors
 

@@ -5,6 +5,11 @@ This document tracks all updates, bug fixes, and new features added to the Grow 
 ## 🆕 Latest Update - Bug Fixes & Improvements
 
 ### 🐛 Bug Fixes
+- **Fixed Seed Selection Issue**: Resolved problem where seeds become unselectable after some time
+  - Added `ensureSeedEventListeners()` function to re-establish click handlers
+  - Improved pointer events and cursor styling for out-of-stock seeds
+  - Fixed event listener management in `updateShopDisplay()`
+  - Seeds now remain clickable throughout the game session
 - **Fixed Plant Visual Stage Display**: Resolved issue where plants showed golden border (harvestable) but still appeared as seeds visually
   - Fixed legacy stage system that was capping visual stages at stage 2 (small)
   - Updated plant stage calculation to use proper growth stage system (0-4)
