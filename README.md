@@ -198,21 +198,9 @@ Contributions are welcome! Here's how you can help:
 
 See [UPDATE_LOG.md](UPDATE_LOG.md) for a detailed history of all updates, bug fixes, and new features.
 
-## 🎨 Customization
+## 🎨 For Developers
 
-### **Adding New Plants**
-1. Add plant data to `plantTypes` in `game.js`
-2. Include growth stages, cost, harvest value, and season
-3. Add to shop inventory in `initializeFreshGame()`
-
-### **Modifying Game Balance**
-- Adjust growth times in `plantTypes`
-- Modify tool upgrade costs in `toolUpgradeCosts`
-- Change expansion costs in `expandGarden()`
-
-### **Styling Changes**
-- Modify `styles.css` for visual changes
-- Update canvas drawing functions in `game.js` for garden appearance
+This game is built with vanilla JavaScript and is fully customizable. Check out the code to see how it works or modify it for your own projects!
 
 ## 📄 License
 
