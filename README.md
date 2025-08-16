@@ -238,3 +238,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 **Made with ❤️ by Avi**
 
 *If you enjoy this game, consider giving it a ⭐ on GitHub!*
+
+With the help of Cursor AI, thank you.
