@@ -2,9 +2,10 @@
 
 A feature-rich, browser-based gardening simulation game built with vanilla JavaScript, HTML5 Canvas, and CSS3. Plant seeds, manage resources, upgrade tools, and grow your perfect garden!
 
-This game is still in progress and you may experience some bugs, try to only do 1 slot as more than that could cause issues.
+- **This game is fully working and released as v1.4.0. I am actively working on more updates to make this game even better. Contact me or tell me in the Github.**
+- **I have fixed every bug, but there still may be some bugs I don't know about. So if you find any go to the issues page in the Github.**
 
-![Grow Your Garden](https://img.shields.io/badge/Status-Complete-brightgreen)
+![Grow Your Garden](https://img.shields.io/badge/Status-v1.4.0%20Released-brightgreen)
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-yellow)
 ![HTML5](https://img.shields.io/badge/HTML5-Canvas-orange)
 ![CSS3](https://img.shields.io/badge/CSS3-Responsive-blue)
@@ -32,8 +33,8 @@ This game is still in progress and you may experience some bugs, try to only do 
 ### 🎯 **Progression Systems**
 - **Achievement System**: 15+ achievements to unlock
 - **Garden Challenges**: Daily and weekly challenges with rewards
-- **Statistics Tracking**: Comprehensive game statistics
-- **Winning System**: Reach 10,000 score to win
+- **Statistics Tracking**: Comprehensive game statistics with admin panel usage tracking
+- **Endless Seasonal Gardening**: No win condition - garden forever through seasonal cycles
 
 ### 📱 **User Experience**
 - **Multi-Slot Saves**: 3 save slots for different gardens
@@ -81,23 +82,26 @@ This game is still in progress and you may experience some bugs, try to only do 
 ## 🎮 How to Play
 
 ### **Getting Started**
-1. **Choose a Save Slot**: Select from 3 available slots
+1. **Choose a Save Slot**: Select from 3 available slots (fully isolated states)
 2. **Plant Seeds**: Buy seeds from the shop and plant them in your garden
 3. **Water & Fertilize**: Use tools to help your plants grow
-4. **Harvest**: Collect mature plants for money and score
+4. **Harvest**: Collect mature plants for money and score (harvest anytime for reduced rewards)
 5. **Expand**: Use money to expand your garden and buy better tools
+6. **Seasonal Play**: Experience all seasons every 20 days with fast 5-day seasons
 
 ### **Game Mechanics**
-- **Seasons**: Each season affects plant growth and seed availability
+- **Seasons**: Each season affects plant growth and seed availability (5 real-life days per season)
 - **Growth Stages**: Plants progress through 5 visual stages
 - **Early Harvesting**: Harvest anytime for reduced rewards
 - **Sprinklers**: Automatically water plants within range
 - **Tool Upgrades**: Improve efficiency and harvest bonuses
+- **Admin Panel**: Pure creative mode for experimentation with transparent usage tracking
 
-### **Winning**
-- Reach **10,000 score** to win the game
-- Score is earned by harvesting plants and completing challenges
-- Using the admin panel disables winning (creative mode)
+### **Endless Gardening**
+- **No Win Condition**: Game is designed for endless seasonal gardening
+- **Seasonal Cycles**: Garden forever through spring, summer, fall, winter cycles
+- **Pure Creative Mode**: Admin panel for experimentation without restrictions
+- **Transparent Tracking**: Admin panel usage is tracked for honesty but doesn't restrict gameplay
 
 ## 🎮 Controls
 
@@ -171,10 +175,11 @@ grow-your-garden/
 ## 🎯 Game Features Deep Dive
 
 ### **Seasonal System**
-- **Spring**: Balanced growth, spring-specific seeds
-- **Summer**: Fast growth, summer vegetables
-- **Fall**: Moderate growth, fall harvest crops
-- **Winter**: Slow growth, greenhouse plants
+- **Spring**: 20% faster growth (1.2x), spring-specific seeds
+- **Summer**: Normal growth speed (1.0x), summer vegetables
+- **Fall**: 20% slower growth (0.8x), fall harvest crops
+- **Winter**: 40% slower growth (0.6x), limited crop availability
+- **Fast Progression**: Seasons change every 5 real-life days for dynamic gameplay
 
 ### **Tool System**
 - **Watering Can**: Water plants for growth bonus
@@ -216,18 +221,23 @@ Contributions are welcome! Here's how you can help:
 
 ## 🆕 Recent Updates
 
-### **Latest Version (v1.3.0)**
-- ✅ Fixed seed selection and button responsiveness issues
-- ✅ Improved shop display and UI consistency
-- ✅ Enhanced mobile experience
-- ✅ Fixed plant growth stage display
-- ✅ Updated copyright year to 2025
+### **Latest Version (v1.4.0)**
+- ✅ **MAJOR FIX**: Completely resolved garden state bleeding between save slots
+- ✅ **MAJOR FIX**: Removed confusing admin messages for cleaner user experience
+- ✅ **MAJOR DESIGN CHANGE**: Removed win condition system for endless seasonal gardening
+- ✅ **NEW FEATURE**: Added transparent admin panel usage tracking for honesty
+- ✅ **GAMEPLAY IMPROVEMENT**: Shortened seasonal system from 30 to 5 real-life days for faster progression
+- ✅ Enhanced mobile touch controls and visual effects
+- ✅ Improved admin panel garden management commands
+- ✅ Added performance monitoring and emergency recovery
 
 *See [UPDATE_LOG.md](UPDATE_LOG.md) for complete changelog*
 
 ## 📝 Development History
 
 See [UPDATE_LOG.md](UPDATE_LOG.md) for a detailed history of all updates, bug fixes, and new features.
+
+**📋 For complete technical details and implementation specifics, see [CHANGELOG.md](CHANGELOG.md)**
 
 ## 🎨 For Developers
 
@@ -251,6 +261,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Saves not working**: Ensure LocalStorage is enabled in your browser
 - **Buttons not responding**: Try refreshing the page
 - **Mobile issues**: Use landscape mode for better experience
+- **Save slot issues**: All save slots now have fully isolated states - no more cross-contamination
 
 ### **Browser Compatibility**
 - **Chrome/Edge**: Full support, recommended

@@ -17,7 +17,7 @@ class GardenGame {
         // Seasonal system
         this.currentSeason = 'spring';
         this.seasonDay = 1;
-        this.seasonLength = 30; // days per season
+        this.seasonLength = 5; // real-life days per season (5 days = 1 season)
         this.seasonMultiplier = 1.0;
         this.seasonStartTime = null; // Will be set on first updateSeason() call
         
@@ -39,7 +39,9 @@ class GardenGame {
             plantsByType: {},
             bestHarvest: 0,
             longestPlaySession: 0,
-            sessionStartTime: Date.now()
+            sessionStartTime: Date.now(),
+            adminPanelUsed: false,
+            adminPanelUsageCount: 0
         };
         
         // Garden challenges
@@ -109,8 +111,6 @@ class GardenGame {
         this.selectedSprinkler = null;
         this.currentTool = 'water';
         this.isRunning = true;
-        this.hasUsedCreativeMode = false;
-        this.hasWon = false;
         
         // Garden grid setup
         this.gridSize = this.gardenSize;
@@ -777,22 +777,11 @@ class GardenGame {
         
         // Open admin modal
                       addBtnListener(adminBtn, 'click', () => {
-                          // Prevent admin access if player has already won
-                          if (this.hasWon) {
-                              alert('❌ Admin panel is disabled after winning the game!\n\nYou cannot use creative mode after achieving victory. Start a new game to use admin features.');
-                              return;
-                          }
-                          
-                          // Always show warning for new slots and new gardens
-                          const confirmed = confirm('⚠️ WARNING: You are entering Creative Mode!\n\nUsing the admin panel will disable your ability to win the game normally, but you can still earn achievements.\n\nAre you sure you want to continue?');
+                          // Show warning about admin panel usage being tracked
+                          const confirmed = confirm('⚠️ ADMIN PANEL ACCESS\n\nUsing admin commands will be recorded in your game statistics.\n\nThis shows that you\'ve used creative mode features for experimentation and fun!\n\nContinue to admin panel?');
                           if (confirmed) {
-                              // Mark that creative mode has been used (prevents winning)
-                              if (this.currentGame) {
-                                  this.currentGame.hasUsedCreativeMode = true;
-                                  this.currentGame.saveGame();
-                              }
-            adminModal.style.display = 'block';
-            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+                              adminModal.style.display = 'block';
+                              document.body.style.overflow = 'hidden'; // Prevent background scrolling
                           }
         });
         
@@ -830,10 +819,21 @@ class GardenGame {
     }
     
     makeAdminFunctionsGlobal() {
+        // Helper function to track admin command usage
+        const trackAdminCommand = () => {
+            if (!this.stats.adminPanelUsed) {
+                this.stats.adminPanelUsed = true;
+            }
+            this.stats.adminPanelUsageCount++;
+            this.saveGame();
+        };
         // Resources functions
         window.addMoney = () => {
             const amount = parseInt(document.getElementById('addMoneyInput').value) || 0;
             if (amount > 0) {
+                // Track admin command usage
+                trackAdminCommand();
+                
                 // Completely stop background processing to prevent interference
                 if (window.menuSystem) {
                     window.menuSystem.stopBackgroundProcessing();
@@ -851,13 +851,15 @@ class GardenGame {
                 // Add a timestamp to prevent background processing from overwriting this change
                 localStorage.setItem(`adminChange_${this.saveSlot}`, Date.now().toString());
                 
-                // Show message that background processing is disabled
-                this.showMessage('Background processing disabled. Use admin panel to restart.', 'info');
+
             }
         };
         
         window.setMoney = () => {
             const amount = parseInt(document.getElementById('setMoneyInput').value) || 0;
+            
+            // Track admin command usage
+            trackAdminCommand();
             
             // Completely stop background processing to prevent interference
             if (window.menuSystem) {
@@ -865,6 +867,9 @@ class GardenGame {
             }
             
             this.money = amount;
+            
+
+            
             this.updateUI();
             this.updateShopDisplay();
             this.showMessage(`Money set to $${amount}!`, 'success');
@@ -875,20 +880,21 @@ class GardenGame {
             
             // Add a timestamp to prevent background processing from overwriting this change
             localStorage.setItem(`adminChange_${this.saveSlot}`, Date.now().toString());
-            
-            // Show message that background processing is disabled
-            this.showMessage('Background processing disabled. Use admin panel to restart.', 'info');
         };
         
         window.addWater = () => {
             const amount = parseInt(document.getElementById('addWaterInput').value) || 0;
             if (amount > 0) {
+                // Track admin command usage
+                trackAdminCommand();
+                
                 // Completely stop background processing to prevent interference
                 if (window.menuSystem) {
                     window.menuSystem.stopBackgroundProcessing();
                 }
                 
                 this.water += amount;
+                
                 this.updateUI();
                 this.updateShopDisplay();
                 this.showMessage(`Added ${amount} water!`, 'success');
@@ -899,14 +905,14 @@ class GardenGame {
                 
                 // Add a timestamp to prevent background processing from overwriting this change
                 localStorage.setItem(`adminChange_${this.saveSlot}`, Date.now().toString());
-                
-                // Show message that background processing is disabled
-                this.showMessage('Background processing disabled. Use admin panel to restart.', 'info');
             }
         };
         
         window.setWater = () => {
             const amount = parseInt(document.getElementById('setWaterInput').value) || 0;
+            
+            // Track admin command usage
+            trackAdminCommand();
             
             // Completely stop background processing to prevent interference
             if (window.menuSystem) {
@@ -914,6 +920,7 @@ class GardenGame {
             }
             
             this.water = amount;
+            
             this.updateUI();
             this.updateShopDisplay();
             this.showMessage(`Water set to ${amount}!`, 'success');
@@ -924,20 +931,21 @@ class GardenGame {
             
             // Add a timestamp to prevent background processing from overwriting this change
             localStorage.setItem(`adminChange_${this.saveSlot}`, Date.now().toString());
-            
-            // Show message that background processing is disabled
-            this.showMessage('Background processing disabled. Use admin panel to restart.', 'info');
         };
         
         window.addFertilizer = () => {
             const amount = parseInt(document.getElementById('addFertilizerInput').value) || 0;
             if (amount > 0) {
+                // Track admin command usage
+                trackAdminCommand();
+                
                 // Completely stop background processing to prevent interference
                 if (window.menuSystem) {
                     window.menuSystem.stopBackgroundProcessing();
                 }
                 
                 this.fertilizer += amount;
+                
                 this.updateUI();
                 this.updateShopDisplay();
                 this.showMessage(`Added ${amount} fertilizer!`, 'success');
@@ -948,14 +956,14 @@ class GardenGame {
                 
                 // Add a timestamp to prevent background processing from overwriting this change
                 localStorage.setItem(`adminChange_${this.saveSlot}`, Date.now().toString());
-                
-                // Show message that background processing is disabled
-                this.showMessage('Background processing disabled. Use admin panel to restart.', 'info');
             }
         };
         
         window.setFertilizer = () => {
             const amount = parseInt(document.getElementById('setFertilizerInput').value) || 0;
+            
+            // Track admin command usage
+            trackAdminCommand();
             
             // Completely stop background processing to prevent interference
             if (window.menuSystem) {
@@ -963,6 +971,7 @@ class GardenGame {
             }
             
             this.fertilizer = amount;
+            
             this.updateUI();
             this.updateShopDisplay();
             this.showMessage(`Fertilizer set to ${amount}!`, 'success');
@@ -973,20 +982,21 @@ class GardenGame {
             
             // Add a timestamp to prevent background processing from overwriting this change
             localStorage.setItem(`adminChange_${this.saveSlot}`, Date.now().toString());
-            
-            // Show message that background processing is disabled
-            this.showMessage('Background processing disabled. Use admin panel to restart.', 'info');
         };
         
         window.addScore = () => {
             const amount = parseInt(document.getElementById('addScoreInput').value) || 0;
             if (amount > 0) {
+                // Track admin command usage
+                trackAdminCommand();
+                
                 // Completely stop background processing to prevent interference
                 if (window.menuSystem) {
                     window.menuSystem.stopBackgroundProcessing();
                 }
                 
                 this.score += amount;
+                
                 this.updateUI();
                 this.updateShopDisplay();
                 this.showMessage(`Added ${amount} score!`, 'success');
@@ -997,14 +1007,14 @@ class GardenGame {
                 
                 // Add a timestamp to prevent background processing from overwriting this change
                 localStorage.setItem(`adminChange_${this.saveSlot}`, Date.now().toString());
-                
-                // Show message that background processing is disabled
-                this.showMessage('Background processing disabled. Use admin panel to restart.', 'info');
             }
         };
         
         window.setScore = () => {
             const amount = parseInt(document.getElementById('setScoreInput').value) || 0;
+            
+            // Track admin command usage
+            trackAdminCommand();
             
             // Completely stop background processing to prevent interference
             if (window.menuSystem) {
@@ -1012,6 +1022,7 @@ class GardenGame {
             }
             
             this.score = amount;
+            
             this.updateUI();
             this.updateShopDisplay();
             this.showMessage(`Score set to ${amount}!`, 'success');
@@ -1022,9 +1033,6 @@ class GardenGame {
             
             // Add a timestamp to prevent background processing from overwriting this change
             localStorage.setItem(`adminChange_${this.saveSlot}`, Date.now().toString());
-            
-            // Show message that background processing is disabled
-            this.showMessage('Background processing disabled. Use admin panel to restart.', 'info');
         };
         
         // Shop functions
@@ -1034,6 +1042,7 @@ class GardenGame {
             
             if (seedType && this.shopInventory[seedType]) {
                 this.shopInventory[seedType].stock = amount;
+                
                 this.updateShopDisplay();
                 this.showMessage(`${seedType} stock set to ${amount}!`, 'success');
                 document.getElementById('setStockInput').value = '';
@@ -1050,6 +1059,7 @@ class GardenGame {
             if (seedType && this.plantTypes[seedType]) {
                 this.plantTypes[seedType].isRare = rarity === 'rare';
                 this.plantTypes[seedType].isLegendary = rarity === 'legendary';
+                
                 this.updateShopDisplay();
                 this.showMessage(`${seedType} rarity set to ${rarity}!`, 'success');
                 this.saveGame();
@@ -1062,6 +1072,7 @@ class GardenGame {
             Object.keys(this.shopInventory).forEach(seedType => {
                 this.shopInventory[seedType].stock = this.shopInventory[seedType].maxStock;
             });
+            
             this.updateShopDisplay();
             this.showMessage('All seeds restocked!', 'success');
             this.saveGame();
@@ -1069,6 +1080,7 @@ class GardenGame {
         
         window.restockNow = () => {
             this.lastRestockTime = Date.now() - (this.restockInterval * 60 * 1000);
+            
             this.checkRestock();
             this.showMessage('Shop restocked!', 'success');
             this.saveGame();
@@ -1078,6 +1090,9 @@ class GardenGame {
         window.upgradeTool = () => {
             const toolType = document.getElementById('toolTypeSelect').value;
             if (toolType && this.toolLevels[toolType]) {
+                // Track admin command usage
+                trackAdminCommand();
+                
                 // Admin command: upgrade tool without money cost
                 if (this.toolLevels[toolType] < 5) {
                     this.toolLevels[toolType]++;
@@ -1094,6 +1109,7 @@ class GardenGame {
                     
                     this.updateToolDisplay();
                     this.showMessage(`${toolType} tool upgraded to level ${this.toolLevels[toolType]}!`, 'success');
+                    
                     this.saveGame();
                 } else {
                     this.showMessage(`${toolType} tool is already at maximum level!`, 'error');
@@ -1109,7 +1125,11 @@ class GardenGame {
             const amount = parseInt(document.getElementById('addSprinklerInput').value) || 1;
             
             if (sprinklerType && this.sprinklerInventory[sprinklerType] !== undefined) {
+                // Track admin command usage
+                trackAdminCommand();
+                
                 this.sprinklerInventory[sprinklerType] += amount;
+                
                 this.updateSprinklerDisplay();
                 this.showMessage(`Added ${amount} ${sprinklerType} sprinkler(s)!`, 'success');
                 document.getElementById('addSprinklerInput').value = '';
@@ -1120,7 +1140,11 @@ class GardenGame {
         };
         
         window.clearSprinklers = () => {
+            // Track admin command usage
+            trackAdminCommand();
+            
             this.sprinklers = [];
+            
             this.updateSprinklerDisplay();
             this.showMessage('All sprinklers cleared!', 'success');
             this.saveGame();
@@ -1131,6 +1155,7 @@ class GardenGame {
             const weather = document.getElementById('weatherSelect').value;
             if (weather && ['sunny', 'rainy', 'cloudy', 'stormy'].includes(weather)) {
                 this.weather = weather;
+                
                 this.updateUI();
                 this.showMessage(`Weather set to ${weather}!`, 'success');
                 this.saveGame();
@@ -1142,6 +1167,7 @@ class GardenGame {
         window.setWeatherTime = () => {
             const minutes = parseInt(document.getElementById('weatherTimeInput').value) || 5;
             this.weatherChangeInterval = minutes * 60 * 1000;
+            
             this.showMessage(`Weather change interval set to ${minutes} minutes!`, 'success');
             document.getElementById('weatherTimeInput').value = '';
             this.saveGame();
@@ -1150,6 +1176,7 @@ class GardenGame {
         window.setRestockTime = () => {
             const minutes = parseInt(document.getElementById('restockTimeInput').value) || 5;
             this.restockInterval = minutes;
+            
             this.showMessage(`Restock interval set to ${minutes} minutes!`, 'success');
             document.getElementById('restockTimeInput').value = '';
             this.saveGame();
@@ -1387,6 +1414,9 @@ class GardenGame {
         // Garden Management
         window.growAllPlants = () => {
             if (window.menuSystem && window.menuSystem.currentGame) {
+                // Track admin command usage
+                trackAdminCommand();
+                
                 let grownCount = 0;
                 for (let x = 0; x < window.menuSystem.currentGame.gardenSize; x++) {
                     for (let y = 0; y < window.menuSystem.currentGame.gardenSize; y++) {
@@ -1403,6 +1433,8 @@ class GardenGame {
                 window.menuSystem.currentGame.updateUI();
                 window.menuSystem.currentGame.draw();
                 window.menuSystem.currentGame.showMessage(`Grew ${grownCount} plants!`, 'success');
+                
+
             } else {
                 console.error('No current game instance found');
                 alert('Error: No game instance found. Please start a game first.');
@@ -1411,6 +1443,9 @@ class GardenGame {
         
         window.harvestAllPlants = () => {
             if (window.menuSystem && window.menuSystem.currentGame) {
+                // Track admin command usage
+                trackAdminCommand();
+                
                 try {
                     let harvestedCount = 0;
                     let totalValue = 0;
@@ -1450,6 +1485,9 @@ class GardenGame {
         
         window.waterAllPlants = () => {
             if (window.menuSystem && window.menuSystem.currentGame) {
+                // Track admin command usage
+                trackAdminCommand();
+                
                 try {
                     let wateredCount = 0;
                     let totalPlants = 0;
@@ -1492,6 +1530,9 @@ class GardenGame {
         
         window.fertilizeAllPlants = () => {
             if (window.menuSystem && window.menuSystem.currentGame) {
+                // Track admin command usage
+                trackAdminCommand();
+                
                 try {
                     let fertilizedCount = 0;
                     let totalPlants = 0;
@@ -1522,6 +1563,7 @@ class GardenGame {
                     window.menuSystem.currentGame.updateUI();
                     window.menuSystem.currentGame.draw();
                     window.menuSystem.currentGame.showMessage(`Fertilized ${fertilizedCount} plants!`, 'success');
+
                 } catch (error) {
                     console.error('Error in fertilizeAllPlants:', error);
                     window.menuSystem.currentGame.showMessage('Error during fertilizing. Try the emergency reset.', 'error');
@@ -1548,7 +1590,9 @@ class GardenGame {
                 'Active Sprinklers': this.sprinklers ? this.sprinklers.length : 0,
                 'Completed Challenges': this.challenges.completed ? this.challenges.completed.length : 0,
                 'Tool Levels': this.toolLevels,
-                'Achievements Unlocked': Object.values(this.achievements).filter(a => a.unlocked).length
+                'Achievements Unlocked': Object.values(this.achievements).filter(a => a.unlocked).length,
+                'Admin Panel Used': this.stats.adminPanelUsed ? 'Yes' : 'No',
+                'Admin Panel Usage Count': this.stats.adminPanelUsageCount || 0
             };
             
             console.log('Detailed Game Statistics:', stats);
@@ -1566,7 +1610,9 @@ class GardenGame {
                     plantsByType: {},
                     bestHarvest: 0,
                     longestPlaySession: 0,
-                    sessionStartTime: Date.now()
+                    sessionStartTime: Date.now(),
+                    adminPanelUsed: false,
+                    adminPanelUsageCount: 0
                 };
                 this.updateStatsDisplay();
                 this.showMessage('Statistics reset!', 'success');
@@ -1620,11 +1666,7 @@ class GardenGame {
         };
         
 
-        
-        window.toggleCreativeMode = () => {
-            this.hasUsedCreativeMode = !this.hasUsedCreativeMode;
-            this.showMessage(`Creative mode ${this.hasUsedCreativeMode ? 'enabled' : 'disabled'}!`, 'success');
-        };
+
         
         window.setSeason = () => {
             const season = prompt('Enter season (spring/summer/fall/winter):');
@@ -2223,8 +2265,7 @@ class GardenGame {
             const y = (row * this.cellSize) + (this.cellSize / 2);
             this.addParticle(x, y, 'money', finalValue);
             
-            // Check for win condition
-            this.checkWinCondition();
+
             
             // Check for rare/legendary achievements
             if (plantData.isRare) {
@@ -2775,23 +2816,20 @@ class GardenGame {
         }
     }
     
-    updateShopDisplay() {
-        console.log('Updating shop display for slot', this.saveSlot);
-        
-        // First, ensure all seed elements are visible and reset their state
-        document.querySelectorAll('.seed-item').forEach(element => {
-            element.style.display = 'block';
-            element.classList.remove('out-of-stock');
-        });
-        
-        // Update existing seed items in the HTML
-        Object.keys(this.shopInventory).forEach(seedType => {
-            const seedData = this.plantTypes[seedType];
-            const inventory = this.shopInventory[seedType];
+            updateShopDisplay() {
+            // First, ensure all seed elements are visible and reset their state
+            document.querySelectorAll('.seed-item').forEach(element => {
+                element.style.display = 'block';
+                element.classList.remove('out-of-stock');
+            });
             
-            if (seedData && inventory) {
-                const seedElement = document.querySelector(`[data-seed="${seedType}"]`);
-                console.log(`Processing seed ${seedType}: stock=${inventory.stock}, available=${this.isSeedAvailable(seedType)}, element found=${!!seedElement}`);
+            // Update existing seed items in the HTML
+            Object.keys(this.shopInventory).forEach(seedType => {
+                const seedData = this.plantTypes[seedType];
+                const inventory = this.shopInventory[seedType];
+                
+                if (seedData && inventory) {
+                    const seedElement = document.querySelector(`[data-seed="${seedType}"]`);
                 if (seedElement) {
                     // Check if seed is available in current season
                     const isAvailable = this.isSeedAvailable(seedType);
@@ -2837,8 +2875,6 @@ class GardenGame {
                     } else {
                         seedElement.style.display = 'none';
                     }
-                } else {
-                    console.warn(`Seed element not found for ${seedType}`);
                 }
             }
         });
@@ -2854,7 +2890,7 @@ class GardenGame {
             }
         });
         
-        console.log('Shop display update completed');
+
     }
     
 
@@ -2961,7 +2997,9 @@ class GardenGame {
             { label: '📅 Season Day', value: this.seasonDay || 1 },
             { label: '🏡 Garden Size', value: `${this.gardenSize}x${this.gardenSize}` },
             { label: '💧 Active Sprinklers', value: this.sprinklers ? this.sprinklers.length : 0 },
-            { label: '🎯 Completed Challenges', value: this.challenges.completed ? this.challenges.completed.length : 0 }
+            { label: '🎯 Completed Challenges', value: this.challenges.completed ? this.challenges.completed.length : 0 },
+            { label: '⚡ Admin Panel Used', value: this.stats.adminPanelUsed ? 'Yes' : 'No' },
+            { label: '🔢 Admin Panel Usage Count', value: this.stats.adminPanelUsageCount || 0 }
         ];
         
         statItems.forEach(stat => {
@@ -3228,8 +3266,7 @@ class GardenGame {
             sprinklerInventory: this.sprinklerInventory,
             sprinklers: this.sprinklers,
             soundEnabled: this.soundEnabled,
-            hasUsedCreativeMode: this.hasUsedCreativeMode,
-            hasWon: this.hasWon,
+
             // New features
             currentSeason: this.currentSeason,
             seasonDay: this.seasonDay,
@@ -3346,47 +3383,7 @@ class GardenGame {
         console.log('UI state cleared completely');
     }
     
-    checkWinCondition() {
-        // Check if player has reached 10,000 score and hasn't used creative mode
-        if (this.score >= 10000 && !this.hasUsedCreativeMode && !this.hasWon) {
-            this.hasWon = true;
-            this.showWinScreen();
-        }
-    }
-    
-    showWinScreen() {
-        // Create win screen overlay
-        const winOverlay = document.createElement('div');
-        winOverlay.id = 'winOverlay';
-        winOverlay.innerHTML = `
-            <div class="win-content">
-                <div class="win-icon">🏆</div>
-                <h1>Congratulations!</h1>
-                <h2>You've Won!</h2>
-                <p>You reached 10,000 score and completed the game!</p>
-                <div class="win-stats">
-                    <p><strong>Final Score:</strong> ${this.score.toLocaleString()}</p>
-                    <p><strong>Total Money Earned:</strong> $${this.achievementStats.totalMoney.toLocaleString()}</p>
-                    <p><strong>Total Harvests:</strong> ${this.achievementStats.totalHarvests.toLocaleString()}</p>
-                </div>
-                <button id="winMainMenuBtn" class="win-btn">Return to Main Menu</button>
-            </div>
-        `;
-        
-        document.body.appendChild(winOverlay);
-        
-        // Add event listener for return to main menu button
-        document.getElementById('winMainMenuBtn').addEventListener('click', () => {
-            this.stopGame();
-            document.getElementById('winOverlay').remove();
-            // Show main menu
-            document.getElementById('mainMenu').style.display = 'block';
-            document.getElementById('gameContainer').style.display = 'none';
-        });
-        
-        // Save the win state
-        this.saveGame();
-    }
+
     
     initializeFreshGame() {
         console.log(`Initializing fresh game for slot ${this.saveSlot}`);
@@ -3471,9 +3468,7 @@ class GardenGame {
         // Harvest bonus from upgraded harvest tool
         this.harvestBonus = 0;
         
-        // Initialize win condition tracking
-        this.hasUsedCreativeMode = false;
-        this.hasWon = false;
+
         
         // Initialize new features
         this.currentSeason = 'spring';
@@ -3492,7 +3487,9 @@ class GardenGame {
             plantsByType: {},
             bestHarvest: 0,
             longestPlaySession: 0,
-            sessionStartTime: Date.now()
+            sessionStartTime: Date.now(),
+            adminPanelUsed: false,
+            adminPanelUsageCount: 0
         };
         
         // Initialize challenges
@@ -4527,9 +4524,7 @@ class GardenGame {
                 
                 if (data.soundEnabled !== undefined) this.soundEnabled = data.soundEnabled;
                 
-                // Load win condition data
-                if (data.hasUsedCreativeMode !== undefined) this.hasUsedCreativeMode = data.hasUsedCreativeMode;
-                if (data.hasWon !== undefined) this.hasWon = data.hasWon;
+
                 
                 // Load new features
                 if (data.currentSeason) this.currentSeason = data.currentSeason;
