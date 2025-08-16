@@ -2553,28 +2553,18 @@ class GardenGame {
         // Force a reflow to ensure the DOM updates
         document.body.offsetHeight;
         
-        // Re-add event listeners to ensure they're not lost
-        this.ensureSeedEventListeners();
+        // Ensure seed elements are clickable
+        document.querySelectorAll('.seed-item').forEach(item => {
+            if (item.hasAttribute('data-seed') && !item.classList.contains('out-of-stock')) {
+                item.style.pointerEvents = 'auto';
+                item.style.cursor = 'pointer';
+            }
+        });
         
         console.log('Shop display update completed');
     }
     
-    ensureSeedEventListeners() {
-        // Remove any existing click listeners to prevent duplicates
-        document.querySelectorAll('.seed-item').forEach(item => {
-            const newItem = item.cloneNode(true);
-            item.parentNode.replaceChild(newItem, item);
-        });
-        
-        // Re-add event listeners to all seed items
-        document.querySelectorAll('.seed-item').forEach(item => {
-            if (item.hasAttribute('data-seed')) {
-                addBtnListener(item, 'click', () => {
-                    this.selectSeed(item.dataset.seed);
-                });
-            }
-        });
-    }
+
     
     updateChallengesDisplay() {
         const challengesList = document.getElementById('challenges-list');
