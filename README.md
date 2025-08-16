@@ -227,7 +227,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - **Issues**: [GitHub Issues](https://github.com/Gmast2662/grow-your-garden/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/Gmast2662/grow-your-garden/discussions)
-- **Email**: your-email@example.com
+- **Email**: avigmast@icloud.com
 
 ## 🌟 Star History
 
