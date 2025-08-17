@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌱 Garden Game - Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .form-container {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e1e1;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #333;
+            border: 2px solid #e1e1e1;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+        }
+
+        .toggle-form {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .toggle-form button {
+            background: none;
+            border: none;
+            color: #4CAF50;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: underline;
+        }
+
+        .toggle-form button:hover {
+            color: #45a049;
+        }
+
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .success {
+            background: #e8f5e8;
+            color: #2e7d32;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4CAF50;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .features {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .features h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-list li {
+            padding: 5px 0;
+            color: #666;
+        }
+
+        .feature-list li:before {
+            content: "🌱 ";
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌱 Grow Your Garden</h1>
+            <p>Join the multiplayer gardening community!</p>
+        </div>
+
+        <div class="form-container">
+            <!-- Login Form -->
+            <form id="loginForm">
+                <div class="error" id="loginError"></div>
+                <div class="success" id="loginSuccess"></div>
+                
+                <div class="form-group">
+                    <label for="loginUsername">Username</label>
+                    <input type="text" id="loginUsername" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Login</button>
+                
+                <div class="loading" id="loginLoading">
+                    <div class="spinner"></div>
+                    <p>Logging in...</p>
+                </div>
+            </form>
+
+            <!-- Register Form -->
+            <form id="registerForm" style="display: none;">
+                <div class="error" id="registerError"></div>
+                <div class="success" id="registerSuccess"></div>
+                
+                <div class="form-group">
+                    <label for="registerUsername">Username</label>
+                    <input type="text" id="registerUsername" required minlength="3" maxlength="20">
+                </div>
+                
+                <div class="form-group">
+                    <label for="registerEmail">Email (optional)</label>
+                    <input type="email" id="registerEmail">
+                </div>
+                
+                <div class="form-group">
+                    <label for="registerPassword">Password</label>
+                    <input type="password" id="registerPassword" required minlength="6">
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input type="password" id="confirmPassword" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Register</button>
+                
+                <div class="loading" id="registerLoading">
+                    <div class="spinner"></div>
+                    <p>Creating account...</p>
+                </div>
+            </form>
+
+            <div class="toggle-form">
+                <button type="button" id="toggleForm">Don't have an account? Register here</button>
+            </div>
+        </div>
+
+        <div class="features">
+            <h3>🌿 Multiplayer Features</h3>
+            <ul class="feature-list">
+                <li>Visit friends' gardens</li>
+                <li>Real-time garden updates</li>
+                <li>Chat with other gardeners</li>
+                <li>Share gardening tips</li>
+                <li>Compete in garden contests</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const toggleForm = document.getElementById('toggleForm');
+        let isLoginForm = true;
+
+        // Toggle between login and register forms
+        toggleForm.addEventListener('click', () => {
+            isLoginForm = !isLoginForm;
+            
+            if (isLoginForm) {
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+                toggleForm.textContent = "Don't have an account? Register here";
+            } else {
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+                toggleForm.textContent = "Already have an account? Login here";
+            }
+            
+            // Clear messages
+            clearMessages();
+        });
+
+        // Handle login form submission
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            showLoading('login');
+            clearMessages();
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Store token
+                    localStorage.setItem('garden_game_token', data.token);
+                    showSuccess('login', 'Login successful! Redirecting...');
+                    
+                    // Redirect to game after a short delay
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 1000);
+                } else {
+                    showError('login', data.error || 'Login failed');
+                }
+            } catch (error) {
+                showError('login', 'Network error. Please try again.');
+            } finally {
+                hideLoading('login');
+            }
+        });
+
+        // Handle register form submission
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('registerUsername').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            // Validate passwords match
+            if (password !== confirmPassword) {
+                showError('register', 'Passwords do not match');
+                return;
+            }
+            
+            showLoading('register');
+            clearMessages();
+            
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Store token
+                    localStorage.setItem('garden_game_token', data.token);
+                    showSuccess('register', 'Account created successfully! Redirecting...');
+                    
+                    // Redirect to game after a short delay
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 1000);
+                } else {
+                    showError('register', data.error || 'Registration failed');
+                }
+            } catch (error) {
+                showError('register', 'Network error. Please try again.');
+            } finally {
+                hideLoading('register');
+            }
+        });
+
+        // Helper functions
+        function showError(form, message) {
+            const errorElement = document.getElementById(`${form}Error`);
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+
+        function showSuccess(form, message) {
+            const successElement = document.getElementById(`${form}Success`);
+            successElement.textContent = message;
+            successElement.style.display = 'block';
+        }
+
+        function clearMessages() {
+            document.querySelectorAll('.error, .success').forEach(el => {
+                el.style.display = 'none';
+            });
+        }
+
+        function showLoading(form) {
+            document.getElementById(`${form}Loading`).style.display = 'block';
+        }
+
+        function hideLoading(form) {
+            document.getElementById(`${form}Loading`).style.display = 'none';
+        }
+
+        // Check if user is already logged in
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('garden_game_token');
+            if (token) {
+                // Verify token
+                fetch('/api/auth/verify', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.valid) {
+                        // User is already logged in, redirect to game
+                        window.location.href = '/';
+                    } else {
+                        // Invalid token, remove it
+                        localStorage.removeItem('garden_game_token');
+                    }
+                })
+                .catch(() => {
+                    // Error verifying token, remove it
+                    localStorage.removeItem('garden_game_token');
+                });
+            }
+        });
+    </script>
+</body>
+</html>
