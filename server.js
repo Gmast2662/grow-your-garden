@@ -390,6 +390,16 @@ app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, 'login.html'));
 });
 
+// Health check endpoint for keep-alive
+app.get('/health', (req, res) => {
+    res.json({ 
+        status: 'ok', 
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+        onlineUsers: onlineUsers.size
+    });
+});
+
 // Serve the main game page (protected) or redirect to login
 app.get('/', (req, res) => {
     const token = req.headers.authorization?.split(' ')[1];
@@ -417,6 +427,12 @@ server.listen(PORT, () => {
     console.log(`🌱 Garden Game Server running on port ${PORT}`);
     console.log(`📡 WebSocket server ready for multiplayer connections`);
     console.log(`🌐 Game available at: http://localhost:${PORT}`);
+    
+    // Start keep-alive if on Replit
+    if (process.env.REPL_ID) {
+        console.log('🔄 Starting keep-alive for Replit...');
+        require('./keep-alive.js');
+    }
 });
 
 // Graceful shutdown
