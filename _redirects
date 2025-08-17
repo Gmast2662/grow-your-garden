@@ -1,0 +1,5 @@
+# Redirect root to login page
+/ /login 302
+
+# Handle all routes
+/* /index.html 200

@@ -1,0 +1,13 @@
+[build]
+  publish = "."
+  command = "npm install"
+
+[[redirects]]
+  from = "/"
+  to = "/login"
+  status = 302
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

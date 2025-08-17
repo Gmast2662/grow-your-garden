@@ -2,10 +2,10 @@
 
 A feature-rich, browser-based gardening simulation game built with vanilla JavaScript, HTML5 Canvas, and CSS3. Plant seeds, manage resources, upgrade tools, and grow your perfect garden!
 
-- **This game is fully working and released as v1.5.5. I am actively working on more updates to make this game even better. Contact me or tell me in the Github.**
+- **This game is fully working and released as v1.6.1 with multiplayer features. I am actively working on more updates to make this game even better. Contact me or tell me in the Github.**
 - **I have fixed every bug, but there still may be some bugs I don't know about. So if you find any go to the issues page in the Github.**
 
-![Grow Your Garden](https://img.shields.io/badge/Status-v1.5.5%20Released-brightgreen)
+![Grow Your Garden](https://img.shields.io/badge/Status-v1.6.1%20Released-brightgreen)
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-yellow)
 ![HTML5](https://img.shields.io/badge/HTML5-Canvas-orange)
 ![CSS3](https://img.shields.io/badge/CSS3-Responsive-blue)
@@ -13,7 +13,11 @@ A feature-rich, browser-based gardening simulation game built with vanilla JavaS
 
 ## 🎮 Play Now
 
-**[Play the Game](https://Gmast2662.github.io/grow-your-garden/)**
+### **🌐 Multiplayer Version (Live)**
+**[Play Multiplayer Version](https://jxy2ww-3000.csb.app/login)** - Full multiplayer with friends, chat, and garden visits!
+
+### **🏠 Single Player Version**
+**[Play Single Player](https://Gmast2662.github.io/grow-your-garden/)** - Classic single-player experience
 
 ## ✨ Features
 
@@ -41,6 +45,15 @@ A feature-rich, browser-based gardening simulation game built with vanilla JavaS
 - **Mobile Optimized**: Touch-friendly controls and responsive design
 - **Admin Panel**: Debug tools and creative mode
 - **Sound Effects**: Immersive audio feedback
+
+### 🌐 **Multiplayer Features** (v1.6.1)
+- **Real-time Multiplayer**: Connect with friends in real-time
+- **Friend System**: Add friends and see their online status
+- **Live Chat**: Chat with other players in the garden
+- **Garden Visits**: Request to visit other players' gardens
+- **User Authentication**: Secure login and registration system
+- **Cloud Saves**: Your garden data is saved on the server
+- **Cross-Device Play**: Access your garden from any device
 
 ## 💻 System Requirements
 
@@ -154,8 +167,10 @@ A feature-rich, browser-based gardening simulation game built with vanilla JavaS
 - **Frontend**: Vanilla JavaScript (ES6+)
 - **Graphics**: HTML5 Canvas for garden rendering
 - **Styling**: CSS3 with responsive design
-- **Storage**: LocalStorage for game saves
+- **Storage**: LocalStorage for single-player, SQLite for multiplayer
 - **Audio**: Web Audio API for sound effects
+- **Multiplayer**: Node.js, Express.js, Socket.IO, JWT authentication
+- **Database**: SQLite3 for user data, gardens, friends, and chat
 
 ### **Browser Support**
 - ✅ Chrome 60+
@@ -177,6 +192,11 @@ grow-your-garden/
 ├── index.html          # Main game page
 ├── game.js            # Core game logic
 ├── styles.css         # Game styling
+├── multiplayer.js     # Multiplayer client logic
+├── server.js          # Node.js multiplayer server
+├── auth.js            # Authentication system
+├── package.json       # Server dependencies
+├── login.html         # Login/registration page
 ├── README.md          # This file
 ├── UPDATE_LOG.md      # Development history
 ├── CHANGELOG.md       # Complete technical changelog
@@ -211,6 +231,30 @@ grow-your-garden/
 - **Tool Master**: Upgrade all tools to maximum level
 - **And 10+ more achievements!**
 
+## 🔮 Future Features (Planned)
+
+### 🎮 Potential Additions
+- **More Plant Types**: Additional seasonal and special plants
+- **Advanced Weather**: More complex weather patterns
+- **Decorations**: Garden decorations and themes
+- **Pets**: Garden pets that provide bonuses
+
+### 🌐 Multiplayer Mode (Planned)
+- **Shared Gardens**: Players can visit each other's gardens via shareable links
+- **Garden Showcase**: View and rate other players' garden designs
+- **Social Features**: Like, comment, and share garden achievements
+- **Leaderboards**: Best gardens, most harvests, seasonal competitions
+- **Garden Tours**: Browse and get inspiration from community gardens
+- **Collaborative Challenges**: Group goals and seasonal competitions
+- **Garden Templates**: Share and use garden layouts from other players
+- **Free Implementation**: Using Firebase/Supabase free tiers for hosting
+
+### 🛠️ Technical Improvements
+- **Performance Optimization**: Better rendering and memory management
+- **Save Cloud**: Cloud save functionality
+- **API Integration**: Weather API for real weather data
+- **Multiplayer Infrastructure**: WebSocket support for real-time features
+
 ## 🤝 Contributing
 
 Contributions are welcome! Here's how you can help:
@@ -232,20 +276,36 @@ Contributions are welcome! Here's how you can help:
 
 ## 🆕 Recent Updates
 
-### **Latest Version (v1.5.5)**
+### **Latest Version (v1.6.1)**
+- 🌐 **NEW**: Complete multiplayer system with real-time features
+- 👥 **NEW**: Friend system - add friends and see online status
+- 💬 **NEW**: Live chat system for garden communication
+- 🏡 **NEW**: Garden visit requests - visit other players' gardens
+- 🔐 **NEW**: User authentication with secure login/registration
+- ☁️ **NEW**: Cloud saves - access your garden from any device
+- 🎮 **NEW**: Multiplayer UI panel with friends list and chat
+- 🔗 **NEW**: GitHub link in main menu for easy access to source code
+- 🎨 **ENHANCED**: Beautiful multiplayer UI with modern styling
+- ⚡ **IMPROVED**: Real-time WebSocket connections for instant updates
+- 🛡️ **SECURITY**: JWT token authentication for secure multiplayer
+- 📱 **ENHANCED**: Cross-device compatibility for multiplayer features
+
+### **Previous Version (v1.6.0)**
+- 🌸 **NEW**: Garden decorations system with 12 decorative items (paths, statues, fences, seasonal)
+- ⛈️ **NEW**: Storm damage system - stormy weather can damage unprotected plants
+- 🛡️ **NEW**: Plant protection system - fences provide protection against storm damage
+- 🏡 **ENHANCED**: Garden expansion increased to 16x16 maximum size
 - 🌱 **NEW**: Continuous growth system - plants grow continuously while watered/fertilized
-- 💧 **ENHANCED**: Sprinkler system now actively grows plants automatically
-- ⚡ **IMPROVED**: Water growth (1 stage/2s for 8s), Fertilizer growth (1 stage/1.5s for 12s)
-- 🎯 **STRATEGIC**: Sprinkler growth (1 stage/30s while in range) for automated growing zones
-- 🎮 **ENGAGING**: Much more rewarding and hands-on gardening experience
-- ✅ **MAJOR FIX**: Completely resolved garden state bleeding between save slots
-- ✅ **MAJOR FIX**: Removed confusing admin messages for cleaner user experience
-- ✅ **MAJOR DESIGN CHANGE**: Removed win condition system for endless seasonal gardening
-- ✅ **NEW FEATURE**: Added transparent admin panel usage tracking for honesty
-- ✅ **GAMEPLAY IMPROVEMENT**: Shortened seasonal system from 30 to 5 real-life days for faster progression
-- ✅ Enhanced mobile touch controls and visual effects
-- ✅ Improved admin panel garden management commands
-- ✅ Added performance monitoring and emergency recovery
+- ✨ **NEW**: Visual rarity display system - seeds move to correct sections when rarity is set
+- 🎨 **ENHANCED**: Shop restock system with proper visual updates and inventory structure
+- 🔧 **FIXED**: All console logging cleaned up for cleaner user experience
+- 🎯 **IMPROVED**: Rarity command now properly updates seed appearance and section placement
+- 🛠️ **CLEANUP**: Removed all debugging messages and console spam
+- ✅ **MAJOR FIX**: Shop display now properly updates after restocks
+- ✅ **MAJOR FIX**: Inventory structure corruption issues resolved
+- ✅ **ENHANCED**: Better visual feedback for rarity changes in the shop
+- ✅ **IMPROVED**: Cleaner codebase with all debugging removed
+- ✅ **MAINTENANCE**: Comprehensive console logging cleanup throughout the game
 
 *See [UPDATE_LOG.md](UPDATE_LOG.md) for complete changelog*
 

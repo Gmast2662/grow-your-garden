@@ -2,7 +2,23 @@
 
 This document tracks all updates, bug fixes, and new features added to the Grow Your Garden.
 
-## 🆕 Latest Update - Multiplayer UI Integration! 🌐 (v1.6.1)
+## 🆕 Latest Update - GitHub Link & Multiplayer UI! 🌐 (v1.6.1)
+
+### 🔗 NEW: GitHub Link in Main Menu
+- **GitHub Integration**: Added a prominent GitHub link to the main menu for easy access to source code
+- **Visual Design**: 
+  - Beautiful gradient button with GitHub's signature dark theme
+  - Hover effects with smooth transitions
+  - Professional styling that matches the game's aesthetic
+- **User Experience**: 
+  - Players can easily access the GitHub repository
+  - Link opens in new tab for convenience
+  - Positioned prominently in the main menu for visibility
+- **Technical Details**:
+  - Added GitHub link HTML to main menu in `index.html`
+  - Created dedicated CSS styles for `.github-link` and `.github-btn`
+  - Responsive design that works on all devices
+  - Uses GitHub's official color scheme (#24292e, #586069)
 
 ### ✨ NEW: Multiplayer UI Integration
 - **Multiplayer Panel**: Added a beautiful multiplayer panel to the game sidebar with:
