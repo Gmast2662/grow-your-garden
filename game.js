@@ -970,6 +970,9 @@ class GardenGame {
         
         // Add multiplayer button event listeners
         this.addMultiplayerEventListeners();
+        
+        // Add logout button
+        this.addLogoutButton();
     }
     
     addMultiplayerEventListeners() {
@@ -1007,6 +1010,36 @@ class GardenGame {
                 this.sendChatMessage();
             }
         });
+    }
+    
+    // Add logout button
+    addLogoutButton() {
+        // Create logout button
+        const logoutBtn = document.createElement('button');
+        logoutBtn.textContent = 'Logout';
+        logoutBtn.className = 'logout-btn';
+        logoutBtn.style.cssText = `
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 8px 16px;
+            background: #ff4444;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            z-index: 1000;
+        `;
+        
+        logoutBtn.addEventListener('click', () => {
+            // Clear token
+            localStorage.removeItem('garden_game_token');
+            // Redirect to login
+            window.location.href = '/login';
+        });
+        
+        document.body.appendChild(logoutBtn);
     }
     
     updateMultiplayerUI() {
