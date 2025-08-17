@@ -764,6 +764,9 @@ class GardenGame {
         this.initializeAdminModal();
         this.initializeDecorationShop();
         
+        // Initialize multiplayer system
+        this.initializeMultiplayer();
+        
         // Add window resize listener for responsive canvas
         addBtnListener(window, 'resize', () => {
             this.adjustCanvasForMobile();
@@ -936,6 +939,183 @@ class GardenGame {
                 });
             });
         });
+    }
+    
+    initializeMultiplayer() {
+        // Check if MultiplayerManager is available
+        if (typeof MultiplayerManager === 'undefined') {
+            console.log('MultiplayerManager not loaded, skipping multiplayer initialization');
+            return;
+        }
+        
+        // Initialize multiplayer manager
+        this.multiplayer = new MultiplayerManager();
+        
+        // Get JWT token from localStorage (set during login)
+        const token = localStorage.getItem('jwt_token');
+        
+        if (token) {
+            // Initialize multiplayer connection
+            this.multiplayer.initialize(token).then(success => {
+                if (success) {
+                    console.log('✅ Multiplayer initialized successfully');
+                    this.updateMultiplayerUI();
+                } else {
+                    console.log('❌ Failed to initialize multiplayer');
+                }
+            });
+        } else {
+            console.log('No JWT token found, multiplayer disabled');
+        }
+        
+        // Add multiplayer button event listeners
+        this.addMultiplayerEventListeners();
+    }
+    
+    addMultiplayerEventListeners() {
+        const addBtnListener = (element, event, handler) => {
+            if (element) {
+                element.removeEventListener(event, handler);
+                element.addEventListener(event, handler);
+                this.eventListeners.push({ element, event, handler });
+            }
+        };
+        
+        // Friends button
+        addBtnListener(document.getElementById('friendsBtn'), 'click', () => {
+            this.toggleFriendsList();
+        });
+        
+        // Chat button
+        addBtnListener(document.getElementById('chatBtn'), 'click', () => {
+            this.toggleChatPanel();
+        });
+        
+        // Visit garden button
+        addBtnListener(document.getElementById('visitBtn'), 'click', () => {
+            this.requestGardenVisit();
+        });
+        
+        // Send chat message
+        addBtnListener(document.getElementById('sendChatBtn'), 'click', () => {
+            this.sendChatMessage();
+        });
+        
+        // Chat input enter key
+        addBtnListener(document.getElementById('chatInput'), 'keypress', (e) => {
+            if (e.key === 'Enter') {
+                this.sendChatMessage();
+            }
+        });
+    }
+    
+    updateMultiplayerUI() {
+        if (!this.multiplayer) return;
+        
+        const statusElement = document.getElementById('connectionStatus');
+        if (statusElement) {
+            if (this.multiplayer.isConnected) {
+                statusElement.textContent = '🟢 Connected';
+                statusElement.style.color = '#4CAF50';
+            } else {
+                statusElement.textContent = '🔴 Disconnected';
+                statusElement.style.color = '#f44336';
+            }
+        }
+    }
+    
+    toggleFriendsList() {
+        const friendsList = document.getElementById('friendsList');
+        const chatPanel = document.getElementById('chatPanel');
+        
+        if (friendsList.style.display === 'none') {
+            friendsList.style.display = 'block';
+            chatPanel.style.display = 'none';
+            this.loadFriendsList();
+        } else {
+            friendsList.style.display = 'none';
+        }
+    }
+    
+    toggleChatPanel() {
+        const friendsList = document.getElementById('friendsList');
+        const chatPanel = document.getElementById('chatPanel');
+        
+        if (chatPanel.style.display === 'none') {
+            chatPanel.style.display = 'block';
+            friendsList.style.display = 'none';
+            this.loadChatMessages();
+        } else {
+            chatPanel.style.display = 'none';
+        }
+    }
+    
+    loadFriendsList() {
+        if (!this.multiplayer) return;
+        
+        const onlineFriendsDiv = document.getElementById('onlineFriends');
+        if (onlineFriendsDiv) {
+            onlineFriendsDiv.innerHTML = '<p>Loading friends...</p>';
+            
+            // Get friends from multiplayer manager
+            this.multiplayer.getFriends().then(friends => {
+                if (friends && friends.length > 0) {
+                    const friendsHtml = friends.map(friend => 
+                        `<div class="friend-item">
+                            <span class="friend-name">${friend.username}</span>
+                            <span class="friend-status ${friend.online ? 'online' : 'offline'}">
+                                ${friend.online ? '🟢' : '🔴'}
+                            </span>
+                        </div>`
+                    ).join('');
+                    onlineFriendsDiv.innerHTML = friendsHtml;
+                } else {
+                    onlineFriendsDiv.innerHTML = '<p>No friends found. Add some friends to get started!</p>';
+                }
+            });
+        }
+    }
+    
+    loadChatMessages() {
+        if (!this.multiplayer) return;
+        
+        const chatMessagesDiv = document.getElementById('chatMessages');
+        if (chatMessagesDiv) {
+            // Display recent chat messages
+            const messages = this.multiplayer.chatMessages || [];
+            if (messages.length > 0) {
+                const messagesHtml = messages.map(msg => 
+                    `<div class="chat-message">
+                        <span class="chat-username">${msg.username}:</span>
+                        <span class="chat-text">${msg.message}</span>
+                    </div>`
+                ).join('');
+                chatMessagesDiv.innerHTML = messagesHtml;
+                chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
+            } else {
+                chatMessagesDiv.innerHTML = '<p>No messages yet. Start chatting!</p>';
+            }
+        }
+    }
+    
+    sendChatMessage() {
+        if (!this.multiplayer) return;
+        
+        const chatInput = document.getElementById('chatInput');
+        const message = chatInput.value.trim();
+        
+        if (message) {
+            this.multiplayer.sendMessage(message);
+            chatInput.value = '';
+            this.loadChatMessages();
+        }
+    }
+    
+    requestGardenVisit() {
+        if (!this.multiplayer) return;
+        
+        // For now, just show a message
+        this.showMessage('Garden visit feature coming soon!', 'info');
     }
     
     makeAdminFunctionsGlobal() {

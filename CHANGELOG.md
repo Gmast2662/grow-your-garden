@@ -4,6 +4,18 @@ This document contains every single update, bug fix, and change made to Grow You
 
 ## 🆕 Latest Updates (v1.6.1)
 
+### 🌱 NEW: Unified Game Experience
+- **Unified Architecture**: Combined single-player and multiplayer into one game
+- **Auto-Detection**: Game automatically detects server availability
+- **Graceful Fallback**: Works perfectly offline with local saves when no server is available
+- **Seamless Experience**: Same game works both online and offline
+- **Technical Implementation**:
+  - Multiplayer features are optional add-ons to the core game
+  - Server connection is checked on startup
+  - Multiplayer UI only appears when connected
+  - Local saves work regardless of server status
+  - Same game logic for both modes
+
 ### 🔗 NEW: GitHub Link in Main Menu
 - **GitHub Integration**: Added a prominent GitHub link to the main menu for easy access to source code
 - **Visual Design**: 
