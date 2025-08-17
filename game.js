@@ -952,7 +952,7 @@ class GardenGame {
         this.multiplayer = new MultiplayerManager();
         
         // Get JWT token from localStorage (set during login)
-        const token = localStorage.getItem('jwt_token');
+        const token = localStorage.getItem('garden_game_token');
         
         if (token) {
             // Initialize multiplayer connection
