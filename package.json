@@ -12,7 +12,8 @@
     "sqlite3": "5.1.6",
     "bcryptjs": "2.4.3",
     "jsonwebtoken": "9.0.2",
-    "cors": "2.8.5"
+    "cors": "2.8.5",
+    "uuid": "9.0.0"
   },
   "license": "MIT"
 }
