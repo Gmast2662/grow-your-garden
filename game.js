@@ -1,7 +1,6 @@
 // Advanced Garden Game
 class GardenGame {
     constructor(saveSlot) {
-        console.log(`GardenGame constructor called with saveSlot: ${saveSlot}`);
         this.saveSlot = saveSlot;
         this.eventListeners = [];
         
@@ -26,9 +25,9 @@ class GardenGame {
         this.stageMultipliers = [0.1, 0.3, 0.6, 0.8, 1.0]; // harvest value multipliers
         
                     // Garden expansion
-            this.gardenSize = 8;
-            this.maxGardenSize = 12;
-            this.expansionCost = 5000;
+        this.gardenSize = 8;
+        this.maxGardenSize = 16; // Increased from 12 to 16
+        this.expansionCost = 5000;
         
         // Garden statistics
         this.stats = {
@@ -93,22 +92,23 @@ class GardenGame {
             'celery': { name: 'Celery', cost: 6, growthTime: 15000, harvestValue: 9, season: 'all', stages: ['🌱', '🌿', '🥬', '🥬', '🥬'] },
             
             // Rare seeds (available in multiple seasons)
-            'watermelon': { name: 'Watermelon', cost: 20, growthTime: 30000, harvestValue: 35, season: 'summer', stages: ['🌱', '🌿', '🍉', '🍉', '🍉'] },
-            'asparagus': { name: 'Asparagus', cost: 13, growthTime: 26000, harvestValue: 21, season: 'spring', stages: ['🌱', '🌿', '🥬', '🥬', '🥬'] },
-            'artichoke': { name: 'Artichoke', cost: 16, growthTime: 32000, harvestValue: 28, season: 'fall', stages: ['🌱', '🌿', '🥬', '🥬', '🥬'] },
-            'kiwi': { name: 'Kiwi', cost: 22, growthTime: 34000, harvestValue: 38, season: 'fall', stages: ['🌱', '🌿', '🥝', '🥝', '🥝'] },
+            'watermelon': { name: 'Watermelon', cost: 20, growthTime: 30000, harvestValue: 35, season: 'summer', stages: ['🌱', '🌿', '🍉', '🍉', '🍉'], isRare: true },
+            'asparagus': { name: 'Asparagus', cost: 13, growthTime: 26000, harvestValue: 21, season: 'spring', stages: ['🌱', '🌿', '🥬', '🥬', '🥬'], isRare: true },
+            'artichoke': { name: 'Artichoke', cost: 16, growthTime: 32000, harvestValue: 28, season: 'fall', stages: ['🌱', '🌿', '🥬', '🥬', '🥬'], isRare: true },
+            'kiwi': { name: 'Kiwi', cost: 22, growthTime: 34000, harvestValue: 38, season: 'fall', stages: ['🌱', '🌿', '🥝', '🥝', '🥝'], isRare: true },
             
             // Legendary seeds (available year-round but expensive)
-            'grapes': { name: 'Grapes', cost: 18, growthTime: 35000, harvestValue: 30, season: 'all', stages: ['🌱', '🌿', '🍇', '🍇', '🍇'] },
-            'apple': { name: 'Apple', cost: 15, growthTime: 32000, harvestValue: 25, season: 'all', stages: ['🌱', '🌿', '🍎', '🍎', '🍎'] },
-            'pineapple': { name: 'Pineapple', cost: 30, growthTime: 50000, harvestValue: 50, season: 'all', stages: ['🌱', '🌿', '🍍', '🍍', '🍍'] },
-            'mango': { name: 'Mango', cost: 28, growthTime: 48000, harvestValue: 45, season: 'all', stages: ['🌱', '🌿', '🥭', '🥭', '🥭'] },
-            'dragonfruit': { name: 'Dragonfruit', cost: 35, growthTime: 60000, harvestValue: 60, season: 'all', stages: ['🌱', '🌿', '🌳', '🌳', '🐉'] }
+            'grapes': { name: 'Grapes', cost: 18, growthTime: 35000, harvestValue: 30, season: 'all', stages: ['🌱', '🌿', '🍇', '🍇', '🍇'], isLegendary: true },
+            'apple': { name: 'Apple', cost: 15, growthTime: 32000, harvestValue: 25, season: 'all', stages: ['🌱', '🌿', '🍎', '🍎', '🍎'], isLegendary: true },
+            'pineapple': { name: 'Pineapple', cost: 30, growthTime: 50000, harvestValue: 50, season: 'all', stages: ['🌱', '🌿', '🍍', '🍍', '🍍'], isLegendary: true },
+            'mango': { name: 'Mango', cost: 28, growthTime: 48000, harvestValue: 45, season: 'all', stages: ['🌱', '🌿', '🥭', '🥭', '🥭'], isLegendary: true },
+            'dragonfruit': { name: 'Dragonfruit', cost: 35, growthTime: 60000, harvestValue: 60, season: 'all', stages: ['🌱', '🌿', '🌳', '🌳', '🐉'], isLegendary: true }
         };
         
         // Game state
         this.selectedSeed = null;
         this.selectedSprinkler = null;
+        this.selectedDecoration = null;
         this.currentTool = 'water';
         this.isRunning = true;
         
@@ -176,6 +176,29 @@ class GardenGame {
             legendary: { price: 500, range: 3, growthBonus: 0.8, waterBonus: 0.3, fertilizerBonus: 0.2, color: '#E74C3C', icon: '⭐', description: '+80% growth, +30% water, +20% fertilizer, 3 tile range', duration: 300000 }
         };
         
+        // Decoration system
+        this.decorations = {
+            // Paths & Ground Decorations
+            'stone_path': { name: 'Stone Path', cost: 25, type: 'path', icon: '🪨', bonus: 'none', description: 'Beautiful stone pathway' },
+            'wooden_path': { name: 'Wooden Path', cost: 15, type: 'path', icon: '🪵', bonus: 'none', description: 'Rustic wooden walkway' },
+            'flower_bed': { name: 'Flower Bed', cost: 50, type: 'decoration', icon: '🌸', bonus: '+5% growth', description: 'Attracts beneficial insects' },
+            
+            // Statues & Ornaments
+            'garden_gnome': { name: 'Garden Gnome', cost: 100, type: 'statue', icon: '🧙', bonus: '+10% harvest value', description: 'Magical garden guardian' },
+            'bird_bath': { name: 'Bird Bath', cost: 75, type: 'statue', icon: '🛁', bonus: '+15% water efficiency', description: 'Attracts helpful birds' },
+            'sundial': { name: 'Sundial', cost: 200, type: 'statue', icon: '⏰', bonus: '+20% growth speed', description: 'Ancient time-keeping wisdom' },
+            
+            // Fences & Borders
+            'picket_fence': { name: 'Picket Fence', cost: 30, type: 'fence', icon: '🏡', bonus: '+5% plant protection', description: 'Classic garden border' },
+            'stone_wall': { name: 'Stone Wall', cost: 80, type: 'fence', icon: '🧱', bonus: '+10% plant protection', description: 'Sturdy garden defense' },
+            
+            // Seasonal Decorations
+            'christmas_lights': { name: 'Christmas Lights', cost: 150, type: 'seasonal', icon: '🎄', bonus: '+25% winter growth', season: 'winter', description: 'Festive winter cheer' },
+            'halloween_pumpkins': { name: 'Halloween Pumpkins', cost: 100, type: 'seasonal', icon: '🎃', bonus: '+20% fall harvest', season: 'fall', description: 'Spooky fall decoration' },
+            'spring_tulips': { name: 'Spring Tulips', cost: 60, type: 'seasonal', icon: '🌷', bonus: '+15% spring growth', season: 'spring', description: 'Beautiful spring flowers' },
+            'summer_sunflowers': { name: 'Summer Sunflowers', cost: 70, type: 'seasonal', icon: '🌻', bonus: '+15% summer growth', season: 'summer', description: 'Bright summer beauty' }
+        };
+        
         // Auto-save system
         this.lastAutoSave = Date.now();
         this.autoSaveInterval = 60000; // 1 minute
@@ -189,13 +212,14 @@ class GardenGame {
         
         // Restock system
         this.lastRestockTime = Date.now();
-        this.restockInterval = 180000; // 3 minutes
-        this.rareRestockChance = 0.15;
-        this.legendaryRestockChance = 0.08;
+        this.restockInterval = 300000; // 5 minutes
+        this.rareRestockChance = 0.25; // 25% chance for rare seeds
+        this.legendaryRestockChance = 0.12; // 12% chance for legendary seeds
+        
+
         
         // Only load game and initialize UI if we have a canvas (not for background processing)
         if (this.canvas) {
-            console.log(`Initializing UI for slot ${this.saveSlot}`);
             this.loadGame();
             this.initializeEventListeners();
             this.initializeAdminPanel();
@@ -203,10 +227,7 @@ class GardenGame {
             this.updateToolDisplay();
             this.updateSprinklerDisplay();
             this.updateAchievementsDisplay();
-            console.log(`Starting game loop for slot ${this.saveSlot}`);
             this.gameLoop();
-        } else {
-            console.log(`Skipping UI initialization for slot ${this.saveSlot} - no canvas (background processing)`);
         }
         
         // Initialize challenges
@@ -302,12 +323,13 @@ class GardenGame {
         const oldGarden = this.garden;
         this.garden = this.initializeGarden();
         
-        // Copy existing plants to the new garden
+        // Copy existing plants and decorations to the new garden
         for (let row = 0; row < oldGarden.length; row++) {
             for (let col = 0; col < oldGarden[row].length; col++) {
-                if (oldGarden[row][col].plant) {
+                if (oldGarden[row][col].plant || oldGarden[row][col].decoration) {
                     this.garden[row][col] = {
                         plant: oldGarden[row][col].plant,
+                        decoration: oldGarden[row][col].decoration,
                         watered: oldGarden[row][col].watered,
                         wateredAt: oldGarden[row][col].wateredAt,
                         waterCooldown: oldGarden[row][col].waterCooldown,
@@ -350,16 +372,20 @@ class GardenGame {
     
     createDailyChallenge() {
         const challenges = [
-            { type: 'harvest', target: 10, description: 'Harvest 10 plants', reward: 50 },
-            { type: 'plant', target: 15, description: 'Plant 15 seeds', reward: 30 },
-            { type: 'water', target: 20, description: 'Water 20 plants', reward: 25 },
-            { type: 'money', target: 200, description: 'Earn $200', reward: 40 },
-            { type: 'rare', target: 3, description: 'Harvest 3 rare plants', reward: 75 }
+            { challengeType: 'harvest', target: 10, description: 'Harvest 10 plants', reward: 50 },
+            { challengeType: 'plant', target: 15, description: 'Plant 15 seeds', reward: 30 },
+            { challengeType: 'water', target: 20, description: 'Water 20 plants', reward: 25 },
+            { challengeType: 'money', target: 200, description: 'Earn $200', reward: 40 },
+            { challengeType: 'rare', target: 3, description: 'Harvest 3 rare plants', reward: 75 }
         ];
         
         const challenge = challenges[Math.floor(Math.random() * challenges.length)];
         return {
-            ...challenge,
+            type: 'daily',
+            challengeType: challenge.challengeType,
+            target: challenge.target,
+            description: challenge.description,
+            reward: challenge.reward,
             day: Math.floor(Date.now() / (24 * 60 * 60 * 1000)),
             progress: 0,
             completed: false
@@ -368,16 +394,20 @@ class GardenGame {
     
     createWeeklyChallenge() {
         const challenges = [
-            { type: 'harvest', target: 50, description: 'Harvest 50 plants', reward: 200 },
-            { type: 'plant', target: 75, description: 'Plant 75 seeds', reward: 150 },
-            { type: 'money', target: 1000, description: 'Earn $1000', reward: 300 },
-            { type: 'legendary', target: 5, description: 'Harvest 5 legendary plants', reward: 500 },
-            { type: 'expansion', target: 1, description: 'Expand garden once', reward: 400 }
+            { challengeType: 'harvest', target: 50, description: 'Harvest 50 plants', reward: 200 },
+            { challengeType: 'plant', target: 75, description: 'Plant 75 seeds', reward: 150 },
+            { challengeType: 'money', target: 1000, description: 'Earn $1000', reward: 300 },
+            { challengeType: 'legendary', target: 5, description: 'Harvest 5 legendary plants', reward: 500 },
+            { challengeType: 'expansion', target: 1, description: 'Expand garden once', reward: 400 }
         ];
         
         const challenge = challenges[Math.floor(Math.random() * challenges.length)];
         return {
-            ...challenge,
+            type: 'weekly',
+            challengeType: challenge.challengeType,
+            target: challenge.target,
+            description: challenge.description,
+            reward: challenge.reward,
             week: Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000)),
             progress: 0,
             completed: false
@@ -386,7 +416,7 @@ class GardenGame {
     
     updateChallengeProgress(type, amount = 1) {
         // Update daily challenge
-        if (this.challenges.daily && !this.challenges.daily.completed && this.challenges.daily.type === type) {
+        if (this.challenges.daily && !this.challenges.daily.completed && this.challenges.daily.challengeType === type) {
             this.challenges.daily.progress += amount;
             if (this.challenges.daily.progress >= this.challenges.daily.target) {
                 this.completeChallenge(this.challenges.daily);
@@ -394,7 +424,7 @@ class GardenGame {
         }
         
         // Update weekly challenge
-        if (this.challenges.weekly && !this.challenges.weekly.completed && this.challenges.weekly.type === type) {
+        if (this.challenges.weekly && !this.challenges.weekly.completed && this.challenges.weekly.challengeType === type) {
             this.challenges.weekly.progress += amount;
             if (this.challenges.weekly.progress >= this.challenges.weekly.target) {
                 this.completeChallenge(this.challenges.weekly);
@@ -478,6 +508,16 @@ class GardenGame {
                     this.ctx.font = `${Math.floor(20 * (particle.scale || 1))}px Arial`;
                     this.ctx.fillText('💧', particle.x, particle.y);
                     break;
+                case 'decoration':
+                    this.ctx.fillStyle = '#FF69B4';
+                    this.ctx.font = `${Math.floor(24 * (particle.scale || 1))}px Arial`;
+                    this.ctx.fillText(particle.value, particle.x, particle.y);
+                    break;
+                case 'damage':
+                    this.ctx.fillStyle = '#FF4444';
+                    this.ctx.font = `${Math.floor(20 * (particle.scale || 1))}px Arial`;
+                    this.ctx.fillText('💥', particle.x, particle.y);
+                    break;
                 default:
                     this.ctx.fillStyle = '#00FF00';
                     this.ctx.font = `${Math.floor(16 * (particle.scale || 1))}px Arial`;
@@ -526,7 +566,6 @@ class GardenGame {
         try {
             this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
         } catch (e) {
-            console.log('Web Audio API not supported');
             this.soundEnabled = false;
         }
     }
@@ -578,6 +617,8 @@ class GardenGame {
             for (let col = 0; col < this.gridSize; col++) {
                 garden[row][col] = {
                     plant: null,
+                    sprinkler: null,
+                    decoration: null,
                     watered: false,
                     wateredAt: null,
                     waterCooldown: 0,
@@ -593,7 +634,6 @@ class GardenGame {
     
     initializeEventListeners() {
         if (!this.canvas) {
-            console.log('Canvas is null, skipping event listener initialization');
             return;
         }
         
@@ -660,14 +700,11 @@ class GardenGame {
                 );
                 
                 if (distance < 20) { // Less than 20px movement = tap
-                    console.log('Touch tap detected, triggering click');
                     this.handleCanvasClick({ 
                         clientX: touch.clientX, 
                         clientY: touch.clientY,
                         touches: [touch]
                     });
-                } else {
-                    console.log('Touch movement too large, ignoring:', distance);
                 }
             }
         });
@@ -675,7 +712,6 @@ class GardenGame {
         // Fallback touch event for better mobile compatibility
         addBtnListener(this.canvas, 'click', (e) => {
             // This will handle both mouse clicks and touch events that bubble up
-            console.log('Canvas click event triggered');
         });
         
         // Seed selection
@@ -687,19 +723,15 @@ class GardenGame {
         
         // Tool selection
         addBtnListener(document.getElementById('water-btn'), 'click', () => {
-            console.log('Water button clicked!');
             this.selectTool('water');
         });
         addBtnListener(document.getElementById('fertilizer-btn'), 'click', () => {
-            console.log('Fertilizer button clicked!');
             this.selectTool('fertilizer');
         });
         addBtnListener(document.getElementById('harvest-btn'), 'click', () => {
-            console.log('Harvest button clicked!');
             this.selectTool('harvest');
         });
         addBtnListener(document.getElementById('shovel-btn'), 'click', () => {
-            console.log('Shovel button clicked!');
             this.selectTool('shovel');
         });
         
@@ -730,6 +762,7 @@ class GardenGame {
         
         // Admin panel modal
         this.initializeAdminModal();
+        this.initializeDecorationShop();
         
         // Add window resize listener for responsive canvas
         addBtnListener(window, 'resize', () => {
@@ -766,8 +799,6 @@ class GardenGame {
         
         // Recalculate cell size based on new canvas size
         this.cellSize = Math.floor(canvasSize / this.gridSize);
-        
-        console.log(`Canvas adjusted for mobile: ${canvasSize}x${canvasSize}, cellSize: ${this.cellSize}`);
     }
     
     initializeAdminModal() {
@@ -828,6 +859,83 @@ class GardenGame {
         
         // Make admin functions globally accessible
         this.makeAdminFunctionsGlobal();
+        
+        // Initialize decoration shop
+        this.initializeDecorationShop();
+    }
+    
+    initializeDecorationShop() {
+        const decorationItems = document.querySelectorAll('.decoration-item');
+        const categoryBtns = document.querySelectorAll('.category-btn');
+        
+        // Helper function to add event listeners and track them
+        const addBtnListener = (element, event, handler) => {
+            if (element) {
+                element.removeEventListener(event, handler);
+                element.addEventListener(event, handler);
+                this.eventListeners.push({ element, event, handler });
+            }
+        };
+        
+        // Decoration item selection
+        decorationItems.forEach(item => {
+            addBtnListener(item, 'click', () => {
+                const decorationType = item.dataset.decoration;
+                const decorationData = this.decorations[decorationType];
+                
+                if (decorationData) {
+                    // Remove selection from all items
+                    decorationItems.forEach(i => i.classList.remove('selected'));
+                    
+                    // Add selection to clicked item
+                    item.classList.add('selected');
+                    
+                    // Set selected decoration
+                    this.selectedDecoration = decorationType;
+                    
+                    // Update info panel
+                    document.getElementById('selectedDecorationName').textContent = decorationData.name;
+                    document.getElementById('selectedDecorationDescription').textContent = decorationData.description;
+                    document.getElementById('selectedDecorationCost').textContent = `Cost: $${decorationData.cost}`;
+                    document.getElementById('selectedDecorationBonus').textContent = `Bonus: ${decorationData.bonus}`;
+                    
+                    // Update current tool to decoration mode
+                    this.currentTool = 'decoration';
+                    this.updateToolDisplay();
+                    
+                    // Clear other selections
+                    this.selectedSeed = null;
+                    this.selectedSprinkler = null;
+                    document.querySelectorAll('.seed-item').forEach(seed => seed.classList.remove('selected'));
+                    document.querySelectorAll('.sprinkler-tool').forEach(sprinkler => sprinkler.classList.remove('active'));
+                    document.querySelectorAll('.tool-btn').forEach(tool => tool.classList.remove('active'));
+                    
+                    // Show selection feedback
+                    this.showMessage(`Selected ${decorationData.name} for placement`, 'info');
+                }
+            });
+        });
+        
+        // Category filtering
+        categoryBtns.forEach(btn => {
+            addBtnListener(btn, 'click', () => {
+                const category = btn.dataset.category;
+                
+                // Update active category button
+                categoryBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                // Filter decoration items
+                decorationItems.forEach(item => {
+                    const itemCategory = item.dataset.category;
+                    if (category === 'all' || itemCategory === category) {
+                        item.style.display = 'flex';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        });
     }
     
     makeAdminFunctionsGlobal() {
@@ -1065,20 +1173,44 @@ class GardenGame {
         };
         
         window.setRarity = () => {
-            const seedType = document.getElementById('seedTypeSelect').value;
-            const rarity = document.getElementById('raritySelect').value;
-            
-            if (seedType && this.plantTypes[seedType]) {
-                this.plantTypes[seedType].isRare = rarity === 'rare';
-                this.plantTypes[seedType].isLegendary = rarity === 'legendary';
-                
-                this.updateShopDisplay();
-                this.showMessage(`${seedType} rarity set to ${rarity}!`, 'success');
-                this.saveGame();
-            } else {
-                this.showMessage('Invalid seed type!', 'error');
-            }
-        };
+    const seedTypeElement = document.getElementById('seedTypeSelect');
+    const rarityElement = document.getElementById('raritySelect');
+    
+    if (!seedTypeElement || !rarityElement) {
+        this.showMessage('Error: Admin panel elements not found!', 'error');
+        return;
+    }
+    
+    const seedType = seedTypeElement.value;
+    const rarity = rarityElement.value;
+    
+    if (seedType && this.plantTypes[seedType]) {
+        // Remove existing rarity flags
+        delete this.plantTypes[seedType].isRare;
+        delete this.plantTypes[seedType].isLegendary;
+        
+        // Set new rarity
+        if (rarity === 'rare') {
+            this.plantTypes[seedType].isRare = true;
+        } else if (rarity === 'legendary') {
+            this.plantTypes[seedType].isLegendary = true;
+        } else if (rarity === 'common') {
+            // Already removed flags above
+        } else {
+            this.showMessage(`Invalid rarity: ${rarity}!`, 'error');
+            return;
+        }
+        
+        // Update the visual appearance in the shop
+        this.updateSeedRarityDisplay(seedType, rarity);
+        
+        this.updateShopDisplay();
+        this.showMessage(`${seedType} rarity set to ${rarity}!`, 'success');
+        this.saveGame();
+    } else {
+        this.showMessage(`Invalid seed type: ${seedType}!`, 'error');
+    }
+};
         
         window.restockAll = () => {
             Object.keys(this.shopInventory).forEach(seedType => {
@@ -1091,7 +1223,7 @@ class GardenGame {
         };
         
         window.restockNow = () => {
-            this.lastRestockTime = Date.now() - (this.restockInterval * 60 * 1000);
+            this.lastRestockTime = Date.now() - this.restockInterval; // restockInterval is already in milliseconds
             
             this.checkRestock();
             this.showMessage('Shop restocked!', 'success');
@@ -1186,11 +1318,17 @@ class GardenGame {
         };
         
         window.setRestockTime = () => {
-            const minutes = parseInt(document.getElementById('restockTimeInput').value) || 5;
-            this.restockInterval = minutes;
+            const inputElement = document.getElementById('restockTimeInput');
+            if (!inputElement) {
+                this.showMessage('Error: Restock time input not found!', 'error');
+                return;
+            }
+            
+            const minutes = parseInt(inputElement.value) || 5;
+            this.restockInterval = minutes * 60 * 1000; // Convert minutes to milliseconds
             
             this.showMessage(`Restock interval set to ${minutes} minutes!`, 'success');
-            document.getElementById('restockTimeInput').value = '';
+            inputElement.value = '';
             this.saveGame();
         };
         
@@ -1265,6 +1403,8 @@ class GardenGame {
             }
         };
         
+
+        
         // Add function to clear corrupted save data
         window.clearCorruptedSaves = () => {
             console.log('Clearing all corrupted save data...');
@@ -1305,13 +1445,11 @@ class GardenGame {
         
         // Add function to fix current slot if corrupted
         window.fixCurrentSlot = () => {
-            console.log(`Attempting to fix slot ${this.saveSlot}`);
             const saveData = localStorage.getItem(`gardenGameSave_${this.saveSlot}`);
             if (saveData) {
                 try {
                     const data = JSON.parse(saveData);
                     if (data.saveSlot !== this.saveSlot) {
-                        console.log(`Fixing slot ${this.saveSlot} - save data contains slot ${data.saveSlot}`);
                         // Clear the corrupted data and start fresh
                         localStorage.removeItem(`gardenGameSave_${this.saveSlot}`);
                         this.showMessage(`Slot ${this.saveSlot} fixed! Starting fresh.`, 'success');
@@ -1320,7 +1458,6 @@ class GardenGame {
                         this.showMessage(`Slot ${this.saveSlot} is not corrupted.`, 'info');
                     }
                 } catch (error) {
-                    console.log(`Slot ${this.saveSlot} has corrupted data, clearing it`);
                     localStorage.removeItem(`gardenGameSave_${this.saveSlot}`);
                     this.showMessage(`Slot ${this.saveSlot} fixed! Starting fresh.`, 'success');
                     this.loadGame(); // Reload with fresh data
@@ -1336,14 +1473,12 @@ class GardenGame {
             const status = isRunning ? 'ENABLED' : 'DISABLED';
             const color = isRunning ? '#d63031' : '#00b894';
             this.showMessage(`Background processing: ${status}`, isRunning ? 'error' : 'success');
-            console.log(`Background processing status: ${status}`);
         };
         
         // Emergency recovery command
         window.emergencyReset = () => {
             if (window.menuSystem && window.menuSystem.currentGame) {
                 const game = window.menuSystem.currentGame;
-                console.log(`Emergency reset for slot ${game.saveSlot}`);
                 
                 // Stop the current game
                 game.stopGame();
@@ -1351,6 +1486,7 @@ class GardenGame {
                 // Clear any stuck states
                 game.selectedSeed = null;
                 game.selectedSprinkler = null;
+                game.selectedDecoration = null;
                 game.currentTool = 'water';
                 
                 // Clear performance monitoring
@@ -1370,6 +1506,17 @@ class GardenGame {
                 game.updateShopDisplay();
                 
                 window.menuSystem.currentGame.showMessage('Emergency reset completed! Game should be working again.', 'success');
+            } else {
+                alert('Error: No game instance found. Please start a game first.');
+            }
+        };
+        
+        // Debug function to check current state
+        window.debugState = () => {
+            if (window.menuSystem && window.menuSystem.currentGame) {
+                const game = window.menuSystem.currentGame;
+                // Debug state information available in console
+                game.showMessage('Debug info logged to console', 'info');
             } else {
                 alert('Error: No game instance found. Please start a game first.');
             }
@@ -1433,10 +1580,12 @@ class GardenGame {
                 for (let x = 0; x < window.menuSystem.currentGame.gardenSize; x++) {
                     for (let y = 0; y < window.menuSystem.currentGame.gardenSize; y++) {
                         const cell = window.menuSystem.currentGame.garden[x][y];
-                        if (cell && cell.plant && cell.plant.type && !cell.plant.isFullyGrown) {
-                            const plantData = window.menuSystem.currentGame.plantTypes[cell.plant.type];
-                            if (plantData) {
-                                cell.plant.plantedAt = Date.now() - (plantData.growthTime * 1.1); // Set to 100% grown (fully mature)
+                        if (cell && cell.plant && cell.plant.type) {
+                            // Set plant to fully mature (last growth stage)
+                            const maxStage = window.menuSystem.currentGame.growthStages.length - 1;
+                            if (cell.plant.growthStage < maxStage) {
+                                cell.plant.growthStage = maxStage;
+                                cell.plant.isFullyGrown = true;
                                 grownCount++;
                             }
                         }
@@ -1444,9 +1593,7 @@ class GardenGame {
                 }
                 window.menuSystem.currentGame.updateUI();
                 window.menuSystem.currentGame.draw();
-                window.menuSystem.currentGame.showMessage(`Grew ${grownCount} plants!`, 'success');
-                
-
+                window.menuSystem.currentGame.showMessage(`Grew ${grownCount} plants to full maturity!`, 'success');
             } else {
                 console.error('No current game instance found');
                 alert('Error: No game instance found. Please start a game first.');
@@ -1467,10 +1614,18 @@ class GardenGame {
                             if (cell && cell.plant && cell.plant.type && window.menuSystem.currentGame.getPlantGrowthStage(cell.plant) >= window.menuSystem.currentGame.growthStages.length - 1) {
                                 const value = window.menuSystem.currentGame.getHarvestValue(cell.plant);
                                 totalValue += value;
-                                // Remove the plant but keep the cell structure
-                                if (cell.plant) {
-                                    delete cell.plant;
-                                }
+                                
+                                // Clear the cell completely (same as individual harvestPlant)
+                                window.menuSystem.currentGame.garden[x][y] = {
+                                    plant: null,
+                                    watered: false,
+                                    wateredAt: null,
+                                    waterCooldown: 0,
+                                    fertilized: false,
+                                    fertilizedAt: null,
+                                    fertilizerCooldown: 0,
+                                    plantedAt: null
+                                };
                                 harvestedCount++;
                             }
                         }
@@ -1607,7 +1762,6 @@ class GardenGame {
                 'Admin Panel Usage Count': this.stats.adminPanelUsageCount || 0
             };
             
-            console.log('Detailed Game Statistics:', stats);
             alert('Detailed statistics logged to console. Press F12 to view.');
             this.showMessage('Statistics logged to console!', 'info');
         };
@@ -1652,14 +1806,38 @@ class GardenGame {
                     harvest: 1
                 };
                 
-                // Reset shop inventory
+                // Reset shop inventory with proper structure
                 this.shopInventory = {
-                    tomato: 5, lettuce: 5, carrot: 5, potato: 5, corn: 5,
-                    bell_pepper: 3, cucumber: 3, onion: 3, garlic: 3, broccoli: 3,
-                    cauliflower: 3, cabbage: 3, spinach: 3, kale: 3, peas: 3,
-                    green_beans: 3, squash: 3, winter_greens: 3, herbs: 3, radish: 3,
-                    watermelon: 2, asparagus: 2, artichoke: 2, kiwi: 2, strawberry: 2,
-                    dragonfruit: 1, pineapple: 1, mango: 1, apple: 1, grape: 1
+                    carrot: { stock: 7, maxStock: 10, restockAmount: 5 },
+                    tomato: { stock: 6, maxStock: 8, restockAmount: 4 },
+                    corn: { stock: 4, maxStock: 6, restockAmount: 3 },
+                    squash: { stock: 5, maxStock: 7, restockAmount: 3 },
+                    potato: { stock: 6, maxStock: 8, restockAmount: 4 },
+                    lettuce: { stock: 8, maxStock: 10, restockAmount: 5 },
+                    onion: { stock: 6, maxStock: 8, restockAmount: 4 },
+                    garlic: { stock: 4, maxStock: 6, restockAmount: 3 },
+                    broccoli: { stock: 3, maxStock: 5, restockAmount: 2 },
+                    cauliflower: { stock: 2, maxStock: 4, restockAmount: 2 },
+                    cucumber: { stock: 6, maxStock: 8, restockAmount: 4 },
+                    radish: { stock: 8, maxStock: 10, restockAmount: 5 },
+                    spinach: { stock: 7, maxStock: 9, restockAmount: 4 },
+                    winter_greens: { stock: 4, maxStock: 6, restockAmount: 3 },
+                    zucchini: { stock: 5, maxStock: 7, restockAmount: 3 },
+                    peas: { stock: 8, maxStock: 10, restockAmount: 5 },
+                    herbs: { stock: 6, maxStock: 8, restockAmount: 4 },
+                    cabbage: { stock: 5, maxStock: 7, restockAmount: 3 },
+                    celery: { stock: 6, maxStock: 8, restockAmount: 4 },
+                    bell_pepper: { stock: 4, maxStock: 5, restockAmount: 2 },
+                    watermelon: { stock: 2, maxStock: 3, restockAmount: 1 },
+                    asparagus: { stock: 3, maxStock: 4, restockAmount: 2 },
+                    artichoke: { stock: 2, maxStock: 3, restockAmount: 1 },
+                    kiwi: { stock: 2, maxStock: 3, restockAmount: 1 },
+                    pumpkin: { stock: 1, maxStock: 2, restockAmount: 1 },
+                    grapes: { stock: 3, maxStock: 4, restockAmount: 2 },
+                    apple: { stock: 4, maxStock: 5, restockAmount: 2 },
+                    pineapple: { stock: 1, maxStock: 2, restockAmount: 1 },
+                    mango: { stock: 2, maxStock: 3, restockAmount: 1 },
+                    dragonfruit: { stock: 1, maxStock: 1, restockAmount: 1 }
                 };
                 
                 this.updateStatsDisplay();
@@ -1803,14 +1981,8 @@ class GardenGame {
     }
     
     selectSeed(seedType) {
-        console.log(`selectSeed called for ${seedType} in slot ${this.saveSlot}`);
-        console.log(`Current money: $${this.money}`);
-        
         const plantData = this.plantTypes[seedType];
         const inventory = this.shopInventory[seedType];
-        
-        console.log(`Plant data:`, plantData);
-        console.log(`Inventory:`, inventory);
         
         if (!plantData) {
             console.error(`No plant data found for ${seedType}`);
@@ -1831,7 +2003,6 @@ class GardenGame {
         }
         
         if (inventory.stock <= 0) {
-            console.log(`${seedType} is out of stock (${inventory.stock})`);
             this.showMessage(`${plantData.name} is out of stock!`, 'error');
             // Clear selection when out of stock
             this.selectedSeed = null;
@@ -1842,7 +2013,6 @@ class GardenGame {
         }
         
         if (this.money >= plantData.cost) {
-            console.log(`Selecting ${seedType} for $${plantData.cost}`);
             this.selectedSeed = seedType;
             
             // Clear all previous selections
@@ -1860,15 +2030,6 @@ class GardenGame {
             const seedElement = document.querySelector(`[data-seed="${seedType}"]`);
             if (seedElement) {
                 seedElement.classList.add('selected');
-                console.log(`Successfully selected seed element for ${seedType}`);
-            } else {
-                console.error(`Seed element not found for ${seedType}`);
-                // Try to find it with a different approach
-                const allSeedElements = document.querySelectorAll('.seed-item');
-                console.log(`Found ${allSeedElements.length} seed elements total`);
-                allSeedElements.forEach((el, index) => {
-                    console.log(`Seed element ${index}:`, el.dataset.seed);
-                });
             }
             
             // Update shop display to reflect current state
@@ -1879,7 +2040,6 @@ class GardenGame {
     }
     
     selectTool(tool) {
-        console.log('Selecting tool:', tool);
         this.currentTool = tool;
         document.querySelectorAll('.tool-btn').forEach(btn => {
             btn.classList.remove('active');
@@ -1892,21 +2052,25 @@ class GardenGame {
         }
         this.selectedSeed = null;
         this.selectedSprinkler = null;
+        this.selectedDecoration = null; // Clear decoration selection when selecting tools
         document.querySelectorAll('.seed-item').forEach(item => {
             item.classList.remove('selected');
         });
         document.querySelectorAll('.sprinkler-tool').forEach(btn => {
             btn.classList.remove('active');
         });
+        document.querySelectorAll('.decoration-item').forEach(item => {
+            item.classList.remove('selected');
+        });
         // Update shop display when clearing seed selection
         this.updateShopDisplay();
     }
     
     selectSprinkler(sprinklerType) {
-        console.log('Selecting sprinkler:', sprinklerType);
         this.selectedSprinkler = sprinklerType;
         this.currentTool = 'sprinkler';
         this.selectedSeed = null;
+        this.selectedDecoration = null; // Clear decoration selection when selecting sprinklers
         
         document.querySelectorAll('.tool-btn').forEach(btn => {
             btn.classList.remove('active');
@@ -1923,13 +2087,15 @@ class GardenGame {
         document.querySelectorAll('.seed-item').forEach(item => {
             item.classList.remove('selected');
         });
+        document.querySelectorAll('.decoration-item').forEach(item => {
+            item.classList.remove('selected');
+        });
         // Update shop display when clearing seed selection
         this.updateShopDisplay();
     }
     
     handleCanvasClick(e) {
         if (!this.canvas) {
-            console.log('Canvas is null, skipping handleCanvasClick');
             return;
         }
         
@@ -1960,8 +2126,6 @@ class GardenGame {
         const col = Math.floor(adjustedX / this.cellSize);
         const row = Math.floor(adjustedY / this.cellSize);
         
-        console.log(`Click at (${x}, ${y}), adjusted to (${adjustedX}, ${adjustedY}), grid position [${row}, ${col}]`);
-        
         if (row >= 0 && row < this.gridSize && col >= 0 && col < this.gridSize) {
             this.handleCellClick(row, col);
         }
@@ -1969,7 +2133,6 @@ class GardenGame {
     
     handleMouseMove(e) {
         if (!this.canvas) {
-            console.log('Canvas is null, skipping handleMouseMove');
             return;
         }
         
@@ -2023,40 +2186,43 @@ class GardenGame {
     }
     
     handleCellClick(row, col) {
-        console.log('Cell clicked:', row, col);
-        console.log('Current tool:', this.currentTool);
-        console.log('Selected seed:', this.selectedSeed);
-        console.log('Selected sprinkler:', this.selectedSprinkler);
-        
         const cell = this.garden[row][col];
         const hasSprinklerHere = this.hasSprinkler(row, col);
-        console.log('Cell data:', cell);
-        console.log('Has sprinkler here:', hasSprinklerHere);
         
         if (this.selectedSeed && !cell.plant && !hasSprinklerHere) {
-            console.log('Attempting to plant');
             this.plantSeed(row, col);
         } else if (this.currentTool === 'harvest' && cell.plant) {
-            console.log('Attempting to harvest');
             this.harvestPlant(row, col);
         } else if (this.currentTool === 'water' && cell.plant && !cell.watered && cell.waterCooldown <= Date.now()) {
-            console.log('Attempting to water');
             this.waterPlant(row, col);
         } else if (this.currentTool === 'fertilizer' && cell.plant && !cell.fertilized && cell.fertilizerCooldown <= Date.now()) {
-            console.log('Attempting to fertilize');
             this.fertilizePlant(row, col);
         } else if (this.currentTool === 'shovel' && (cell.plant || hasSprinklerHere)) {
-            console.log('Attempting to remove plant or sprinkler');
             if (cell.plant) {
                 this.removePlant(row, col);
             } else {
                 this.removeSprinkler(row, col);
             }
         } else if (this.currentTool === 'sprinkler' && this.selectedSprinkler && !cell.plant && !hasSprinklerHere) {
-            console.log('Attempting to place sprinkler');
             this.placeSprinkler(row, col);
-        } else {
-            console.log('No action taken - conditions not met');
+        } else if (this.selectedDecoration && !cell.plant && !hasSprinklerHere && !cell.decoration) {
+            this.placeDecoration(row, col);
+        } else if (this.currentTool === 'shovel' && cell.decoration) {
+            this.removeDecoration(row, col);
+        } else if (cell.plant) {
+            // Show bonus info when clicking on plants without a specific action
+            this.showBonusInfo(row, col);
+            
+            // Also show damage info if plant was recently damaged
+            if (cell.plant.recentlyDamaged) {
+                this.showMessage(`🌱 This plant was recently damaged by a storm!`, 'warning');
+                // Clear the recently damaged flag after showing the message
+                setTimeout(() => {
+                    if (cell.plant) {
+                        cell.plant.recentlyDamaged = false;
+                    }
+                }, 3000);
+            }
         }
     }
     
@@ -2108,12 +2274,9 @@ class GardenGame {
                         cell.plant.growthStage++;
                         cell.lastWaterGrowthCheck = now;
                         
-                        console.log(`${plantData.name} grew to stage ${cell.plant.growthStage + 1}/${this.growthStages.length} from water`);
-                        
                         // Check if fully mature
                         if (cell.plant.growthStage >= this.growthStages.length - 1) {
                             cell.plant.isFullyGrown = true;
-                            console.log(`${plantData.name} is fully mature from water growth!`);
                         }
                         
                         this.saveGame();
@@ -2154,12 +2317,9 @@ class GardenGame {
                         cell.plant.growthStage++;
                         cell.lastFertilizerGrowthCheck = now;
                         
-                        console.log(`${plantData.name} grew to stage ${cell.plant.growthStage + 1}/${this.growthStages.length} from fertilizer`);
-                        
                         // Check if fully mature
                         if (cell.plant.growthStage >= this.growthStages.length - 1) {
                             cell.plant.isFullyGrown = true;
-                            console.log(`${plantData.name} is fully mature from fertilizer growth!`);
                         }
                         
                         this.saveGame();
@@ -2190,9 +2350,6 @@ class GardenGame {
     
     // Admin function to check current growth rates for all seeds
     showGrowthRates() {
-        console.log('🌱 Current Growth Rates for All Seeds:');
-        console.log('=====================================');
-        
         const allSeeds = Object.keys(this.plantTypes);
         allSeeds.forEach(seedType => {
             const multiplier = this.getSeedGrowthMultiplier(seedType);
@@ -2307,7 +2464,6 @@ class GardenGame {
                     // Check if fully mature
                     if (cell.plant.growthStage >= this.growthStages.length - 1) {
                         cell.plant.isFullyGrown = true;
-                        console.log(`${plantData.name} is fully mature from sprinkler growth!`);
                     }
                     
                     // Save game and update UI
@@ -2320,10 +2476,6 @@ class GardenGame {
     }
     
     plantSeed(row, col) {
-        console.log(`plantSeed called for slot ${this.saveSlot} at ${new Date().toLocaleTimeString()}`);
-        console.log(`Planting at position [${row}, ${col}] for slot ${this.saveSlot}`);
-        console.log(`Current garden state for slot ${this.saveSlot}:`, JSON.stringify(this.garden[row][col]));
-        
         const seedType = this.selectedSeed;
         
         // Validate seed selection
@@ -2388,7 +2540,6 @@ class GardenGame {
         }
         
         // All validations passed, proceed with planting
-        console.log(`Planting ${seedType} for $${seedData.cost} in slot ${this.saveSlot}`);
         
         // Deduct money and reduce stock
             this.money -= seedData.cost;
@@ -2415,16 +2566,11 @@ class GardenGame {
                 plantedAt: Date.now()
             };
         
-        console.log(`Plant created for slot ${this.saveSlot} at [${row}, ${col}]:`, JSON.stringify(this.garden[row][col]));
-        
         // Verify the plant was actually created
         if (!this.garden[row][col].plant) {
-            console.error(`Plant was not created properly at [${row}, ${col}]`);
             this.showMessage(`Error: Failed to plant ${seedData.name}!`, 'error');
             return;
         }
-        
-        console.log(`Plant successfully created at [${row}, ${col}]:`, this.garden[row][col].plant);
             
             this.showMessage(`Planted ${seedData.name}!`, 'success');
             this.playSound('plant');
@@ -2477,7 +2623,6 @@ class GardenGame {
             if (cell.plant && cell.plant.growthStage < this.growthStages.length - 1) {
                 const plantData = this.plantTypes[cell.plant.type];
                 this.showMessage(`${plantData.name} watered! Will grow continuously for 8 seconds!`, 'success');
-                console.log(`${plantData.name} watered and will grow continuously at ${new Date().toLocaleTimeString()}`);
                 
                 // Set up continuous growth tracking
                 cell.waterGrowthStart = now;
@@ -2523,7 +2668,6 @@ class GardenGame {
             if (cell.plant && cell.plant.growthStage < this.growthStages.length - 1) {
                 const plantData = this.plantTypes[cell.plant.type];
                 this.showMessage(`${plantData.name} fertilized! Will grow continuously for 12 seconds!`, 'success');
-                console.log(`${plantData.name} fertilized and will grow continuously at ${new Date().toLocaleTimeString()}`);
                 
                 // Set up continuous growth tracking
                 cell.fertilizerGrowthStart = now;
@@ -2550,13 +2694,9 @@ class GardenGame {
     }
     
     harvestPlant(row, col) {
-        console.log(`harvestPlant called for slot ${this.saveSlot} at position [${row}, ${col}] at ${new Date().toLocaleTimeString()}`);
-        console.log(`Current garden state for slot ${this.saveSlot}:`, JSON.stringify(this.garden[row][col]));
-        
         const cell = this.garden[row][col];
         if (cell.plant) {
             const plantData = this.plantTypes[cell.plant.type];
-            console.log(`Harvesting ${plantData.name} from slot ${this.saveSlot} at [${row}, ${col}]`);
             
             // Calculate harvest value with growth stages and bonus from upgraded harvest tool
             const baseValue = plantData.harvestValue;
@@ -2616,18 +2756,8 @@ class GardenGame {
                 plantedAt: null
             };
             
-            console.log(`Cell cleared for slot ${this.saveSlot} at [${row}, ${col}]`);
-            console.log(`New garden state for slot ${this.saveSlot}:`, JSON.stringify(this.garden[row][col]));
-            
             this.updateUI();
             this.saveGame();
-        } else {
-            console.log(`No harvestable plant found in slot ${this.saveSlot} at [${row}, ${col}]`);
-            if (cell.plant) {
-                console.log(`Plant exists but not fully grown: stage ${cell.plant.stage}, isFullyGrown: ${cell.plant.isFullyGrown}`);
-            } else {
-                console.log(`No plant exists at this location`);
-            }
         }
     }
     
@@ -2681,13 +2811,11 @@ class GardenGame {
                     if (cell.watered && cell.wateredAt && (now - cell.wateredAt) > 15000) {
                         cell.watered = false;
                         cell.wateredAt = null;
-                        console.log(`${plantData.name} water effect expired`);
                     }
                     
                     if (cell.fertilized && cell.fertilizedAt && (now - cell.fertilizedAt) > 20000) {
                         cell.fertilized = false;
                         cell.fertilizedAt = null;
-                        console.log(`${plantData.name} fertilizer effect expired`);
                     }
                     
                     let growthMultiplier = 0.3;
@@ -2712,7 +2840,6 @@ class GardenGame {
                     const currentStage = this.getPlantGrowthStage(cell.plant);
                     if (currentStage >= this.growthStages.length - 1 && !cell.plant.isFullyGrown) {
                         cell.plant.isFullyGrown = true;
-                        console.log(`${plantData.name} is fully mature and ready to harvest!`);
                     }
                     
                     // Check for continuous growth from watering and fertilizing
@@ -2731,9 +2858,12 @@ class GardenGame {
     
     checkRestockSilent() {
         const now = Date.now();
-        if (now - this.lastRestockTime >= this.restockInterval) {
+        const timeSinceLastRestock = now - this.lastRestockTime;
+        
+        if (timeSinceLastRestock >= this.restockInterval) {
             this.restockShopSilent();
             this.lastRestockTime = now;
+            this.updateShopDisplay(); // Force update the shop display
         }
     }
     
@@ -2744,11 +2874,14 @@ class GardenGame {
     }
     
     restockShopSilent() {
+        let restockedSeeds = [];
+        
         for (const [seedType, inventory] of Object.entries(this.shopInventory)) {
             const plantData = this.plantTypes[seedType];
             
             if (inventory.stock < inventory.maxStock) {
                 let shouldRestock = true;
+                let restockAmount = inventory.restockAmount;
                 
                 // Check rare and legendary restock chances
                 if (plantData.isRare && Math.random() > this.rareRestockChance) {
@@ -2759,13 +2892,35 @@ class GardenGame {
                 }
                 
                 if (shouldRestock) {
-                    const restockAmount = Math.min(
-                        inventory.restockAmount,
+                    // For rare and legendary seeds, give higher quantities when they do restock
+                    if (plantData.isRare) {
+                        restockAmount = inventory.restockAmount * 3; // Triple the amount
+                    } else if (plantData.isLegendary) {
+                        restockAmount = inventory.restockAmount * 5; // 5x the amount
+                    }
+                    
+                    // Ensure we don't exceed max stock
+                    restockAmount = Math.min(
+                        restockAmount,
                         inventory.maxStock - inventory.stock
                     );
-                    inventory.stock += restockAmount;
+                    
+                    if (restockAmount > 0) {
+                        const oldStock = inventory.stock;
+                        inventory.stock += restockAmount;
+                        restockedSeeds.push(`${plantData.name} (${oldStock}→${inventory.stock})`);
+                    }
                 }
             }
+        }
+        
+        if (restockedSeeds.length > 0) {
+            this.showMessage(`Shop restocked: ${restockedSeeds.join(', ')}`, 'info');
+            
+            // Force immediate shop display update
+            setTimeout(() => {
+                this.updateShopDisplay();
+            }, 100);
         }
     }
     
@@ -2833,6 +2988,16 @@ class GardenGame {
             }
         });
         
+        // Draw decorations
+        for (let row = 0; row < this.gridSize; row++) {
+            for (let col = 0; col < this.gridSize; col++) {
+                const cell = this.garden[row][col];
+                if (cell.decoration) {
+                    this.drawDecoration(row, col, cell.decoration, offsetX, offsetY);
+                }
+            }
+        }
+        
         // Draw particles
         this.drawParticles();
         
@@ -2845,12 +3010,10 @@ class GardenGame {
     
     drawPlant(row, col, cell, offsetX, offsetY) {
         if (!this.ctx) {
-            console.log('Context is null, skipping drawPlant');
             return;
         }
         
         if (!cell.plant || !cell.plant.type) {
-            console.log(`No plant data at [${row}, ${col}]`);
             return;
         }
         
@@ -2859,7 +3022,6 @@ class GardenGame {
         const plantData = this.plantTypes[cell.plant.type];
         
         if (!plantData) {
-            console.log(`No plant data found for type: ${cell.plant.type}`);
             return;
         }
         
@@ -2949,7 +3111,6 @@ class GardenGame {
     
     drawSprinkler(row, col, type, offsetX, offsetY) {
         if (!this.ctx) {
-            console.log('Context is null, skipping drawSprinkler');
             return;
         }
         
@@ -3009,6 +3170,84 @@ class GardenGame {
         // Draw range indicator
         this.ctx.strokeStyle = sprinklerData.color;
         this.ctx.lineWidth = 1;
+        this.ctx.globalAlpha = 0.2;
+        
+        // Draw range circle
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, sprinklerData.range * this.cellSize, 0, 2 * Math.PI);
+        this.ctx.stroke();
+        
+        // Reset globalAlpha
+        this.ctx.globalAlpha = 1;
+    }
+    
+    drawDecoration(row, col, decoration, offsetX, offsetY) {
+        if (!this.ctx) {
+            return;
+        }
+        
+        const decorationData = this.decorations[decoration.type];
+        if (!decorationData) {
+            return;
+        }
+        
+        const x = offsetX + col * this.cellSize + this.cellSize / 2;
+        const y = offsetY + row * this.cellSize + this.cellSize / 2;
+        
+        // Draw decoration background
+        this.ctx.fillStyle = '#f8f9fa';
+        this.ctx.globalAlpha = 0.8;
+        this.ctx.fillRect(offsetX + col * this.cellSize + 2, offsetY + row * this.cellSize + 2, 
+                         this.cellSize - 4, this.cellSize - 4);
+        this.ctx.globalAlpha = 1;
+        
+        // Draw decoration icon
+        this.ctx.font = `${this.cellSize * 0.6}px Arial`;
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        this.ctx.fillStyle = '#6c757d';
+        this.ctx.fillText(decorationData.icon, x, y);
+        
+        // Add glow effect for active decorations
+        if (decoration.active) {
+            this.ctx.shadowColor = '#FFD700';
+            this.ctx.shadowBlur = 5;
+            this.ctx.fillText(decorationData.icon, x, y);
+            this.ctx.shadowBlur = 0;
+        }
+        
+        // Add border for seasonal decorations
+        if (decorationData.type === 'seasonal') {
+            this.ctx.strokeStyle = '#FFD700';
+            this.ctx.lineWidth = 2;
+            this.ctx.strokeRect(offsetX + col * this.cellSize + 1, offsetY + row * this.cellSize + 1, 
+                               this.cellSize - 2, this.cellSize - 2);
+        }
+        
+        // Draw decoration range indicator (3x3 area)
+        if (decorationData.bonus && decorationData.bonus !== 'none') {
+            this.ctx.strokeStyle = '#28a745';
+            this.ctx.lineWidth = 1;
+            this.ctx.globalAlpha = 0.2;
+            
+            // Draw 3x3 range square
+            this.ctx.strokeRect(offsetX + (col - 1) * this.cellSize, offsetY + (row - 1) * this.cellSize, 
+                               this.cellSize * 3, this.cellSize * 3);
+            
+            this.ctx.globalAlpha = 1;
+        }
+    }
+    
+    drawRangeIndicator(row, col, type, offsetX, offsetY) {
+        if (!this.ctx) return;
+        
+        const x = offsetX + col * this.cellSize + this.cellSize / 2;
+        const y = offsetY + row * this.cellSize + this.cellSize / 2;
+        const sprinklerData = this.sprinklerTypes[type];
+        
+        // Draw range indicator
+        this.ctx.strokeStyle = sprinklerData.color;
+        this.ctx.lineWidth = 1;
         this.ctx.globalAlpha = 0.3;
         
         // Draw range circle
@@ -3018,6 +3257,41 @@ class GardenGame {
         
         // Reset globalAlpha
         this.ctx.globalAlpha = 1;
+    }
+    
+    // Function to show which plants are affected by bonuses
+    showBonusInfo(row, col) {
+        const cell = this.garden[row][col];
+        if (!cell.plant) return;
+        
+        const plant = cell.plant;
+        let bonusInfo = [];
+        
+        // Check for decoration bonuses
+        for (let y = Math.max(0, row - 1); y <= Math.min(this.gridSize - 1, row + 1); y++) {
+            for (let x = Math.max(0, col - 1); x <= Math.min(this.gridSize - 1, col + 1); x++) {
+                const nearbyCell = this.garden[y][x];
+                if (nearbyCell.decoration) {
+                    const decorationData = this.decorations[nearbyCell.decoration.type];
+                    if (decorationData && decorationData.bonus && decorationData.bonus !== 'none') {
+                        bonusInfo.push(`${decorationData.name}: ${decorationData.bonus}`);
+                    }
+                }
+            }
+        }
+        
+        // Check for sprinkler bonuses
+        this.sprinklers.forEach(sprinkler => {
+            const distance = Math.max(Math.abs(sprinkler.row - row), Math.abs(sprinkler.col - col));
+            if (distance <= this.sprinklerTypes[sprinkler.type].range) {
+                const sprinklerData = this.sprinklerTypes[sprinkler.type];
+                bonusInfo.push(`${sprinkler.type} sprinkler: +${Math.round(sprinklerData.growthBonus * 100)}% growth`);
+            }
+        });
+        
+        if (bonusInfo.length > 0) {
+            this.showMessage(`Plant bonuses: ${bonusInfo.join(', ')}`, 'info');
+        }
     }
     
     drawSeasonalInfo() {
@@ -3125,9 +3399,121 @@ class GardenGame {
         }
     }
     
-            updateShopDisplay() {
-            // First, ensure all seed elements are visible and reset their state
-            document.querySelectorAll('.seed-item').forEach(element => {
+                updateSeedRarityDisplay(seedType, rarity) {
+        // Find the seed element
+        const seedElement = document.querySelector(`[data-seed="${seedType}"]`);
+        if (!seedElement) {
+            this.showMessage(`Warning: Seed element not found for ${seedType}`, 'warning');
+            return;
+        }
+        
+        // Remove existing rarity classes
+        seedElement.classList.remove('rare-seed', 'legendary-seed');
+        
+        // Get the seed name element
+        const nameElement = seedElement.querySelector('.seed-name');
+        if (!nameElement) {
+            this.showMessage(`Warning: Name element not found for ${seedType}`, 'warning');
+            return;
+        }
+        
+        // Get the base name (remove any existing rarity suffix)
+        let baseName = nameElement.textContent.replace(/\s*\(RARE\)$/, '').replace(/\s*\(LEGENDARY\)$/, '');
+        
+        // Find the shop container
+        const shopContainer = seedElement.closest('.seed-shop');
+        if (!shopContainer) {
+            this.showMessage(`Warning: Shop container not found for ${seedType}`, 'warning');
+            return;
+        }
+        
+        // Remove the seed from its current position
+        seedElement.remove();
+        
+        // Update the seed name and add appropriate class
+        if (rarity === 'rare') {
+            nameElement.textContent = `${baseName} (RARE)`;
+            seedElement.classList.add('rare-seed');
+            
+            // Find the rare seeds section and add the seed there
+            const rareSection = Array.from(shopContainer.querySelectorAll('h4')).find(h4 => h4.textContent.includes('⭐ Rare Seeds'));
+            if (rareSection) {
+                const rareContainer = rareSection.nextElementSibling;
+                if (rareContainer && rareContainer.classList.contains('seed-item')) {
+                    // Insert after the last rare seed
+                    let lastRareSeed = rareSection;
+                    while (lastRareSeed.nextElementSibling && 
+                           lastRareSeed.nextElementSibling.classList.contains('seed-item') &&
+                           lastRareSeed.nextElementSibling.classList.contains('rare-seed')) {
+                        lastRareSeed = lastRareSeed.nextElementSibling;
+                    }
+                    lastRareSeed.parentNode.insertBefore(seedElement, lastRareSeed.nextSibling);
+                } else {
+                    // Insert after the rare section header
+                    rareSection.parentNode.insertBefore(seedElement, rareSection.nextSibling);
+                }
+            } else {
+                // Fallback: add to the end of the shop
+                shopContainer.appendChild(seedElement);
+            }
+        } else if (rarity === 'legendary') {
+            nameElement.textContent = `${baseName} (LEGENDARY)`;
+            seedElement.classList.add('legendary-seed');
+            
+            // Find the legendary seeds section and add the seed there
+            const legendarySection = Array.from(shopContainer.querySelectorAll('h4')).find(h4 => h4.textContent.includes('🌟 Legendary Seeds'));
+            if (legendarySection) {
+                const legendaryContainer = legendarySection.nextElementSibling;
+                if (legendaryContainer && legendaryContainer.classList.contains('seed-item')) {
+                    // Insert after the last legendary seed
+                    let lastLegendarySeed = legendarySection;
+                    while (lastLegendarySeed.nextElementSibling && 
+                           lastLegendarySeed.nextElementSibling.classList.contains('seed-item') &&
+                           lastLegendarySeed.nextElementSibling.classList.contains('legendary-seed')) {
+                        lastLegendarySeed = lastLegendarySeed.nextElementSibling;
+                    }
+                    lastLegendarySeed.parentNode.insertBefore(seedElement, lastLegendarySeed.nextSibling);
+                } else {
+                    // Insert after the legendary section header
+                    legendarySection.parentNode.insertBefore(seedElement, legendarySection.nextSibling);
+                }
+            } else {
+                // Fallback: add to the end of the shop
+                shopContainer.appendChild(seedElement);
+            }
+        } else {
+            // Common rarity - remove any rarity styling and move to basic section
+            nameElement.textContent = baseName;
+            
+            // Find the basic seeds section and add the seed there
+            const basicSection = Array.from(shopContainer.querySelectorAll('h4')).find(h4 => h4.textContent.includes('🌱 Basic Seeds'));
+            if (basicSection) {
+                const basicContainer = basicSection.nextElementSibling;
+                if (basicContainer && basicContainer.classList.contains('seed-item')) {
+                    // Insert after the last basic seed
+                    let lastBasicSeed = basicSection;
+                    while (lastBasicSeed.nextElementSibling && 
+                           lastBasicSeed.nextElementSibling.classList.contains('seed-item') &&
+                           !lastBasicSeed.nextElementSibling.classList.contains('rare-seed') &&
+                           !lastBasicSeed.nextElementSibling.classList.contains('legendary-seed')) {
+                        lastBasicSeed = lastBasicSeed.nextElementSibling;
+                    }
+                    lastBasicSeed.parentNode.insertBefore(seedElement, lastBasicSeed.nextSibling);
+                } else {
+                    // Insert after the basic section header
+                    basicSection.parentNode.insertBefore(seedElement, basicSection.nextSibling);
+                }
+            } else {
+                // Fallback: add to the beginning of the shop
+                shopContainer.insertBefore(seedElement, shopContainer.firstChild);
+            }
+        }
+    }
+
+    updateShopDisplay() {
+            
+                    // First, ensure all seed elements are visible and reset their state
+        document.querySelectorAll('.seed-item').forEach(element => {
                 element.style.display = 'block';
                 element.classList.remove('out-of-stock');
             });
@@ -3136,6 +3522,11 @@ class GardenGame {
             Object.keys(this.shopInventory).forEach(seedType => {
                 const seedData = this.plantTypes[seedType];
                 const inventory = this.shopInventory[seedType];
+                
+                // Check if inventory structure is valid
+                if (!inventory || typeof inventory !== 'object') {
+                    return;
+                }
                 
                 if (seedData && inventory) {
                     const seedElement = document.querySelector(`[data-seed="${seedType}"]`);
@@ -3150,8 +3541,10 @@ class GardenGame {
                         // Update the stock display
                         const stockElement = seedElement.querySelector('.seed-stock');
                 if (stockElement) {
+                    const oldText = stockElement.textContent;
                     stockElement.textContent = `Stock: ${inventory.stock}`;
-                        }
+                    // Stock display updated
+                }
                         
                         // Update the price display
                         const priceElement = seedElement.querySelector('.seed-price');
@@ -3190,6 +3583,8 @@ class GardenGame {
         
         // Force a reflow to ensure the DOM updates
         document.body.offsetHeight;
+        
+
         
         // Ensure seed elements are clickable
         document.querySelectorAll('.seed-item').forEach(item => {
@@ -3368,6 +3763,7 @@ class GardenGame {
         this.updatePlants();
         this.checkRestock();
         this.updateWeather();
+        this.checkStormDamage();
         this.checkAutoSave();
         this.checkAchievements();
             this.generateChallenges();
@@ -3563,6 +3959,7 @@ class GardenGame {
             garden: this.garden,
             shopInventory: this.shopInventory,
             lastRestockTime: this.lastRestockTime,
+            restockInterval: this.restockInterval,
             toolLevels: this.toolLevels,
             toolUpgradeCosts: this.toolUpgradeCosts,
             harvestBonus: this.harvestBonus,
@@ -3586,6 +3983,7 @@ class GardenGame {
             stats: this.stats,
             challenges: this.challenges,
             lastChallengeUpdate: this.lastChallengeUpdate,
+
             saveTime: Date.now()
         };
         
@@ -4269,6 +4667,271 @@ class GardenGame {
         }
     }
     
+    placeDecoration(row, col) {
+        console.log(`Attempting to place decoration at (${row}, ${col})`);
+        console.log(`Selected decoration: ${this.selectedDecoration}`);
+        
+        // Validate selected decoration
+        if (!this.selectedDecoration) {
+            console.error('No decoration selected');
+            this.showMessage('No decoration selected!', 'error');
+            return;
+        }
+        
+        // Validate decoration type exists
+        if (!this.decorations[this.selectedDecoration]) {
+            console.error(`Invalid decoration type: ${this.selectedDecoration}`);
+            this.showMessage('Invalid decoration type!', 'error');
+            return;
+        }
+        
+        // Validate coordinates
+        if (row < 0 || row >= this.gridSize || col < 0 || col >= this.gridSize) {
+            console.error(`Invalid coordinates: (${row}, ${col})`);
+            this.showMessage('Invalid placement location!', 'error');
+            return;
+        }
+        
+        // Check if there's already something at this location
+        const cell = this.garden[row][col];
+        if (cell.plant || cell.sprinkler || cell.decoration) {
+            console.log(`Cannot place decoration at (${row}, ${col}) - space occupied`);
+            this.showMessage('Cannot place decoration here - space occupied!', 'error');
+            return;
+        }
+        
+        // Check if player has enough money
+        const decorationData = this.decorations[this.selectedDecoration];
+        if (this.money < decorationData.cost) {
+            console.log(`Not enough money for ${this.selectedDecoration}. Need: ${decorationData.cost}, Have: ${this.money}`);
+            this.showMessage(`Not enough money! Need $${decorationData.cost}`, 'error');
+            return;
+        }
+        
+        // Check seasonal restrictions
+        if (decorationData.season && decorationData.season !== this.currentSeason && decorationData.season !== 'all') {
+            console.log(`Cannot place ${this.selectedDecoration} in ${this.currentSeason} season`);
+            this.showMessage(`This decoration is only available in ${decorationData.season}!`, 'error');
+            return;
+        }
+        
+        console.log(`Placing ${this.selectedDecoration} at (${row}, ${col})`);
+        
+        // Place the decoration
+        this.garden[row][col].decoration = {
+            type: this.selectedDecoration,
+            placedAt: Date.now(),
+            active: true
+        };
+        
+        // Deduct money
+        this.money -= decorationData.cost;
+        
+        // Apply decoration bonuses to nearby plants
+        this.applyDecorationBonuses(row, col);
+        
+        // Update UI
+        this.showMessage(`${decorationData.name} placed!`, 'success');
+        this.playSound('plant');
+        
+        // Add decoration particle effect
+        const x = (col * this.cellSize) + (this.cellSize / 2);
+        const y = (row * this.cellSize) + (this.cellSize / 2);
+        this.addParticle(x, y, 'decoration', decorationData.icon);
+        
+        this.updateUI();
+        this.saveGame();
+    }
+    
+    removeDecoration(row, col) {
+        const cell = this.garden[row][col];
+        if (cell.decoration) {
+            const decorationData = this.decorations[cell.decoration.type];
+            this.garden[row][col].decoration = null;
+            
+            // Remove decoration bonuses
+            this.removeDecorationBonuses(row, col);
+            
+            this.showMessage(`${decorationData.name} removed!`, 'info');
+            this.updateUI();
+            this.saveGame();
+        }
+    }
+    
+    applyDecorationBonuses(row, col) {
+        const decoration = this.garden[row][col].decoration;
+        if (!decoration) return;
+        
+        const decorationData = this.decorations[decoration.type];
+        if (!decorationData || decorationData.bonus === 'none') return;
+        
+        // Check 3x3 area around decoration
+        for (let y = Math.max(0, row - 1); y <= Math.min(this.gridSize - 1, row + 1); y++) {
+            for (let x = Math.max(0, col - 1); x <= Math.min(this.gridSize - 1, col + 1); x++) {
+                if (this.garden[y][x].plant) {
+                    // Apply bonus to plant (implementation depends on bonus type)
+                    this.applyPlantBonus(y, x, decorationData.bonus);
+                }
+            }
+        }
+    }
+    
+    removeDecorationBonuses(row, col) {
+        const decoration = this.garden[row][col].decoration;
+        if (!decoration) return;
+        
+        const decorationData = this.decorations[decoration.type];
+        if (!decorationData || decorationData.bonus === 'none') return;
+        
+        // Remove bonuses from 3x3 area around decoration
+        for (let y = Math.max(0, row - 1); y <= Math.min(this.gridSize - 1, row + 1); y++) {
+            for (let x = Math.max(0, col - 1); x <= Math.min(this.gridSize - 1, col + 1); x++) {
+                if (this.garden[y][x].plant) {
+                    // Remove bonus from plant
+                    this.removePlantBonus(y, x, decorationData.bonus);
+                }
+            }
+        }
+    }
+    
+    applyPlantBonus(row, col, bonus) {
+        const plant = this.garden[row][col].plant;
+        if (!plant) return;
+        
+        // Initialize plant bonuses if they don't exist
+        if (!plant.bonuses) {
+            plant.bonuses = {};
+        }
+        
+        // Apply the specific bonus
+        if (bonus.includes('plant protection')) {
+            const protectionAmount = parseInt(bonus.match(/(\d+)%/)[1]);
+            plant.bonuses.protection = (plant.bonuses.protection || 0) + protectionAmount;
+            console.log(`Applied ${protectionAmount}% plant protection to plant at (${row}, ${col})`);
+        } else if (bonus.includes('growth')) {
+            const growthAmount = parseInt(bonus.match(/(\d+)%/)[1]);
+            plant.bonuses.growth = (plant.bonuses.growth || 0) + growthAmount;
+            console.log(`Applied ${growthAmount}% growth bonus to plant at (${row}, ${col})`);
+        } else if (bonus.includes('harvest value')) {
+            const harvestAmount = parseInt(bonus.match(/(\d+)%/)[1]);
+            plant.bonuses.harvestValue = (plant.bonuses.harvestValue || 0) + harvestAmount;
+            console.log(`Applied ${harvestAmount}% harvest value bonus to plant at (${row}, ${col})`);
+        } else if (bonus.includes('water efficiency')) {
+            const waterAmount = parseInt(bonus.match(/(\d+)%/)[1]);
+            plant.bonuses.waterEfficiency = (plant.bonuses.waterEfficiency || 0) + waterAmount;
+            console.log(`Applied ${waterAmount}% water efficiency bonus to plant at (${row}, ${col})`);
+        }
+    }
+    
+    removePlantBonus(row, col, bonus) {
+        const plant = this.garden[row][col].plant;
+        if (!plant || !plant.bonuses) return;
+        
+        // Remove the specific bonus
+        if (bonus.includes('plant protection')) {
+            const protectionAmount = parseInt(bonus.match(/(\d+)%/)[1]);
+            plant.bonuses.protection = Math.max(0, (plant.bonuses.protection || 0) - protectionAmount);
+            console.log(`Removed ${protectionAmount}% plant protection from plant at (${row}, ${col})`);
+        } else if (bonus.includes('growth')) {
+            const growthAmount = parseInt(bonus.match(/(\d+)%/)[1]);
+            plant.bonuses.growth = Math.max(0, (plant.bonuses.growth || 0) - growthAmount);
+            console.log(`Removed ${growthAmount}% growth bonus from plant at (${row}, ${col})`);
+        } else if (bonus.includes('harvest value')) {
+            const harvestAmount = parseInt(bonus.match(/(\d+)%/)[1]);
+            plant.bonuses.harvestValue = Math.max(0, (plant.bonuses.harvestValue || 0) - harvestAmount);
+            console.log(`Removed ${harvestAmount}% harvest value bonus from plant at (${row}, ${col})`);
+        } else if (bonus.includes('water efficiency')) {
+            const waterAmount = parseInt(bonus.match(/(\d+)%/)[1]);
+            plant.bonuses.waterEfficiency = Math.max(0, (plant.bonuses.waterEfficiency || 0) - waterAmount);
+            console.log(`Removed ${waterAmount}% water efficiency bonus from plant at (${row}, ${col})`);
+        }
+    }
+    
+    // Storm damage system
+    checkStormDamage() {
+        if (this.weather !== 'stormy') return;
+        
+        // Only check for storm damage every 30 seconds during stormy weather
+        const now = Date.now();
+        if (!this.lastStormDamageCheck) {
+            this.lastStormDamageCheck = now;
+        }
+        
+        if (now - this.lastStormDamageCheck < 30000) return; // 30 seconds
+        this.lastStormDamageCheck = now;
+        
+        console.log(`Storm damage check triggered at ${new Date().toLocaleTimeString()}`);
+        
+        let damagedPlants = 0;
+        let protectedPlants = 0;
+        
+        // Check all plants in the garden
+        for (let row = 0; row < this.gridSize; row++) {
+            for (let col = 0; col < this.gridSize; col++) {
+                const cell = this.garden[row][col];
+                if (cell.plant) {
+                    const protection = cell.plant.bonuses?.protection || 0;
+                    
+                    // 15% chance of storm damage per plant (reduced by protection)
+                    const damageChance = Math.max(0, 15 - protection);
+                    const random = Math.random() * 100;
+                    
+                    if (random < damageChance) {
+                        // Plant gets damaged
+                        console.log(`Storm damage check: Plant at (${row}, ${col}) hit! Random: ${random.toFixed(1)}, Damage chance: ${damageChance}%`);
+                        this.damagePlant(row, col);
+                        damagedPlants++;
+                    } else if (protection > 0 && random >= 15) {
+                        // Only count as protected if they would have been damaged without protection
+                        // (random >= 15 means they would have been damaged without protection)
+                        protectedPlants++;
+                    }
+                }
+            }
+        }
+        
+        // Show feedback to player
+        if (damagedPlants > 0 || protectedPlants > 0) {
+            let message = '';
+            if (damagedPlants > 0) {
+                message += `⛈️ Storm damaged ${damagedPlants} unprotected plants!`;
+                this.addParticle('damage', this.canvas.width / 2, this.canvas.height / 2);
+            }
+            if (protectedPlants > 0) {
+                if (message) message += ' ';
+                message += `🛡️ ${protectedPlants} plants were protected by fences!`;
+            }
+            this.showMessage(message, damagedPlants > 0 ? 'warning' : 'info');
+        }
+    }
+    
+    damagePlant(row, col) {
+        const plant = this.garden[row][col].plant;
+        if (!plant) return;
+        
+        // Reduce plant growth stage by 1 (but not below seed stage)
+        const currentStage = plant.growthStage || 0;
+        if (currentStage > 0) {
+            plant.growthStage = currentStage - 1;
+            plant.recentlyDamaged = true; // Mark as recently damaged
+            
+            // Update isFullyGrown status
+            const maxStage = this.growthStages.length - 1;
+            plant.isFullyGrown = (plant.growthStage >= maxStage);
+            
+            console.log(`Plant at (${row}, ${col}) was damaged by storm, regressed to stage ${plant.growthStage}, isFullyGrown: ${plant.isFullyGrown}`);
+            
+            // Add visual feedback
+            this.addParticle('damage', 
+                col * this.cellSize + this.cellSize / 2, 
+                row * this.cellSize + this.cellSize / 2
+            );
+            
+            // Force a redraw to show the stage change immediately
+            this.draw();
+        }
+    }
+    
     updateSprinklerDisplay() {
         // Update sprinkler shop counts
         Object.keys(this.sprinklerInventory).forEach(type => {
@@ -4335,7 +4998,19 @@ class GardenGame {
     
     // Weather System
     updateWeather() {
+        const oldWeather = this.weather;
         this.updateWeatherSilent();
+        
+        // Show weather change message if weather actually changed
+        if (oldWeather !== this.weather) {
+            const weatherName = this.weatherEffects[this.weather].name;
+            this.showMessage(`🌤️ Weather changed to ${weatherName}!`, 'info');
+            
+            // Special warning for stormy weather
+            if (this.weather === 'stormy') {
+                this.showMessage(`⛈️ Stormy weather can damage unprotected plants!`, 'warning');
+            }
+        }
     }
     
     updateWeatherSilent() {
@@ -4780,6 +5455,7 @@ class GardenGame {
                 }
                 
                 this.lastRestockTime = data.lastRestockTime || Date.now();
+                if (data.restockInterval) this.restockInterval = data.restockInterval;
                 
                 // Load tool data
                 if (data.toolLevels) this.toolLevels = data.toolLevels;
@@ -4849,6 +5525,7 @@ class GardenGame {
                 if (data.stats) this.stats = data.stats;
                 if (data.challenges) this.challenges = data.challenges;
                 if (data.lastChallengeUpdate) this.lastChallengeUpdate = data.lastChallengeUpdate;
+
                 
                 console.log(`Successfully loaded game for slot ${this.saveSlot}`);
                 

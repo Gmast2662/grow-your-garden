@@ -2,10 +2,10 @@
 
 A feature-rich, browser-based gardening simulation game built with vanilla JavaScript, HTML5 Canvas, and CSS3. Plant seeds, manage resources, upgrade tools, and grow your perfect garden!
 
-- **This game is fully working and released as v1.5.5. I am actively working on more updates to make this game even better. Contact me or tell me in the Github.**
+- **This game is fully working and released as v1.6.0. I am actively working on more updates to make this game even better. Contact me or tell me in the Github.**
 - **I have fixed every bug, but there still may be some bugs I don't know about. So if you find any go to the issues page in the Github.**
 
-![Grow Your Garden](https://img.shields.io/badge/Status-v1.5.5%20Released-brightgreen)
+![Grow Your Garden](https://img.shields.io/badge/Status-v1.6.0%20Released-brightgreen)
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-yellow)
 ![HTML5](https://img.shields.io/badge/HTML5-Canvas-orange)
 ![CSS3](https://img.shields.io/badge/CSS3-Responsive-blue)
@@ -232,20 +232,22 @@ Contributions are welcome! Here's how you can help:
 
 ## 🆕 Recent Updates
 
-### **Latest Version (v1.5.5)**
+### **Latest Version (v1.6.0)**
+- 🌸 **NEW**: Garden decorations system with 12 decorative items (paths, statues, fences, seasonal)
+- ⛈️ **NEW**: Storm damage system - stormy weather can damage unprotected plants
+- 🛡️ **NEW**: Plant protection system - fences provide protection against storm damage
+- 🏡 **ENHANCED**: Garden expansion increased to 16x16 maximum size
 - 🌱 **NEW**: Continuous growth system - plants grow continuously while watered/fertilized
-- 💧 **ENHANCED**: Sprinkler system now actively grows plants automatically
-- ⚡ **IMPROVED**: Water growth (1 stage/2s for 8s), Fertilizer growth (1 stage/1.5s for 12s)
-- 🎯 **STRATEGIC**: Sprinkler growth (1 stage/30s while in range) for automated growing zones
-- 🎮 **ENGAGING**: Much more rewarding and hands-on gardening experience
-- ✅ **MAJOR FIX**: Completely resolved garden state bleeding between save slots
-- ✅ **MAJOR FIX**: Removed confusing admin messages for cleaner user experience
-- ✅ **MAJOR DESIGN CHANGE**: Removed win condition system for endless seasonal gardening
-- ✅ **NEW FEATURE**: Added transparent admin panel usage tracking for honesty
-- ✅ **GAMEPLAY IMPROVEMENT**: Shortened seasonal system from 30 to 5 real-life days for faster progression
-- ✅ Enhanced mobile touch controls and visual effects
-- ✅ Improved admin panel garden management commands
-- ✅ Added performance monitoring and emergency recovery
+- ✨ **NEW**: Visual rarity display system - seeds move to correct sections when rarity is set
+- 🎨 **ENHANCED**: Shop restock system with proper visual updates and inventory structure
+- 🔧 **FIXED**: All console logging cleaned up for cleaner user experience
+- 🎯 **IMPROVED**: Rarity command now properly updates seed appearance and section placement
+- 🛠️ **CLEANUP**: Removed all debugging messages and console spam
+- ✅ **MAJOR FIX**: Shop display now properly updates after restocks
+- ✅ **MAJOR FIX**: Inventory structure corruption issues resolved
+- ✅ **ENHANCED**: Better visual feedback for rarity changes in the shop
+- ✅ **IMPROVED**: Cleaner codebase with all debugging removed
+- ✅ **MAINTENANCE**: Comprehensive console logging cleanup throughout the game
 
 *See [UPDATE_LOG.md](UPDATE_LOG.md) for complete changelog*
 
