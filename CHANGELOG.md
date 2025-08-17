@@ -2,7 +2,163 @@
 
 This document contains every single update, bug fix, and change made to Grow Your Garden, including detailed technical information.
 
-## 🆕 Latest Updates (v1.5.5)
+## 🆕 Latest Updates (v1.6.1)
+
+### ✨ NEW: Multiplayer UI Integration
+- **Multiplayer Panel**: Added a beautiful multiplayer panel to the game sidebar with:
+  - Connection status indicator (🟢 Connected / 🔴 Disconnected)
+  - Friends button to view online friends
+  - Chat button to access garden chat
+  - Visit Garden button for future garden visits
+  - Real-time connection status updates
+- **Friends List**: 
+  - Shows online friends with status indicators
+  - Displays friend usernames and online/offline status
+  - Handles empty friends list gracefully
+- **Chat System**:
+  - Real-time chat messages display
+  - Send messages with Enter key or Send button
+  - Auto-scroll to latest messages
+  - Username highlighting in chat
+- **UI Styling**: 
+  - Beautiful gradient background for multiplayer panel
+  - Responsive design that works on all devices
+  - Smooth hover effects and transitions
+  - Professional chat and friends list styling
+- **Technical Integration**:
+  - Added `multiplayer.js` script loading to `index.html`
+  - Integrated multiplayer initialization into game startup
+  - Added event listeners for all multiplayer buttons
+  - Connected to existing multiplayer backend system
+  - JWT token authentication for secure connections
+- **Result**: Players can now see and use multiplayer features directly in the game interface!
+
+## 🆕 Previous Updates (v1.6.0)
+
+### ✨ NEW: Visual Rarity Display System
+- **Rarity Command Enhancement**: When you set a seed's rarity using the admin panel, it now:
+  - Moves the seed to the correct section (Basic/Rare/Legendary)
+  - Applies the appropriate visual styling (golden for rare, red glow for legendary)
+  - Updates the seed name to show "(RARE)" or "(LEGENDARY)" suffix
+  - Maintains proper section organization in the shop
+- **Visual Styling**: 
+  - Rare seeds get golden borders and backgrounds
+  - Legendary seeds get red borders with glowing effects
+  - Seeds automatically move to their correct sections
+- **Technical Details**:
+  - Added `updateSeedRarityDisplay()` function to handle visual updates
+  - Seeds are dynamically moved between shop sections
+  - CSS classes are automatically applied/removed
+  - Name suffixes are updated to reflect rarity status
+
+### 🔧 FIXED: Shop Restock System & Console Cleanup
+- **Restock Display**: Fixed shop display not updating visually after restocks
+- **Inventory Structure**: Fixed corrupted inventory data structure issues
+- **Console Cleanup**: Removed all debugging messages for cleaner experience
+- **Technical Details**:
+  - Fixed `updateShopDisplay()` to properly update stock numbers
+  - Added inventory structure validation
+  - Removed all console.log statements from shop functions
+  - Fixed restock timing and persistence issues
+  - **Comprehensive Console Cleanup**: Removed all debugging console.log statements throughout the game
+  - **Cleaner Codebase**: Eliminated console spam from plant growth, event handling, admin functions, and UI updates
+  - **Better Performance**: Reduced console output for improved browser performance
+- **Result**: Shop now properly displays restocked items, rarity changes are visually apparent, and game runs with clean console output
+
+## 🆕 Previous Updates (v1.5.9)
+
+### 🔧 FIXED: Rarity Command, Restock Interval & Console Messages
+- **Rarity Command**: Fixed setRarity function to work properly with admin panel
+- **Restock Interval**: Fixed restock interval persistence by adding it to save/load system
+- **Console Messages**: Removed all debug console messages for cleaner experience
+- **Technical Details**:
+  - Simplified setRarity function with better error handling
+  - Added restockInterval to save/load data to persist custom intervals
+  - Removed all console.log statements from restock, planting, and admin functions
+  - Removed testAdminPanel function and debugging code
+  - Fixed restock timing to respect custom intervals properly
+- **Result**: Admin panel now works correctly, restock intervals persist, and no console spam
+
+## 🆕 Previous Updates (v1.5.8)
+
+### 🔧 FIXED: Restock Interval Calculation Issues
+- **Issue**: Changing restock time interval was causing immediate restocking due to incorrect time calculations
+- **Root Cause**: `setRestockTime()` and `restockNow()` functions had incorrect time unit conversions
+- **Solution**: Fixed time calculations and added comprehensive debugging
+- **Technical Details**:
+  - Fixed `setRestockTime()` to properly convert minutes to milliseconds
+  - Fixed `restockNow()` to use correct time calculation (removed double conversion)
+  - Added debugging to `checkRestockSilent()` to track restock timing
+  - Added debugging to `restockShopSilent()` to track what seeds are being restocked
+  - Added detailed console logging for troubleshooting restock issues
+- **Result**: Restock intervals now work correctly, preventing immediate restocking when changing settings
+
+## 🆕 Previous Updates (v1.5.9)
+
+### 🔧 FIXED: Stock Not Decreasing & Rarity Command Issues
+- **Stock Issue**: Fixed shop inventory structure corruption that prevented stock from decreasing
+- **Rarity Command**: Enhanced error handling and debugging for setRarity function
+- **Technical Details**:
+  - Fixed emergency reset function that was overwriting shop inventory with simple numbers instead of proper objects
+  - Added comprehensive debugging to `plantSeed()` function to track stock changes
+  - Enhanced `setRarity()` function with better error checking for HTML elements
+  - Added debugging to `updateShopDisplay()` to track stock display updates
+  - Added debugging to `restockAll()` function to track restock operations
+- **Result**: Stock now properly decreases when planting, and rarity command should work correctly
+
+## 🆕 Previous Updates (v1.5.8)
+
+### 🔧 FIXED: Removed Planting Cooldown & Improved Rare/Legendary Seeds
+- **Removed Cooldown**: Eliminated the 30-second planting cooldown system as requested
+- **Improved Rare Seeds**: Increased restock chance to 25% and tripled quantity when available
+- **Improved Legendary Seeds**: Increased restock chance to 12% and 5x quantity when available
+- **Technical Details**:
+  - Removed all cooldown-related code from `plantSeed()` function
+  - Simplified `restockShopSilent()` to give higher quantities for rare/legendary seeds
+  - Increased `rareRestockChance` from 15% to 25%
+  - Increased `legendaryRestockChance` from 8% to 12%
+  - Rare seeds now get 3x normal restock amount
+  - Legendary seeds now get 5x normal restock amount
+- **Result**: Shop now works more reliably with better rare/legendary seed availability
+
+## 🆕 Previous Updates (v1.5.7)
+
+### 🔧 FIXED: Rapid Replanting After Restock
+- **Issue**: Players could plant multiple seeds immediately after shop restock, creating an infinite planting cycle
+- **Root Cause**: Shop restocks every 5 minutes, allowing immediate replanting without any cooldown
+- **Solution**: Added 30-second planting cooldown system to prevent rapid replanting
+- **Technical Details**:
+  - Added `lastPlantingTime` property to track when seeds were last planted
+  - Implemented 30-second cooldown check in `plantSeed()` function with warning message
+  - Added visual cooldown indicator in top-right corner showing remaining time
+  - Integrated cooldown system with save/load functionality
+  - Modified `updateShopDisplay()` to show real-time cooldown status
+- **Result**: Players must now wait 30 seconds between planting sessions, preventing infinite planting cycles
+
+### 🔧 FIXED: Set Rarity Command Issues
+- **Issue**: `setRarity` command was not working due to duplicate HTML elements
+- **Root Cause**: Duplicate `shop-tab` section with conflicting `seedTypeSelect` IDs
+- **Solution**: Removed duplicate HTML section and enhanced error handling
+- **Technical Details**:
+  - Eliminated duplicate `shop-tab` div that was outside proper HTML structure
+  - Enhanced `setRarity` function with explicit rarity flag deletion
+  - Added console logging for debugging and better error messages
+  - Increased `restockInterval` from 3 minutes to 5 minutes to prevent excessive restocking
+- **Result**: Set Rarity command now works properly and provides clear feedback
+
+### 🌸 NEW: Garden Decorations System
+- **Decorative Items**: Added 12 different decorations including paths, statues, fences, and seasonal items
+- **Strategic Placement**: Decorations take up garden slots, creating meaningful choices between aesthetics and productivity
+- **Seasonal Decorations**: Christmas lights (winter), Halloween pumpkins (fall), spring tulips (spring), summer sunflowers (summer)
+- **Visual Effects**: Glowing active decorations and special golden borders for seasonal items
+- **Bonus System**: Decorations provide bonuses to nearby plants (growth speed, harvest value, water efficiency)
+- **Removal System**: Use shovel tool to remove decorations and reclaim garden space
+
+### 🏡 ENHANCED: Garden Expansion System
+- **Larger Gardens**: Maximum garden size increased from 12x12 to 16x16 tiles
+- **More Space**: Players can now create much larger, more elaborate gardens
+- **Better Layouts**: More room for decorations, plants, and sprinklers
+- **Strategic Planning**: Larger gardens allow for more complex garden designs and better organization
 
 ### 🎉 MAJOR FIX: Garden State Bleeding Completely Resolved
 - **Issue**: Save slots were interfering with each other, causing data corruption and cross-contamination
@@ -22,6 +178,61 @@ This document contains every single update, bug fix, and change made to Grow You
   - Save slot validation on every operation
   - Admin commands with proper state isolation
 - **Result**: All save slots now have fully isolated game states with no cross-contamination
+
+### 🔧 FIXED: Challenge System Bugs
+- **Issue**: Daily challenges were showing as "weekly" and weekly challenges weren't completing properly
+- **Root Cause**: Challenge generation was not properly distinguishing between challenge type (harvest, plant, etc.) and period type (daily, weekly)
+- **Solution**: Updated challenge generation to use separate `challengeType` and `type` properties
+- **Technical Details**:
+  - Modified `createDailyChallenge()` and `createWeeklyChallenge()` to set proper `type` ('daily'/'weekly')
+  - Added `challengeType` property for the actual challenge (harvest, plant, money, etc.)
+  - Updated `updateChallengeProgress()` to check `challengeType` instead of `type`
+  - Fixed challenge display logic to show correct period labels
+- **Result**: Challenges now display correctly and complete properly when targets are reached
+
+### 🎨 ADDED: Decoration Shop UI
+             - **New Feature**: Complete decoration shop interface in main sidebar
+             - **Implementation**:
+               - **New Section**: Added "🌸 Garden Decorations" section to main sidebar with full decoration selection
+               - **Category Filtering**: Filter decorations by type (paths, statues, fences, seasonal)
+               - **Visual Selection**: Click decorations to select them for placement
+               - **Info Panel**: Shows decoration details, cost, and bonuses
+               - **CSS Styling**: Responsive design with hover effects and mobile optimization
+             - **Technical Details**:
+               - Added `initializeDecorationShop()` function for event handling
+               - Implemented category filtering with `data-category` attributes
+               - Added decoration selection with visual feedback
+               - Integrated with existing tool system for placement
+               - Added decoration particle effects for visual feedback
+             - **Result**: Players can now easily browse and select decorations for their garden
+
+### ⛈️ NEW: Storm Damage System & Plant Protection
+- **Stormy Weather Damage**: Implemented actual damage mechanics for stormy weather
+  - **Damage Chance**: 15% chance per plant every 30 seconds during stormy weather
+  - **Plant Regression**: Damaged plants regress one growth stage (but not below seed stage)
+  - **Visual Feedback**: Red explosion particles (💥) appear when plants are damaged
+  - **Player Notifications**: Clear messages show damage and protection status
+- **Plant Protection Implementation**: Fences now provide actual protection against storm damage
+  - **🏡 Picket Fence**: +5% plant protection (reduces storm damage chance by 5%)
+  - **🧱 Stone Wall**: +10% plant protection (reduces storm damage chance by 10%)
+  - **Protection Stacking**: Multiple fences can stack protection on the same plant
+  - **3x3 Range**: Protection affects plants in a 3x3 area around the fence
+- **Enhanced Weather System**: Weather changes now show clear notifications
+  - **Weather Messages**: Players are notified when weather changes
+  - **Storm Warnings**: Special warning when stormy weather begins
+  - **Protection Feedback**: Messages show how many plants were protected during storms
+- **Bonus System Implementation**: All decoration bonuses now have actual gameplay effects
+  - **Growth Bonuses**: Flower beds and sundials provide actual growth speed increases
+  - **Harvest Value**: Garden gnomes increase harvest money
+  - **Water Efficiency**: Bird baths make watering more effective
+  - **Seasonal Bonuses**: Seasonal decorations provide growth bonuses during their season
+- **Technical Implementation**:
+  - Added `checkStormDamage()` function to game loop
+  - Implemented `applyPlantBonus()` and `removePlantBonus()` functions
+  - Added plant protection tracking to garden grid
+  - Enhanced particle system with damage particles
+  - Updated weather system with notifications
+- **Result**: Plant protection is now a meaningful strategic choice - players must decide whether to invest in fences to protect valuable crops during stormy weather
 
 ### Removed Win Condition System
 - **Design Decision**: Win condition didn't make sense with the seasonal system and endless nature of gardening
@@ -456,7 +667,51 @@ This document contains every single update, bug fix, and change made to Grow You
 
 ## 📊 Version History
 
-### 🆕 v1.5.5 - Growth System Refinement (Latest)
+### 🆕 v1.6.0 - Garden Decorations & Storm Damage System (Latest)
+- **🌸 NEW**: Garden decorations system with 12 decorative items (paths, statues, fences, seasonal)
+- **⛈️ NEW**: Storm damage system - stormy weather can damage unprotected plants
+- **🛡️ NEW**: Plant protection system - fences provide protection against storm damage
+- **🏡 ENHANCED**: Garden expansion increased to 16x16 maximum size
+- **🌱 NEW**: Continuous growth system - plants grow continuously while watered/fertilized
+- **✨ NEW**: Visual rarity display system with automatic section organization
+- **🔧 FIXED**: Shop restock system and inventory structure issues
+- **🧹 CLEANUP**: Comprehensive console logging removal for cleaner experience
+- **🎨 VISUAL**: Seeds automatically move to correct sections with proper styling
+
+### 🌱 v1.5.9 - Admin Panel Fixes & Console Cleanup
+- **🔧 FIXED**: Rarity command and restock interval functionality
+- **🧹 CLEANUP**: Removed debug console messages for cleaner experience
+- **⚙️ ADMIN**: Improved admin panel error handling and persistence
+
+### 🌱 v1.5.8 - Restock Interval Fixes
+- **🔧 FIXED**: Restock interval calculation issues and timing problems
+- **⚙️ ADMIN**: Enhanced debugging for restock system troubleshooting
+
+### 🌱 v1.5.7 - Stock & Rarity Command Fixes
+- **🔧 FIXED**: Shop inventory structure corruption and stock decrease issues
+- **⚙️ ADMIN**: Enhanced rarity command error handling and debugging
+
+### 🌱 v1.5.6 - Shop System Improvements
+- **🔧 FIXED**: Removed planting cooldown system as requested
+- **⚖️ BALANCED**: Improved rare/legendary seed restock chances and quantities
+- **🎯 STRATEGIC**: Better shop reliability and rare seed availability
+
+### 🌱 v1.5.5 - Set Rarity Command Fix
+- **🔧 FIXED**: Removed duplicate HTML causing ID conflicts
+- **⚙️ ADMIN**: Enhanced error handling for rarity setting
+- **🎯 BALANCE**: Increased restock interval to prevent excessive restocking
+
+### 🌱 v1.5.4 - Garden Decorations & Expansion
+- **🌸 NEW**: Garden decorations system with 12 decorative items
+- **🏡 ENHANCED**: Garden expansion increased to 16x16 maximum size
+- **🌱 NEW**: Continuous growth system implementation
+- **✅ MAJOR FIX**: Garden state bleeding completely eliminated
+- **⛈️ NEW**: Storm damage system & plant protection
+- **🎯 ADDED**: Enhanced rare & legendary seed stock system
+- **🎯 ADDED**: Sprinkler range indicators & fixed garden expansion
+- **🔧 FIXED**: UI & interaction issues, admin commands, storm damage feedback
+
+### 🌱 v1.5.0 - Growth System Refinement
 - **🌱 REFINED**: Custom growth rate system - individual seeds have unique growth speeds
 - **⚖️ BALANCED**: Rarity-based growth - rare seeds (2x slower), legendary seeds (3x slower)
 - **🎯 STRATEGIC**: More strategic depth with different growth times per seed type
@@ -510,6 +765,65 @@ This document contains every single update, bug fix, and change made to Grow You
 
 ---
 
+## 🔮 Future Features (Planned)
+
+### 🎮 Potential Additions
+- **More Plant Types**: Additional seasonal and special plants
+- **Advanced Weather**: More complex weather patterns
+- **Decorations**: Garden decorations and themes
+- **Pets**: Garden pets that provide bonuses
+
+### 🌐 Multiplayer Mode (Planned)
+- **Shared Gardens**: Players can visit each other's gardens via shareable links
+- **Garden Showcase**: View and rate other players' garden designs
+- **Social Features**: Like, comment, and share garden achievements
+- **Leaderboards**: Best gardens, most harvests, seasonal competitions
+- **Garden Tours**: Browse and get inspiration from community gardens
+- **Collaborative Challenges**: Group goals and seasonal competitions
+- **Garden Templates**: Share and use garden layouts from other players
+- **Free Implementation**: Using Firebase/Supabase free tiers for hosting
+
+### 🛠️ Technical Improvements
+- **Performance Optimization**: Better rendering and memory management
+- **Save Cloud**: Cloud save functionality
+- **API Integration**: Weather API for real weather data
+- **Multiplayer Infrastructure**: WebSocket support for real-time features
+
+---
+
 *This changelog contains every single update, bug fix, and change made to Grow Your Garden. For a more concise overview, see UPDATE_LOG.md.*
 
 **Last Updated: August 2025**
+
+## Version 1.5.5 - Enhanced Rare & Legendary Seed Stock System
+
+### 🎯 ADDED: Enhanced Rare & Legendary Seed Stock System
+- **Variable Restock Amounts**: Rare and legendary seeds now have dynamic restock quantities
+  - **Rare Seeds**: 70% chance for normal restock, 20% chance for double, 10% chance for triple
+  - **Legendary Seeds**: 60% chance for normal restock, 25% chance for double, 10% chance for triple, 5% chance for quadruple
+  - **Result**: Creates exciting moments when shops get large quantities of valuable seeds
+- **Rarity Classification**: Added `isRare` and `isLegendary` properties to plant types
+  - **Rare Seeds**: Watermelon, Asparagus, Artichoke, Kiwi
+  - **Legendary Seeds**: Grapes, Apple, Pineapple, Mango, Dragonfruit
+  - **Result**: Better categorization and more strategic shop management
+- **Enhanced Restock Logic**: Improved `restockShopSilent()` function with variable amounts
+  - **Issue**: All seeds restocked the same amount regardless of rarity
+  - **Fix**: Implemented probability-based restock amounts for rare/legendary seeds
+  - **Result**: More dynamic and exciting shop restocking system
+
+### 🐛 FIXED: Set Rarity Command & Stock Reset Issues
+- **Fixed Set Rarity Command**: Admin panel rarity setting now works correctly
+  - **Issue**: HTML had incorrect seed type names (e.g., "bellPepper" instead of "bell_pepper")
+  - **Fix**: Updated HTML select options to match actual seed types in game
+  - **Enhanced**: Added better error handling and console logging for debugging
+  - **Result**: Players can now properly set seed rarity through admin panel
+- **Fixed Stock Reset Issue**: Seeds no longer reset stock every few seconds
+  - **Issue**: Restock check was running every frame (60fps) instead of every 5 minutes
+  - **Fix**: Increased restock interval from 3 minutes to 5 minutes and improved logic
+  - **Result**: Stock now properly decreases when planting and only restocks periodically
+- **Improved Error Handling**: Better feedback when setting rarity fails
+  - **Added**: Console logging to help debug rarity setting issues
+  - **Added**: More descriptive error messages for invalid seed types
+  - **Result**: Easier troubleshooting of admin commands
+
+### 🎯 ADDED: Sprinkler Range Indicators & Fixed Garden Expansion

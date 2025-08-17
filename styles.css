@@ -1377,6 +1377,152 @@ body {
     }
 }
 
+/* Multiplayer Panel Styles */
+.multiplayer-panel {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.multiplayer-panel h3 {
+    color: white;
+    margin: 0 0 15px 0;
+    text-align: center;
+    font-size: 1.2em;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.multiplayer-status {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.multiplayer-status span {
+    color: white;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    font-size: 0.9em;
+}
+
+.multiplayer-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.multiplayer-btn {
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    padding: 10px 15px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.multiplayer-btn:hover {
+    background: white;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.friends-list, .chat-panel {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 15px;
+    margin-top: 10px;
+}
+
+.friends-list h4, .chat-panel h4 {
+    color: white;
+    margin: 0 0 10px 0;
+    font-size: 1em;
+}
+
+#onlineFriends {
+    color: white;
+    font-size: 0.9em;
+}
+
+.chat-messages {
+    height: 150px;
+    overflow-y: auto;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 10px;
+    color: white;
+    font-size: 0.85em;
+}
+
+.chat-input {
+    display: flex;
+    gap: 5px;
+}
+
+.chat-input input {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.9);
+    font-size: 0.9em;
+}
+
+.chat-input button {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 15px;
+    background: #4CAF50;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s ease;
+}
+
+.chat-input button:hover {
+    background: #45a049;
+}
+
+.friend-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.friend-name {
+    color: white;
+    font-weight: bold;
+}
+
+.friend-status {
+    font-size: 1.2em;
+}
+
+.chat-message {
+    margin-bottom: 8px;
+    padding: 5px 0;
+}
+
+.chat-username {
+    color: #FFD700;
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+.chat-text {
+    color: white;
+}
+
 /* Admin Panel Styles */
 .admin-btn {
     background: #9b59b6;
@@ -1922,5 +2068,164 @@ body {
     .win-btn {
         padding: 10px 20px;
         font-size: 1rem;
+    }
+}
+
+/* Decoration Shop Styles */
+.decoration-shop {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    border: 2px solid #ddd;
+}
+
+.decoration-shop h3 {
+    margin: 0 0 15px 0;
+    color: #333;
+    font-size: 1.1rem;
+    text-align: center;
+}
+
+.decoration-categories {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.category-btn {
+    padding: 8px 16px;
+    border: 2px solid #ddd;
+    background: #f8f9fa;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.category-btn:hover {
+    border-color: #007bff;
+    background: #e3f2fd;
+}
+
+.category-btn.active {
+    border-color: #007bff;
+    background: #007bff;
+    color: white;
+}
+
+.decoration-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+    margin-bottom: 15px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.decoration-item {
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: white;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.decoration-item:hover {
+    border-color: #007bff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+}
+
+.decoration-item.selected {
+    border-color: #007bff;
+    background: #e3f2fd;
+}
+
+.decoration-icon {
+    font-size: 1.5rem;
+    min-width: 30px;
+    text-align: center;
+}
+
+.decoration-info {
+    flex: 1;
+}
+
+.decoration-name {
+    font-weight: bold;
+    font-size: 0.9rem;
+    margin-bottom: 3px;
+}
+
+.decoration-cost {
+    color: #28a745;
+    font-weight: bold;
+    font-size: 0.8rem;
+    margin-bottom: 3px;
+}
+
+.decoration-description {
+    color: #666;
+    font-size: 0.7rem;
+    line-height: 1.2;
+}
+
+.decoration-info-panel {
+    background: #f8f9fa;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 15px;
+}
+
+.decoration-info-panel h4 {
+    margin: 0 0 8px 0;
+    color: #333;
+    font-size: 1rem;
+}
+
+.decoration-info-panel p {
+    margin: 3px 0;
+    color: #666;
+    font-size: 0.8rem;
+}
+
+/* Mobile Responsive Decoration Shop */
+@media (max-width: 768px) {
+    .decoration-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 8px;
+    }
+
+    .decoration-item {
+        padding: 8px;
+    }
+
+    .decoration-icon {
+        font-size: 1.2rem;
+        min-width: 25px;
+    }
+
+    .decoration-name {
+        font-size: 0.8rem;
+    }
+
+    .decoration-cost {
+        font-size: 0.7rem;
+    }
+
+    .decoration-description {
+        font-size: 0.6rem;
+    }
+
+    .category-btn {
+        padding: 4px 8px;
+        font-size: 0.7rem;
     }
 }
