@@ -285,6 +285,12 @@ class MultiplayerManager {
     // Get friends list
     async getFriends() {
         try {
+            // Check if currentUser exists and has an id
+            if (!this.currentUser || !this.currentUser.id) {
+                console.log('No current user found, cannot get friends');
+                return [];
+            }
+            
             const response = await fetch(`${this.serverUrl}/api/users/${this.currentUser.id}/friends`, {
                 headers: {
                     'Authorization': `Bearer ${this.getToken()}`
