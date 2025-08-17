@@ -4,9 +4,8 @@
   "description": "A unified gardening game with both single-player and multiplayer features",
   "main": "server.js",
   "scripts": {
-    "start": "node restart-server.js",
-    "dev": "node server.js",
-    "replit": "node restart-server.js"
+    "start": "node index.js",
+    "dev": "node server.js"
   },
   "dependencies": {
     "express": "4.18.2",
