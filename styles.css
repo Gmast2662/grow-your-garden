@@ -9,6 +9,14 @@ body {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
     color: #333;
+    /* Prevent unwanted touch behaviors on mobile */
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 /* Main Menu Styles */
@@ -150,7 +158,7 @@ body {
     margin-bottom: 15px;
 }
 
-.menu-btn, .save-btn, .expand-btn, .admin-btn {
+.menu-btn, .save-btn, .expand-btn, .admin-btn, .sound-btn {
     padding: 10px 20px;
     border: none;
     border-radius: 8px;
@@ -187,6 +195,16 @@ body {
 
 .expand-btn:hover {
     background: #8e44ad;
+    transform: translateY(-2px);
+}
+
+.sound-btn {
+    background: #f39c12;
+    color: white;
+}
+
+.sound-btn:hover {
+    background: #e67e22;
     transform: translateY(-2px);
 }
 
@@ -281,6 +299,16 @@ body {
     border-radius: 10px;
     background: #f8f9fa;
     cursor: pointer;
+    /* Improve touch handling on mobile */
+    touch-action: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    /* Ensure canvas is properly positioned for touch events */
+    position: relative;
+    z-index: 1;
 }
 
 .garden-info {

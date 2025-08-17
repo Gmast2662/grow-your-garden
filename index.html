@@ -55,6 +55,7 @@
                 <button id="adminBtn" class="admin-btn">⚙️ Admin</button>
                 <button id="saveBtn" class="save-btn">💾 Save</button>
                 <button id="expandBtn" class="expand-btn">🏡 Expand Garden</button>
+                <button id="soundBtn" class="sound-btn">🔊 Sound</button>
             </div>
             <div class="stats">
                 <div class="stat">
@@ -131,14 +132,14 @@
                             <span class="seed-stock">Stock: 6</span>
                         </div>
                     </div>
-                                         <div class="seed-item" data-seed="lettuce">
+                    <div class="seed-item" data-seed="lettuce">
                          <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMTIiIGZpbGw9IiM5MEVFOEIiLz4KPHBhdGggZD0iTTE4IDI4TDIyIDI4TDIwIDMyTDE4IDI4WiIgZmlsbD0iIzAwODAwMCIvPgo8cGF0aCBkPSJNMTYgMjZMMjQgMjZMMjAgMzBMMTYgMjZaIiBmaWxsPSIjOTBFRThCIi8+CjxwYXRoIGQ9Ik0xNyAyNEwyMyAyNEwyMCAyOEwxNyAyNFoiIGZpbGw9IiM5MEVFOEIiLz4KPHBhdGggZD0iTTE4IDIyTDIyIDIyTDIwIDI2TDE4IDIyWiIgZmlsbD0iIzkwRUU4QiIvPgo8cGF0aCBkPSJNMTkgMjBMMjEgMjBMMjAgMjRMMTkgMjBaIiBmaWxsPSIjOTBFRThCIi8+CjxwYXRoIGQ9Ik0xOCAxNkwyMiAxNkwyMCAyMEwxOCAxNloiIGZpbGw9IiMwMDgwMDAiLz4KPHBhdGggZD0iTTE5IDE0TDIxIDE0TDIwIDE4TDE5IDE0WiIgZmlsbD0iIzAwODAwMCIvPgo8L3N2Zz4=" alt="Lettuce">
-                         <div class="seed-info">
-                             <span class="seed-name">Lettuce</span>
-                             <span class="seed-price">$4</span>
-                             <span class="seed-stock">Stock: 8</span>
-                         </div>
-                     </div>
+                        <div class="seed-info">
+                            <span class="seed-name">Lettuce</span>
+                            <span class="seed-price">$4</span>
+                            <span class="seed-stock">Stock: 8</span>
+                        </div>
+                    </div>
                     <div class="seed-item" data-seed="onion">
                         <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMTIiIGZpbGw9IiNGNUY1QkMiLz4KPHBhdGggZD0iTTE4IDI4TDIyIDI4TDIwIDMyTDE4IDI4WiIgZmlsbD0iIzAwODAwMCIvPgo8cGF0aCBkPSJNMTYgMjZMMjQgMjZMMjAgMzBMMTYgMjZaIiBmaWxsPSIjRjVGNUIjIi8+CjxwYXRoIGQ9Ik0xNyAyNEwyMyAyNEwyMCAyOEwxNyAyNFoiIGZpbGw9IiNGNUY1QkMiLz4KPHBhdGggZD0iTTE4IDIyTDIyIDIyTDIwIDI2TDE4IDIyWiIgZmlsbD0iI0Y1RjVCQyIvPgo8cGF0aCBkPSJNMTkgMjBMMjEgMjBMMjAgMjRMMTkgMjBaIiBmaWxsPSIjRjVGNUIjIi8+CjxwYXRoIGQ9Ik0xOCAxNkwyMiAxNkwyMCAyMEwxOCAxNloiIGZpbGw9IiMwMDgwMDAiLz4KPHBhdGggZD0iTTE5IDE0TDIxIDE0TDIwIDE4TDE5IDE0WiIgZmlsbD0iIzAwODAwMCIvPgo8L3N2Zz4=" alt="Onion">
                         <div class="seed-info">
@@ -248,20 +249,20 @@
                      <h4>⭐ Rare Seeds</h4>
                      <div class="seed-item rare-seed" data-seed="bell_pepper">
                          <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMTIiIGZpbGw9IiMzMkNEMzIiLz4KPHBhdGggZD0iTTE4IDI4TDIyIDI4TDIwIDMyTDE4IDI4WiIgZmlsbD0iIzAwODAwMCIvPgo8cGF0aCBkPSJNMTYgMjZMMjQgMjZMMjAgMzBMMTYgMjZaIiBmaWxsPSIjMzJDQzMyIi8+CjxwYXRoIGQ9Ik0xNyAyNEwyMyAyNEwyMCAyOEwxNyAyNFoiIGZpbGw9IiMzMkNDMzIiLz4KPHBhdGggZD0iTTE4IDIyTDIyIDIyTDIwIDI2TDE4IDIyWiIgZmlsbD0iIzMyQ0MzMiIvPgo8cGF0aCBkPSJNMTkgMjBMMjEgMjBMMjAgMjRMMTkgMjBaIiBmaWxsPSIjMzJDQzMyIi8+CjxwYXRoIGQ9Ik0xOCAxNkwyMiAxNkwyMCAyMEwxOCAxNloiIGZpbGw9IiMwMDgwMDAiLz4KPHBhdGggZD0iTTE5IDE0TDIxIDE0TDIwIDE4TDE5IDE0WiIgZmlsbD0iIzAwODAwMCIvPgo8L3N2Zz4=" alt="Bell Pepper">
-                         <div class="seed-info">
-                             <span class="seed-name">Bell Pepper (RARE)</span>
-                             <span class="seed-price">$10</span>
-                             <span class="seed-stock">Stock: 4</span>
-                         </div>
-                     </div>
-                     <div class="seed-item rare-seed" data-seed="watermelon">
+                        <div class="seed-info">
+                            <span class="seed-name">Bell Pepper (RARE)</span>
+                            <span class="seed-price">$10</span>
+                            <span class="seed-stock">Stock: 4</span>
+                        </div>
+                    </div>
+                    <div class="seed-item rare-seed" data-seed="watermelon">
                          <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMTIiIGZpbGw9IiNGRjYzNDciLz4KPHBhdGggZD0iTTE4IDI4TDIyIDI4TDIwIDMyTDE4IDI4WiIgZmlsbD0iIzAwODAwMCIvPgo8cGF0aCBkPSJNMTYgMjZMMjQgMjZMMjAgMzBMMTYgMjZaIiBmaWxsPSIjRkY2MzQ3Ii8+CjxwYXRoIGQ9Ik0xNyAyNEwyMyAyNEwyMCAyOEwxNyAyNFoiIGZpbGw9IiNGRjYzNDciLz4KPHBhdGggZD0iTTE4IDIyTDIyIDIyTDIwIDI2TDE4IDIyWiIgZmlsbD0iI0ZGNjM0NyIvPgo8cGF0aCBkPSJNMTkgMjBMMjEgMjBMMjAgMjRMMTkgMjBaIiBmaWxsPSIjRkY2MzQ3Ii8+CjxwYXRoIGQ9Ik0xOCAxNkwyMiAxNkwyMCAyMEwxOCAxNloiIGZpbGw9IiMwMDgwMDAiLz4KPHBhdGggZD0iTTE5IDE0TDIxIDE0TDIwIDE4TDE5IDE0WiIgZmlsbD0iIzAwODAwMCIvPgo8L3N2Zz4=" alt="Watermelon">
-                         <div class="seed-info">
-                             <span class="seed-name">Watermelon (RARE)</span>
-                             <span class="seed-price">$20</span>
-                             <span class="seed-stock">Stock: 2</span>
-                         </div>
-                     </div>
+                        <div class="seed-info">
+                            <span class="seed-name">Watermelon (RARE)</span>
+                            <span class="seed-price">$20</span>
+                            <span class="seed-stock">Stock: 2</span>
+                        </div>
+                    </div>
                     <div class="seed-item rare-seed" data-seed="asparagus">
                         <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMTIiIGZpbGw9IiMyMjhCMjIiLz4KPHBhdGggZD0iTTE4IDI4TDIyIDI4TDIwIDMyTDE4IDI4WiIgZmlsbD0iIzAwODAwMCIvPgo8cGF0aCBkPSJNMTYgMjZMMjQgMjZMMjAgMzBMMTYgMjZaIiBmaWxsPSIjMjI4QjIyIi8+CjxwYXRoIGQ9Ik0xNyAyNEwyMyAyNEwyMCAyOEwxNyAyNFoiIGZpbGw9IiMyMjhCMjIiLz4KPHBhdGggZD0iTTE4IDIyTDIyIDIyTDIwIDI2TDE4IDIyWiIgZmlsbD0iIzIyOEIyMiIvPgo8cGF0aCBkPSJNMTkgMjBMMjEgMjBMMjAgMjRMMTkgMjBaIiBmaWxsPSIjMjI4QjIyIi8+CjxwYXRoIGQ9Ik0xOCAxNkwyMiAxNkwyMCAyMEwxOCAxNloiIGZpbGw9IiMwMDgwMDAiLz4KPHBhdGggZD0iTTE5IDE0TDIxIDE0TDIwIDE4TDE5IDE0WiIgZmlsbD0iIzAwODAwMCIvPgo8L3N2Zz4=" alt="Asparagus">
                         <div class="seed-info">
@@ -506,7 +507,7 @@
                         <li><strong>Summer:</strong> Normal growth speed (1.0x) - Best for summer crops</li>
                         <li><strong>Fall:</strong> 20% slower growth (0.8x) - Best for fall crops</li>
                         <li><strong>Winter:</strong> 40% slower growth (0.6x) - Limited crop availability</li>
-                        <li>Seasons change every 30 real-world days</li>
+                        <li>Seasons change every 5 real-world days</li>
                         <li>Some seeds are only available in specific seasons</li>
                         <li>Year-round seeds can be planted in any season</li>
                     </ul>
@@ -552,47 +553,46 @@
                     <div class="admin-section">
                         <div class="admin-input-group">
                             <label>Add Money:</label>
-                            <input type="number" id="addMoneyInput" placeholder="Amount" min="0">
+                            <input type="number" id="addMoneyInput" placeholder="Money to add" min="0">
                             <button onclick="addMoney()">Add</button>
                         </div>
                         <div class="admin-input-group">
                             <label>Set Money:</label>
-                            <input type="number" id="setMoneyInput" placeholder="Amount" min="0">
+                            <input type="number" id="setMoneyInput" placeholder="Money to set" min="0">
                             <button onclick="setMoney()">Set</button>
                         </div>
                         <div class="admin-input-group">
                             <label>Add Water:</label>
-                            <input type="number" id="addWaterInput" placeholder="Amount" min="0">
+                            <input type="number" id="addWaterInput" placeholder="Water to add" min="0">
                             <button onclick="addWater()">Add</button>
                         </div>
                         <div class="admin-input-group">
                             <label>Set Water:</label>
-                            <input type="number" id="setWaterInput" placeholder="Amount" min="0">
+                            <input type="number" id="setWaterInput" placeholder="Water to set" min="0">
                             <button onclick="setWater()">Set</button>
                         </div>
                         <div class="admin-input-group">
                             <label>Add Fertilizer:</label>
-                            <input type="number" id="addFertilizerInput" placeholder="Amount" min="0">
+                            <input type="number" id="addFertilizerInput" placeholder="Fertilizer to add" min="0">
                             <button onclick="addFertilizer()">Add</button>
                         </div>
                         <div class="admin-input-group">
                             <label>Set Fertilizer:</label>
-                            <input type="number" id="setFertilizerInput" placeholder="Amount" min="0">
+                            <input type="number" id="setFertilizerInput" placeholder="Fertilizer to set" min="0">
                             <button onclick="setFertilizer()">Set</button>
                         </div>
                         <div class="admin-input-group">
                             <label>Add Score:</label>
-                            <input type="number" id="addScoreInput" placeholder="Amount" min="0">
+                            <input type="number" id="addScoreInput" placeholder="Score to add" min="0">
                             <button onclick="addScore()">Add</button>
                         </div>
                         <div class="admin-input-group">
                             <label>Set Score:</label>
-                            <input type="number" id="setScoreInput" placeholder="Amount" min="0">
+                            <input type="number" id="setScoreInput" placeholder="Score to set" min="0">
                             <button onclick="setScore()">Set</button>
                         </div>
-                        <div class="admin-buttons">
-                            <button onclick="restartBackgroundProcessing()" class="admin-action-btn">🔄 Restart Background Processing</button>
-                        </div>
+
+
                     </div>
                 </div>
                 
@@ -637,7 +637,7 @@
                         </div>
                         <div class="admin-input-group">
                             <label>Set Stock:</label>
-                            <input type="number" id="setStockInput" placeholder="Amount" min="0">
+                            <input type="number" id="setStockInput" placeholder="Stock to set" min="0">
                             <button onclick="setStock()">Set Stock</button>
                         </div>
                         <div class="admin-input-group">
@@ -689,7 +689,7 @@
                         </div>
                         <div class="admin-input-group">
                             <label>Add Amount:</label>
-                            <input type="number" id="addSprinklerInput" placeholder="Amount" min="0">
+                            <input type="number" id="addSprinklerInput" placeholder="Sprinklers to add" min="0">
                             <button onclick="addSprinkler()">Add</button>
                         </div>
                         <div class="admin-buttons">
@@ -739,7 +739,7 @@
                             <button onclick="unlockAchievement()">Unlock</button>
                         </div>
                         <div class="admin-buttons">
-                            <button onclick="showAchievements()" class="admin-action-btn">📊 Show</button>
+                            <button onclick="setScore()" class="admin-action-btn">🎯 Set Score</button>
                         </div>
                     </div>
                 </div>
@@ -750,7 +750,6 @@
                     <div class="admin-section">
                         <h4>🎯 Challenge Management</h4>
                         <div class="admin-buttons">
-                            <button onclick="generateNewChallenges()" class="admin-action-btn">🔄 New Challenges</button>
                             <button onclick="completeAllChallenges()" class="admin-action-btn">✅ Complete All</button>
                             <button onclick="resetChallenges()" class="admin-action-btn">🔄 Reset Challenges</button>
                         </div>
@@ -765,16 +764,14 @@
                         
                         <h4>📊 Statistics & Data</h4>
                         <div class="admin-buttons">
-                            <button onclick="showDetailedStats()" class="admin-action-btn">📊 Show Stats</button>
                             <button onclick="resetStats()" class="admin-action-btn">🔄 Reset Stats</button>
+                            <button onclick="showGrowthRates()" class="admin-action-btn">🌱 Show Growth Rates</button>
                             <button onclick="exportSaveData()" class="admin-action-btn">📤 Export Data</button>
                             <button onclick="importSaveData()" class="admin-action-btn">📥 Import Data</button>
                         </div>
                         
                         <h4>🎮 Game Control</h4>
                         <div class="admin-buttons">
-                            <button onclick="setWinCondition()" class="admin-action-btn">🏆 Set Win</button>
-                            <button onclick="resetWinCondition()" class="admin-action-btn">🔄 Reset Win</button>
                             <button onclick="setSeason()" class="admin-action-btn">🌱 Set Season</button>
                         </div>
                         
@@ -790,17 +787,357 @@
             
             <div class="admin-modal-footer">
                 <button onclick="saveGame()" class="admin-action-btn">💾 Save</button>
-                <button onclick="toggleSound()" class="admin-action-btn">🔊 Sound</button>
                 <button onclick="clearGarden()" class="admin-danger-btn">🗑️ Clear</button>
                 <button onclick="resetCurrentSlot()" class="admin-danger-btn">🔄 Reset</button>
             </div>
         </div>
-        <div class="admin-warning">
-            <p><strong>⚠️ Warning:</strong> Background processing can cause state bleeding between slots. Only enable if you understand the risks.</p>
-            <p><strong>💡 Tip:</strong> If you experience issues with money, sprinklers, or other values resetting, try disabling background processing.</p>
-        </div>
+
     </div>
 
     <script src="game.js"></script>
 </body>
 </html>
+
+
+
+                        </div>
+
+
+
+                    </div>
+
+                </div>
+
+                
+
+                <!-- Shop Tab -->
+
+                <div class="admin-tab-content" id="shop-tab">
+
+                    <h3>🌱 Shop Management</h3>
+
+                    <div class="admin-section">
+
+                        <div class="admin-input-group">
+
+                            <label>Seed Type:</label>
+
+                            <select id="seedTypeSelect">
+
+                                <option value="carrot">Carrot</option>
+
+                                <option value="tomato">Tomato</option>
+
+                                <option value="corn">Corn</option>
+
+                                <option value="strawberry">Strawberry</option>
+
+                                <option value="potato">Potato</option>
+
+                                <option value="lettuce">Lettuce</option>
+
+                                <option value="onion">Onion</option>
+
+                                <option value="garlic">Garlic</option>
+
+                                <option value="broccoli">Broccoli</option>
+
+                                <option value="cauliflower">Cauliflower</option>
+
+                                <option value="cucumber">Cucumber</option>
+                                <option value="radish">Radish</option>
+                                <option value="spinach">Spinach</option>
+                                <option value="eggplant">Eggplant</option>
+                                <option value="zucchini">Zucchini</option>
+                                <option value="peas">Peas</option>
+                                <option value="beans">Beans</option>
+                                <option value="cabbage">Cabbage</option>
+                                <option value="celery">Celery</option>
+                                <option value="bellPepper">Bell Pepper</option>
+                                <option value="watermelon">Watermelon</option>
+                                <option value="asparagus">Asparagus</option>
+                                <option value="artichoke">Artichoke</option>
+                                <option value="kiwi">Kiwi</option>
+                                <option value="pumpkin">Pumpkin</option>
+                                <option value="grapes">Grapes</option>
+                                <option value="apple">Apple</option>
+                                <option value="pineapple">Pineapple</option>
+                                <option value="mango">Mango</option>
+                                <option value="dragonfruit">Dragonfruit</option>
+                            </select>
+
+                        </div>
+
+                        <div class="admin-input-group">
+
+                            <label>Set Stock:</label>
+
+                            <input type="number" id="setStockInput" placeholder="Stock to set" min="0">
+
+                            <button onclick="setStock()">Set Stock</button>
+
+                        </div>
+
+                        <div class="admin-input-group">
+
+                            <label>Set Rarity:</label>
+
+                            <select id="raritySelect">
+
+                                <option value="common">Common</option>
+
+                                <option value="rare">Rare</option>
+
+                                <option value="legendary">Legendary</option>
+
+                            </select>
+
+                            <button onclick="setRarity()">Set Rarity</button>
+
+                        </div>
+
+                        <div class="admin-input-group">
+
+                            <label>Restock Interval (minutes):</label>
+
+                            <input type="number" id="restockTimeInput" placeholder="Minutes" min="1">
+
+                            <button onclick="setRestockTime()">Set</button>
+
+                        </div>
+
+                        <div class="admin-buttons">
+
+                            <button onclick="restockAll()" class="admin-action-btn">🔄 Restock All</button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                
+                
+                <!-- Tools Tab -->
+
+                <div class="admin-tab-content" id="tools-tab">
+
+                    <h3>🛠️ Tool Management</h3>
+
+                    <div class="admin-section">
+
+                        <div class="admin-input-group">
+
+                            <label>Tool Type:</label>
+
+                            <select id="toolTypeSelect">
+
+                                <option value="water">Water</option>
+
+                                <option value="fertilizer">Fertilizer</option>
+
+                                <option value="shovel">Shovel</option>
+
+                                <option value="harvest">Harvest</option>
+
+                            </select>
+
+                        </div>
+
+                        <div class="admin-buttons">
+
+                            <button onclick="upgradeTool()" class="admin-action-btn">⬆️ Upgrade Tool</button>
+
+                        </div>
+
+                        
+                        
+                        <h4>💧 Sprinkler Management</h4>
+
+                        <div class="admin-input-group">
+
+                            <label>Sprinkler Type:</label>
+
+                            <select id="sprinklerTypeSelect">
+
+                                <option value="basic">Basic</option>
+
+                                <option value="advanced">Advanced</option>
+
+                                <option value="premium">Premium</option>
+
+                                <option value="legendary">Legendary</option>
+
+                            </select>
+
+                        </div>
+
+                        <div class="admin-input-group">
+
+                            <label>Add Amount:</label>
+
+                            <input type="number" id="addSprinklerInput" placeholder="Sprinklers to add" min="0">
+
+                            <button onclick="addSprinkler()">Add</button>
+
+                        </div>
+
+                        <div class="admin-buttons">
+
+                            <button onclick="clearSprinklers()" class="admin-action-btn">🗑️ Clear Sprinklers</button>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                
+                
+                <!-- Weather Tab -->
+
+                <div class="admin-tab-content" id="weather-tab">
+
+                    <h3>🌤️ Weather Control</h3>
+
+                    <div class="admin-section">
+
+                        <div class="admin-input-group">
+
+                            <label>Weather Type:</label>
+
+                            <select id="weatherSelect">
+
+                                <option value="sunny">Sunny</option>
+
+                                <option value="rainy">Rainy</option>
+
+                                <option value="cloudy">Cloudy</option>
+
+                                <option value="stormy">Stormy</option>
+
+                            </select>
+
+                            <button onclick="setWeather()">Set Weather</button>
+
+                        </div>
+
+                        <div class="admin-input-group">
+
+                            <label>Weather Change Interval (minutes):</label>
+
+                            <input type="number" id="weatherTimeInput" placeholder="Minutes" min="1">
+
+                            <button onclick="setWeatherTime()">Set</button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                
+                
+                <!-- Achievements Tab -->
+
+                <div class="admin-tab-content" id="achievements-tab">
+
+                    <h3>🏆 Achievement Management</h3>
+
+                    <div class="admin-section">
+
+                        <div class="admin-input-group">
+
+                            <label>Achievement:</label>
+
+                            <select id="achievementSelect">
+
+                                <option value="firstHarvest">First Harvest</option>
+
+                                <option value="moneyMaker">Money Maker</option>
+
+                                <option value="plantMaster">Plant Master</option>
+
+                                <option value="waterWizard">Water Wizard</option>
+
+                                <option value="fertilizerFanatic">Fertilizer Fanatic</option>
+
+                                <option value="speedGrower">Speed Grower</option>
+
+                                <option value="rareCollector">Rare Collector</option>
+
+                                <option value="legendaryFarmer">Legendary Farmer</option>
+
+                            </select>
+
+                            <button onclick="unlockAchievement()">Unlock</button>
+
+                        </div>
+
+                        <div class="admin-buttons">
+
+                            <button onclick="showAchievements()" class="admin-action-btn">📊 Show</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Advanced Tab -->
+                <div class="admin-tab-content" id="advanced-tab">
+                    <h3>⚡ Advanced Commands</h3>
+                    <div class="admin-section">
+                        <h4>🎯 Challenge Management</h4>
+                        <div class="admin-buttons">
+                            <button onclick="completeAllChallenges()" class="admin-action-btn">✅ Complete All</button>
+                            <button onclick="resetChallenges()" class="admin-action-btn">🔄 Reset Challenges</button>
+            </div>
+            
+                        <h4>🌱 Garden Management</h4>
+                        <div class="admin-buttons">
+                            <button onclick="growAllPlants()" class="admin-action-btn">🌱 Grow All Plants</button>
+                            <button onclick="harvestAllPlants()" class="admin-action-btn">✂️ Harvest All</button>
+                            <button onclick="waterAllPlants()" class="admin-action-btn">💧 Water All</button>
+                            <button onclick="fertilizeAllPlants()" class="admin-action-btn">🌿 Fertilize All</button>
+            </div>
+                        
+                        <h4>📊 Statistics & Data</h4>
+                        <div class="admin-buttons">
+                            <button onclick="showDetailedStats()" class="admin-action-btn">📊 Show Stats</button>
+                            <button onclick="resetStats()" class="admin-action-btn">🔄 Reset Stats</button>
+                            <button onclick="exportSaveData()" class="admin-action-btn">📤 Export Data</button>
+                            <button onclick="importSaveData()" class="admin-action-btn">📥 Import Data</button>
+        </div>
+                        
+                        <h4>🎮 Game Control</h4>
+                        <div class="admin-buttons">
+                            <button onclick="setSeason()" class="admin-action-btn">🌱 Set Season</button>
+        </div>
+                        
+                        <h4>🔧 System</h4>
+                        <div class="admin-buttons">
+                            <button onclick="clearAllSlots()" class="admin-danger-btn">🗑️ Clear All Slots</button>
+                            <button onclick="backupGame()" class="admin-action-btn">💾 Backup</button>
+                            <button onclick="restoreGame()" class="admin-action-btn">📥 Restore</button>
+    </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            
+            
+        </div>
+
+
+
+    </div>
+
+
+
+    <script src="game.js"></script>
+
+</body>
+
+</html>
+
+
