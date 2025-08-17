@@ -13,6 +13,12 @@
             <h1>🌱 Grow Your Garden</h1>
             <p>Welcome to your garden adventure!</p>
             
+            <div class="github-link">
+                <a href="https://github.com/Gmast2662/grow-your-garden" target="_blank" class="github-btn">
+                    📂 View on GitHub
+                </a>
+            </div>
+            
             <div class="save-slots">
                 <div class="save-slot" data-slot="1">
                     <h3>Garden Slot 1</h3>
@@ -87,6 +93,31 @@
 
         <div class="game-content">
             <div class="sidebar">
+                <!-- Multiplayer Panel -->
+                <div class="multiplayer-panel">
+                    <h3>🌐 Multiplayer</h3>
+                    <div class="multiplayer-status">
+                        <span id="connectionStatus">🔴 Disconnected</span>
+                    </div>
+                    <div class="multiplayer-buttons">
+                        <button id="friendsBtn" class="multiplayer-btn">👥 Friends</button>
+                        <button id="chatBtn" class="multiplayer-btn">💬 Chat</button>
+                        <button id="visitBtn" class="multiplayer-btn">🏡 Visit Garden</button>
+                    </div>
+                    <div id="friendsList" class="friends-list" style="display: none;">
+                        <h4>👥 Online Friends</h4>
+                        <div id="onlineFriends"></div>
+                    </div>
+                    <div id="chatPanel" class="chat-panel" style="display: none;">
+                        <h4>💬 Garden Chat</h4>
+                        <div id="chatMessages" class="chat-messages"></div>
+                        <div class="chat-input">
+                            <input type="text" id="chatInput" placeholder="Type a message...">
+                            <button id="sendChatBtn">Send</button>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="seed-shop">
                     <h3>🌱 Seed Shop</h3>
                     
@@ -1160,7 +1191,7 @@
 
 
     <script src="game.js"></script>
-
+    <script src="multiplayer.js"></script>
 </body>
 
 </html>

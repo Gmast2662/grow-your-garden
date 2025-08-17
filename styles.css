@@ -50,6 +50,35 @@ body {
     margin-bottom: 40px;
 }
 
+/* GitHub Link Styles */
+.github-link {
+    margin-bottom: 30px;
+}
+
+.github-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, #24292e 0%, #586069 100%);
+    color: white;
+    text-decoration: none;
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(36, 41, 46, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.github-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(36, 41, 46, 0.4);
+    background: linear-gradient(135deg, #586069 0%, #24292e 100%);
+}
+
+.github-btn:active {
+    transform: translateY(0);
+}
+
 .save-slots {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -1375,6 +1404,152 @@ body {
     .new-btn {
         min-height: 44px; /* Apple's recommended minimum touch target */
     }
+}
+
+/* Multiplayer Panel Styles */
+.multiplayer-panel {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.multiplayer-panel h3 {
+    color: white;
+    margin: 0 0 15px 0;
+    text-align: center;
+    font-size: 1.2em;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.multiplayer-status {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.multiplayer-status span {
+    color: white;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    font-size: 0.9em;
+}
+
+.multiplayer-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.multiplayer-btn {
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    padding: 10px 15px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.multiplayer-btn:hover {
+    background: white;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.friends-list, .chat-panel {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 15px;
+    margin-top: 10px;
+}
+
+.friends-list h4, .chat-panel h4 {
+    color: white;
+    margin: 0 0 10px 0;
+    font-size: 1em;
+}
+
+#onlineFriends {
+    color: white;
+    font-size: 0.9em;
+}
+
+.chat-messages {
+    height: 150px;
+    overflow-y: auto;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 10px;
+    color: white;
+    font-size: 0.85em;
+}
+
+.chat-input {
+    display: flex;
+    gap: 5px;
+}
+
+.chat-input input {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.9);
+    font-size: 0.9em;
+}
+
+.chat-input button {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 15px;
+    background: #4CAF50;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s ease;
+}
+
+.chat-input button:hover {
+    background: #45a049;
+}
+
+.friend-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.friend-name {
+    color: white;
+    font-weight: bold;
+}
+
+.friend-status {
+    font-size: 1.2em;
+}
+
+.chat-message {
+    margin-bottom: 8px;
+    padding: 5px 0;
+}
+
+.chat-username {
+    color: #FFD700;
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+.chat-text {
+    color: white;
 }
 
 /* Admin Panel Styles */

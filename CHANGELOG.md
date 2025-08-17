@@ -2,7 +2,54 @@
 
 This document contains every single update, bug fix, and change made to Grow Your Garden, including detailed technical information.
 
-## 🆕 Latest Updates (v1.6.0)
+## 🆕 Latest Updates (v1.6.1)
+
+### 🔗 NEW: GitHub Link in Main Menu
+- **GitHub Integration**: Added a prominent GitHub link to the main menu for easy access to source code
+- **Visual Design**: 
+  - Beautiful gradient button with GitHub's signature dark theme
+  - Hover effects with smooth transitions
+  - Professional styling that matches the game's aesthetic
+- **User Experience**: 
+  - Players can easily access the GitHub repository
+  - Link opens in new tab for convenience
+  - Positioned prominently in the main menu for visibility
+- **Technical Details**:
+  - Added GitHub link HTML to main menu in `index.html`
+  - Created dedicated CSS styles for `.github-link` and `.github-btn`
+  - Responsive design that works on all devices
+  - Uses GitHub's official color scheme (#24292e, #586069)
+
+### ✨ NEW: Multiplayer UI Integration
+- **Multiplayer Panel**: Added a beautiful multiplayer panel to the game sidebar with:
+  - Connection status indicator (🟢 Connected / 🔴 Disconnected)
+  - Friends button to view online friends
+  - Chat button to access garden chat
+  - Visit Garden button for future garden visits
+  - Real-time connection status updates
+- **Friends List**: 
+  - Shows online friends with status indicators
+  - Displays friend usernames and online/offline status
+  - Handles empty friends list gracefully
+- **Chat System**:
+  - Real-time chat messages display
+  - Send messages with Enter key or Send button
+  - Auto-scroll to latest messages
+  - Username highlighting in chat
+- **UI Styling**: 
+  - Beautiful gradient background for multiplayer panel
+  - Responsive design that works on all devices
+  - Smooth hover effects and transitions
+  - Professional chat and friends list styling
+- **Technical Integration**:
+  - Added `multiplayer.js` script loading to `index.html`
+  - Integrated multiplayer initialization into game startup
+  - Added event listeners for all multiplayer buttons
+  - Connected to existing multiplayer backend system
+  - JWT token authentication for secure connections
+- **Result**: Players can now see and use multiplayer features directly in the game interface!
+
+## 🆕 Previous Updates (v1.6.0)
 
 ### ✨ NEW: Visual Rarity Display System
 - **Rarity Command Enhancement**: When you set a seed's rarity using the admin panel, it now:
@@ -731,6 +778,32 @@ This document contains every single update, bug fix, and change made to Grow You
 - **🌤️ WEATHER**: Simple weather system
 - **🏆 ACHIEVEMENTS**: Achievement system
 - **💾 SAVES**: Multi-slot save system
+
+---
+
+## 🔮 Future Features (Planned)
+
+### 🎮 Potential Additions
+- **More Plant Types**: Additional seasonal and special plants
+- **Advanced Weather**: More complex weather patterns
+- **Decorations**: Garden decorations and themes
+- **Pets**: Garden pets that provide bonuses
+
+### 🌐 Multiplayer Mode (Planned)
+- **Shared Gardens**: Players can visit each other's gardens via shareable links
+- **Garden Showcase**: View and rate other players' garden designs
+- **Social Features**: Like, comment, and share garden achievements
+- **Leaderboards**: Best gardens, most harvests, seasonal competitions
+- **Garden Tours**: Browse and get inspiration from community gardens
+- **Collaborative Challenges**: Group goals and seasonal competitions
+- **Garden Templates**: Share and use garden layouts from other players
+- **Free Implementation**: Using Firebase/Supabase free tiers for hosting
+
+### 🛠️ Technical Improvements
+- **Performance Optimization**: Better rendering and memory management
+- **Save Cloud**: Cloud save functionality
+- **API Integration**: Weather API for real weather data
+- **Multiplayer Infrastructure**: WebSocket support for real-time features
 
 ---
 
