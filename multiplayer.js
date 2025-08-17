@@ -62,12 +62,22 @@ class MultiplayerManager {
             console.log('✅ Connected to multiplayer server');
             this.isConnected = true;
             this.emit('connection');
+            
+            // Update UI if game is available
+            if (window.game && window.game.updateMultiplayerUI) {
+                window.game.updateMultiplayerUI();
+            }
         });
 
         this.socket.on('disconnect', () => {
             console.log('❌ Disconnected from multiplayer server');
             this.isConnected = false;
             this.emit('disconnection');
+            
+            // Update UI if game is available
+            if (window.game && window.game.updateMultiplayerUI) {
+                window.game.updateMultiplayerUI();
+            }
         });
 
         // Friend events
@@ -102,10 +112,24 @@ class MultiplayerManager {
             console.log(`💬 New message from ${data.senderName}`);
             this.chatMessages.push(data);
             this.emit('chat_message', data);
+            
+            // Update UI if game is available
+            if (window.game && window.game.updateMultiplayerUI) {
+                window.game.updateMultiplayerUI();
+            }
         });
 
         this.socket.on('message_sent', (data) => {
-            console.log('✅ Message sent successfully');
+            if (data.success) {
+                console.log('✅ Message sent successfully');
+                // Add message to local chat if it's a global message
+                if (data.message && !data.message.receiverId) {
+                    this.chatMessages.push(data.message);
+                    this.emit('chat_message', data.message);
+                }
+            } else {
+                console.error('❌ Failed to send message:', data.error);
+            }
         });
 
         // Friend request events
@@ -186,7 +210,7 @@ class MultiplayerManager {
     }
 
     // Send chat message
-    sendMessage(receiverId, message) {
+    sendMessage(message, receiverId = null) {
         if (this.isConnected && this.socket) {
             this.socket.emit('send_message', {
                 receiverId: receiverId,
@@ -360,6 +384,16 @@ class MultiplayerManager {
     // Get stored token
     getToken() {
         return localStorage.getItem('garden_game_token');
+    }
+    
+    // Set current user
+    setCurrentUser(user) {
+        this.currentUser = user;
+    }
+    
+    // Get current user
+    getCurrentUser() {
+        return this.currentUser;
     }
 
     // Disconnect from server

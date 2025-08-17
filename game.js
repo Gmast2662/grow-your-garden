@@ -959,6 +959,18 @@ class GardenGame {
             this.multiplayer.initialize(token).then(success => {
                 if (success) {
                     console.log('✅ Multiplayer initialized successfully');
+                    
+                    // Set current user from token
+                    try {
+                        const tokenData = JSON.parse(atob(token.split('.')[1]));
+                        this.multiplayer.setCurrentUser({
+                            id: tokenData.id,
+                            username: tokenData.username
+                        });
+                    } catch (error) {
+                        console.error('Error parsing token:', error);
+                    }
+                    
                     this.updateMultiplayerUI();
                 } else {
                     console.log('❌ Failed to initialize multiplayer');
@@ -973,6 +985,11 @@ class GardenGame {
         
         // Add logout button
         this.addLogoutButton();
+        
+        // Periodically update multiplayer UI to ensure status is current
+        setInterval(() => {
+            this.updateMultiplayerUI();
+        }, 5000); // Update every 5 seconds
     }
     
     addMultiplayerEventListeners() {
@@ -1119,7 +1136,7 @@ class GardenGame {
             if (messages.length > 0) {
                 const messagesHtml = messages.map(msg => 
                     `<div class="chat-message">
-                        <span class="chat-username">${msg.username}:</span>
+                        <span class="chat-username">${msg.senderName || msg.username}:</span>
                         <span class="chat-text">${msg.message}</span>
                     </div>`
                 ).join('');
@@ -1138,9 +1155,14 @@ class GardenGame {
         const message = chatInput.value.trim();
         
         if (message) {
+            // Send as global message (no specific receiver)
             this.multiplayer.sendMessage(message);
             chatInput.value = '';
-            this.loadChatMessages();
+            
+            // Update chat display after a short delay to allow server response
+            setTimeout(() => {
+                this.loadChatMessages();
+            }, 100);
         }
     }
     
