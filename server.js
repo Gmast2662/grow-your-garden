@@ -428,10 +428,13 @@ server.listen(PORT, () => {
     console.log(`📡 WebSocket server ready for multiplayer connections`);
     console.log(`🌐 Game available at: http://localhost:${PORT}`);
     
-    // Start keep-alive if on Replit
+    // Simple keep-alive for Replit
     if (process.env.REPL_ID) {
-        console.log('🔄 Starting keep-alive for Replit...');
-        require('./keep-alive.js');
+        console.log('🔄 Simple keep-alive enabled for Replit');
+        // Just log a message every 5 minutes to keep the process alive
+        setInterval(() => {
+            console.log('🔄 Keep-alive ping - server still running');
+        }, 5 * 60 * 1000);
     }
 });
 
