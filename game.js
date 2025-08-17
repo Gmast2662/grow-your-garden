@@ -3995,7 +3995,7 @@ class GardenGame {
         }
         
         // Check for memory leaks - if we have too many event listeners
-        if (this.eventListeners && this.eventListeners.length > 100) {
+        if (this.eventListeners && this.eventListeners.length > 200) {
             console.warn(`Too many event listeners (${this.eventListeners.length}) in slot ${this.saveSlot}. Cleaning up...`);
             this.cleanupEventListeners();
         }
@@ -4069,6 +4069,9 @@ class GardenGame {
             
             this.eventListeners = recentListeners;
         }
+        
+        // Re-initialize critical event listeners that might have been removed
+        this.initializeEventListeners();
     }
     
     removeEventListeners() {
