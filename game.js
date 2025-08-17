@@ -264,18 +264,11 @@ class GardenGame {
     
     // ===== PLANT GROWTH STAGES =====
     getPlantGrowthStage(plant) {
-        if (!plant || !plant.plantedAt) return 0;
+        if (!plant) return 0;
         
-        const now = Date.now();
-        const plantData = this.plantTypes[plant.type];
-        if (!plantData) return 0;
-        
-        const growthTime = plantData.growthTime;
-        const elapsed = now - plant.plantedAt;
-        const progress = elapsed / growthTime;
-        
-        if (progress >= 1) return this.growthStages.length - 1; // Fully mature
-        return Math.floor(progress * this.growthStages.length);
+        // Plants now only grow through watering and fertilizing
+        // Return the stored growth stage instead of calculating from time
+        return plant.growthStage || 0;
     }
     
     getHarvestValue(plant) {
@@ -305,8 +298,27 @@ class GardenGame {
         this.gridSize = this.gardenSize;
         this.cellSize = Math.floor(600 / this.gridSize);
         
-        // Expand the garden array
+        // Expand the garden array while preserving existing plants
+        const oldGarden = this.garden;
         this.garden = this.initializeGarden();
+        
+        // Copy existing plants to the new garden
+        for (let row = 0; row < oldGarden.length; row++) {
+            for (let col = 0; col < oldGarden[row].length; col++) {
+                if (oldGarden[row][col].plant) {
+                    this.garden[row][col] = {
+                        plant: oldGarden[row][col].plant,
+                        watered: oldGarden[row][col].watered,
+                        wateredAt: oldGarden[row][col].wateredAt,
+                        waterCooldown: oldGarden[row][col].waterCooldown,
+                        fertilized: oldGarden[row][col].fertilized,
+                        fertilizedAt: oldGarden[row][col].fertilizedAt,
+                        fertilizerCooldown: oldGarden[row][col].fertilizerCooldown,
+                        plantedAt: oldGarden[row][col].plantedAt
+                    };
+                }
+            }
+        }
         
         // Update expansion cost for next expansion
         this.expansionCost = Math.floor(this.expansionCost * 1.3);
@@ -1601,7 +1613,8 @@ class GardenGame {
         };
         
         window.resetStats = () => {
-            if (confirm('Are you sure you want to reset all statistics?')) {
+            if (confirm('Are you sure you want to reset all statistics and garden data?')) {
+                // Reset statistics
                 this.stats = {
                     totalPlantsHarvested: 0,
                     totalMoneyEarned: 0,
@@ -1614,8 +1627,45 @@ class GardenGame {
                     adminPanelUsed: false,
                     adminPanelUsageCount: 0
                 };
+                
+                // Reset garden to initial state
+                this.gardenSize = 8;
+                this.gridSize = 8;
+                this.cellSize = Math.floor(600 / this.gridSize);
+                this.expansionCost = 5000;
+                this.garden = this.initializeGarden();
+                this.sprinklers = [];
+                
+                // Reset game state
+                this.money = 100;
+                this.water = 50;
+                this.fertilizer = 25;
+                this.score = 0;
+                this.selectedSeed = null;
+                this.selectedTool = null;
+                this.selectedSprinkler = null;
+                
+                // Reset tools to level 1
+                this.tools = {
+                    water: 1,
+                    fertilizer: 1,
+                    harvest: 1
+                };
+                
+                // Reset shop inventory
+                this.shopInventory = {
+                    tomato: 5, lettuce: 5, carrot: 5, potato: 5, corn: 5,
+                    bell_pepper: 3, cucumber: 3, onion: 3, garlic: 3, broccoli: 3,
+                    cauliflower: 3, cabbage: 3, spinach: 3, kale: 3, peas: 3,
+                    green_beans: 3, squash: 3, winter_greens: 3, herbs: 3, radish: 3,
+                    watermelon: 2, asparagus: 2, artichoke: 2, kiwi: 2, strawberry: 2,
+                    dragonfruit: 1, pineapple: 1, mango: 1, apple: 1, grape: 1
+                };
+                
                 this.updateStatsDisplay();
-                this.showMessage('Statistics reset!', 'success');
+                this.updateUI();
+                this.saveGame();
+                this.showMessage('Statistics and garden reset!', 'success');
             }
         };
         
@@ -2021,6 +2071,141 @@ class GardenGame {
         return totalBonus;
     }
     
+    // Function to handle continuous growth from watering and fertilizing
+    checkContinuousGrowth(row, col) {
+        const cell = this.garden[row][col];
+        if (!cell || !cell.plant || cell.plant.isFullyGrown) return;
+        
+        const now = Date.now();
+        const plantData = this.plantTypes[cell.plant.type];
+        if (!plantData) return;
+        
+        // Check water-based continuous growth
+        if (cell.watered && cell.waterGrowthStart && cell.waterGrowthDuration) {
+            const waterGrowthElapsed = now - cell.waterGrowthStart;
+            if (waterGrowthElapsed < cell.waterGrowthDuration) {
+                // Calculate growth progress (1 stage per 2 seconds when watered)
+                const growthTimePerStage = 2000; // 2 seconds per stage
+                const lastWaterGrowthCheck = cell.lastWaterGrowthCheck || cell.waterGrowthStart;
+                const timeSinceLastCheck = now - lastWaterGrowthCheck;
+                const growthProgress = timeSinceLastCheck / growthTimePerStage;
+                
+                if (growthProgress >= 1) {
+                    // Advance growth stage
+                    if (cell.plant.growthStage < this.growthStages.length - 1) {
+                        cell.plant.growthStage++;
+                        cell.lastWaterGrowthCheck = now;
+                        
+                        console.log(`${plantData.name} grew to stage ${cell.plant.growthStage + 1}/${this.growthStages.length} from water`);
+                        
+                        // Check if fully mature
+                        if (cell.plant.growthStage >= this.growthStages.length - 1) {
+                            cell.plant.isFullyGrown = true;
+                            console.log(`${plantData.name} is fully mature from water growth!`);
+                        }
+                        
+                        this.saveGame();
+                        this.updateUI();
+                    }
+                } else {
+                    cell.lastWaterGrowthCheck = now;
+                }
+            } else {
+                // Water growth period ended
+                cell.watered = false;
+                cell.waterGrowthStart = null;
+                cell.waterGrowthDuration = null;
+                cell.lastWaterGrowthCheck = null;
+            }
+        }
+        
+        // Check fertilizer-based continuous growth
+        if (cell.fertilized && cell.fertilizerGrowthStart && cell.fertilizerGrowthDuration) {
+            const fertilizerGrowthElapsed = now - cell.fertilizerGrowthStart;
+            if (fertilizerGrowthElapsed < cell.fertilizerGrowthDuration) {
+                // Calculate growth progress (1 stage per 1.5 seconds when fertilized)
+                const growthTimePerStage = 1500; // 1.5 seconds per stage
+                const lastFertilizerGrowthCheck = cell.lastFertilizerGrowthCheck || cell.fertilizerGrowthStart;
+                const timeSinceLastCheck = now - lastFertilizerGrowthCheck;
+                const growthProgress = timeSinceLastCheck / growthTimePerStage;
+                
+                if (growthProgress >= 1) {
+                    // Advance growth stage
+                    if (cell.plant.growthStage < this.growthStages.length - 1) {
+                        cell.plant.growthStage++;
+                        cell.lastFertilizerGrowthCheck = now;
+                        
+                        console.log(`${plantData.name} grew to stage ${cell.plant.growthStage + 1}/${this.growthStages.length} from fertilizer`);
+                        
+                        // Check if fully mature
+                        if (cell.plant.growthStage >= this.growthStages.length - 1) {
+                            cell.plant.isFullyGrown = true;
+                            console.log(`${plantData.name} is fully mature from fertilizer growth!`);
+                        }
+                        
+                        this.saveGame();
+                        this.updateUI();
+                    }
+                } else {
+                    cell.lastFertilizerGrowthCheck = now;
+                }
+            } else {
+                // Fertilizer growth period ended
+                cell.fertilized = false;
+                cell.fertilizerGrowthStart = null;
+                cell.fertilizerGrowthDuration = null;
+                cell.lastFertilizerGrowthCheck = null;
+            }
+        }
+    }
+    
+    // New function to check if sprinklers should advance plant growth
+    checkSprinklerGrowth(row, col) {
+        const cell = this.garden[row][col];
+        if (!cell || !cell.plant || cell.plant.isFullyGrown) return;
+        
+        const plantData = this.plantTypes[cell.plant.type];
+        if (!plantData) return;
+        
+        // Check if plant is within sprinkler range
+        const sprinklerBonus = this.getSprinklerBonus(row, col);
+        if (sprinklerBonus > 0) {
+            // Calculate continuous growth based on time
+            const now = Date.now();
+            const lastGrowthCheck = cell.lastSprinklerGrowth || now;
+            const timeSinceLastCheck = now - lastGrowthCheck;
+            
+            // Growth rate: 1 stage per 30 seconds with sprinkler
+            const growthTimePerStage = 30000; // 30 seconds per stage
+            const growthProgress = timeSinceLastCheck / growthTimePerStage;
+            
+            if (growthProgress >= 1) {
+                // Advance growth stage
+                if (cell.plant.growthStage < this.growthStages.length - 1) {
+                    cell.plant.growthStage++;
+                    cell.lastSprinklerGrowth = now;
+                    
+                    // Show growth message
+                    this.showMessage(`${plantData.name} grew from sprinkler!`, 'success');
+                    console.log(`${plantData.name} grew to stage ${cell.plant.growthStage + 1}/${this.growthStages.length} from sprinkler`);
+                    
+                    // Check if fully mature
+                    if (cell.plant.growthStage >= this.growthStages.length - 1) {
+                        cell.plant.isFullyGrown = true;
+                        console.log(`${plantData.name} is fully mature from sprinkler growth!`);
+                    }
+                    
+                    // Save game and update UI
+                    this.saveGame();
+                    this.updateUI();
+                }
+            } else {
+                // Update last check time for continuous tracking
+                cell.lastSprinklerGrowth = now;
+            }
+        }
+    }
+    
     plantSeed(row, col) {
         console.log(`plantSeed called for slot ${this.saveSlot} at ${new Date().toLocaleTimeString()}`);
         console.log(`Planting at position [${row}, ${col}] for slot ${this.saveSlot}`);
@@ -2145,13 +2330,10 @@ class GardenGame {
             this.updateUI();
         this.draw(); // Force immediate redraw to show the new plant
         
-        // Clear seed selection after successful planting
-        this.selectedSeed = null;
-        document.querySelectorAll('.seed-item').forEach(item => {
-            item.classList.remove('selected');
-        });
+        // Keep seed selected for continued planting
+        // (Removed seed selection clearing to allow multiple plantings of same seed)
         
-        // Update shop display after clearing selection
+        // Update shop display to reflect stock changes
             this.updateShopDisplay();
             
         // Force another save and update after a brief delay to ensure everything is saved
@@ -2178,9 +2360,20 @@ class GardenGame {
             cell.wateredAt = now;
             cell.waterCooldown = now + 8000;
             
-            const plantData = this.plantTypes[cell.plant.type];
-            this.showMessage(`${plantData.name} watered! Growth boosted!`, 'success');
-            console.log(`${plantData.name} watered at ${new Date().toLocaleTimeString()}`);
+            // Start continuous growth when watered
+            if (cell.plant && cell.plant.growthStage < this.growthStages.length - 1) {
+                const plantData = this.plantTypes[cell.plant.type];
+                this.showMessage(`${plantData.name} watered! Will grow continuously for 8 seconds!`, 'success');
+                console.log(`${plantData.name} watered and will grow continuously at ${new Date().toLocaleTimeString()}`);
+                
+                // Set up continuous growth tracking
+                cell.waterGrowthStart = now;
+                cell.waterGrowthDuration = 8000; // 8 seconds of continuous growth
+            } else {
+                const plantData = this.plantTypes[cell.plant.type];
+                this.showMessage(`${plantData.name} watered! (Already fully grown)`, 'success');
+            }
+            
             this.playSound('water');
             this.achievementStats.plantsWatered++;
             
@@ -2190,6 +2383,7 @@ class GardenGame {
             this.addParticle(x, y, 'water', '');
             
             this.updateUI();
+            this.saveGame();
         } else {
             this.showMessage('No water left!', 'error');
             this.playSound('error');
@@ -2212,9 +2406,20 @@ class GardenGame {
             cell.fertilizedAt = now;
             cell.fertilizerCooldown = now + 12000;
             
-            const plantData = this.plantTypes[cell.plant.type];
-            this.showMessage(`${plantData.name} fertilized! Growth boosted!`, 'success');
-            console.log(`${plantData.name} fertilized at ${new Date().toLocaleTimeString()}`);
+            // Start continuous growth when fertilized
+            if (cell.plant && cell.plant.growthStage < this.growthStages.length - 1) {
+                const plantData = this.plantTypes[cell.plant.type];
+                this.showMessage(`${plantData.name} fertilized! Will grow continuously for 12 seconds!`, 'success');
+                console.log(`${plantData.name} fertilized and will grow continuously at ${new Date().toLocaleTimeString()}`);
+                
+                // Set up continuous growth tracking
+                cell.fertilizerGrowthStart = now;
+                cell.fertilizerGrowthDuration = 12000; // 12 seconds of continuous growth
+            } else {
+                const plantData = this.plantTypes[cell.plant.type];
+                this.showMessage(`${plantData.name} fertilized! (Already fully grown)`, 'success');
+            }
+            
             this.playSound('fertilizer');
             this.achievementStats.plantsFertilized++;
             
@@ -2224,6 +2429,7 @@ class GardenGame {
             this.addParticle(x, y, 'fertilizer', '');
             
             this.updateUI();
+            this.saveGame();
         } else {
             this.showMessage('No fertilizer left!', 'error');
             this.playSound('error');
@@ -2386,31 +2592,26 @@ class GardenGame {
                     // Apply seasonal effects
                     growthMultiplier *= this.seasonMultiplier;
                     
-                    // Update growth stage based on new system
-                    const newGrowthStage = this.getPlantGrowthStage(cell.plant);
-                    if (newGrowthStage !== cell.plant.growthStage) {
-                        cell.plant.growthStage = newGrowthStage;
-                        console.log(`${plantData.name} grew to growth stage ${newGrowthStage + 1}/${this.growthStages.length}`);
-                        
-                        // Check if fully mature
-                        if (newGrowthStage >= this.growthStages.length - 1) {
-                            cell.plant.isFullyGrown = true;
-                            console.log(`${plantData.name} is fully mature and ready to harvest!`);
-                            
-                            // Check for Speed Grower achievement
-                            const timeToGrow = now - cell.plantedAt;
-                            if (timeToGrow <= 30000 && !this.achievementStats.speedGrowerUnlocked) { // 30 seconds = 30000ms
-                                this.achievementStats.speedGrowerUnlocked = true;
-                                this.unlockAchievementSilent('speedGrower');
-                            }
-                        }
+                    // Plants now only grow when watered or fertilized
+                    // No automatic growth updates in the game loop
+                    
+                    // Update plant stage for visual display (but don't change growth stage)
+                    const currentStage = this.getPlantGrowthStage(cell.plant);
+                    if (currentStage > cell.plant.stage) {
+                        cell.plant.stage = currentStage;
                     }
                     
-                    // Update plant stage for visual display
-                    const newStage = this.getPlantGrowthStage(cell.plant);
-                    if (newStage > cell.plant.stage) {
-                        cell.plant.stage = newStage;
+                    // Check if plant is fully mature for achievement tracking
+                    if (currentStage >= this.growthStages.length - 1 && !cell.plant.isFullyGrown) {
+                        cell.plant.isFullyGrown = true;
+                        console.log(`${plantData.name} is fully mature and ready to harvest!`);
                     }
+                    
+                    // Check for continuous growth from watering and fertilizing
+                    this.checkContinuousGrowth(row, col);
+                    
+                    // Check for sprinkler growth
+                    this.checkSprinklerGrowth(row, col);
                 }
             }
         }

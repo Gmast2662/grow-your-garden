@@ -2,10 +2,10 @@
 
 A feature-rich, browser-based gardening simulation game built with vanilla JavaScript, HTML5 Canvas, and CSS3. Plant seeds, manage resources, upgrade tools, and grow your perfect garden!
 
-- **This game is fully working and released as v1.4.0. I am actively working on more updates to make this game even better. Contact me or tell me in the Github.**
+- **This game is fully working and released as v1.5.0. I am actively working on more updates to make this game even better. Contact me or tell me in the Github.**
 - **I have fixed every bug, but there still may be some bugs I don't know about. So if you find any go to the issues page in the Github.**
 
-![Grow Your Garden](https://img.shields.io/badge/Status-v1.4.0%20Released-brightgreen)
+![Grow Your Garden](https://img.shields.io/badge/Status-v1.5.0%20Released-brightgreen)
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-yellow)
 ![HTML5](https://img.shields.io/badge/HTML5-Canvas-orange)
 ![CSS3](https://img.shields.io/badge/CSS3-Responsive-blue)
@@ -26,7 +26,7 @@ A feature-rich, browser-based gardening simulation game built with vanilla JavaS
 
 ### 🏡 **Garden Management**
 - **Expandable Garden**: Start 8x8, expand up to 12x12
-- **Sprinkler System**: 4 types with different ranges and bonuses
+- **Sprinkler System**: 4 types with different ranges, bonuses, and active growth capabilities
 - **Plant Harvesting**: Harvest at any stage for different rewards
 - **Weather Effects**: Dynamic weather affecting growth rates
 
@@ -93,9 +93,19 @@ A feature-rich, browser-based gardening simulation game built with vanilla JavaS
 - **Seasons**: Each season affects plant growth and seed availability (5 real-life days per season)
 - **Growth Stages**: Plants progress through 5 visual stages
 - **Early Harvesting**: Harvest anytime for reduced rewards
-- **Sprinklers**: Automatically water plants within range
+- **Sprinklers**: Automatically water plants and actively grow them within range
 - **Tool Upgrades**: Improve efficiency and harvest bonuses
 - **Admin Panel**: Pure creative mode for experimentation with transparent usage tracking
+
+### **🌱 Plant Growth System**
+- **5 Growth Stages**: Seed → Sprout → Small → Medium → Mature
+- **🌱 Continuous Growth**: Plants grow continuously while watered, fertilized, or within sprinkler range
+- **💧 Water Growth**: 1 stage every 2 seconds for 8 seconds when watered
+- **🌿 Fertilizer Growth**: 1 stage every 1.5 seconds for 12 seconds when fertilized
+- **💦 Sprinkler Growth**: 1 stage every 30 seconds while within sprinkler range
+- **💰 Stage-Based Harvesting**: Harvest value depends on growth stage
+- **⚖️ Risk vs Reward**: Harvest early for less money or wait for full maturity
+- **🎯 Strategic Care**: Players must actively manage water and fertilizer resources
 
 ### **Endless Gardening**
 - **No Win Condition**: Game is designed for endless seasonal gardening
@@ -222,7 +232,12 @@ Contributions are welcome! Here's how you can help:
 
 ## 🆕 Recent Updates
 
-### **Latest Version (v1.4.0)**
+### **Latest Version (v1.5.0)**
+- 🌱 **NEW**: Continuous growth system - plants grow continuously while watered/fertilized
+- 💧 **ENHANCED**: Sprinkler system now actively grows plants automatically
+- ⚡ **IMPROVED**: Water growth (1 stage/2s for 8s), Fertilizer growth (1 stage/1.5s for 12s)
+- 🎯 **STRATEGIC**: Sprinkler growth (1 stage/30s while in range) for automated growing zones
+- 🎮 **ENGAGING**: Much more rewarding and hands-on gardening experience
 - ✅ **MAJOR FIX**: Completely resolved garden state bleeding between save slots
 - ✅ **MAJOR FIX**: Removed confusing admin messages for cleaner user experience
 - ✅ **MAJOR DESIGN CHANGE**: Removed win condition system for endless seasonal gardening

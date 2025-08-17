@@ -2,7 +2,7 @@
 
 This document contains every single update, bug fix, and change made to Grow Your Garden, including detailed technical information.
 
-## 🆕 Latest Updates (v1.4.0)
+## 🆕 Latest Updates (v1.5.0)
 
 ### 🎉 MAJOR FIX: Garden State Bleeding Completely Resolved
 - **Issue**: Save slots were interfering with each other, causing data corruption and cross-contamination
@@ -101,6 +101,85 @@ This document contains every single update, bug fix, and change made to Grow You
 - **Styling**: Sound button now has consistent styling with other header buttons
 - **Persistence**: Sound state is properly saved and restored when loading games
 
+### Continuous Growth System Implementation
+- **Issue**: Plants only advanced one growth stage per watering/fertilizing action, making growth feel choppy
+- **Problem**: Players had to repeatedly water/fertilize to see continuous progress, which was tedious
+- **Solution**: Implemented continuous growth system where plants grow continuously while watered, fertilized, or within sprinkler range
+- **Technical Details**:
+  - Added `checkContinuousGrowth()` function to handle continuous growth from watering and fertilizing
+  - Modified `waterPlant()` to start continuous growth for 8 seconds instead of advancing one stage
+  - Modified `fertilizePlant()` to start continuous growth for 12 seconds instead of advancing one stage
+  - Enhanced `checkSprinklerGrowth()` to use time-based continuous growth instead of fixed intervals
+  - Added growth tracking properties: `waterGrowthStart`, `waterGrowthDuration`, `fertilizerGrowthStart`, `fertilizerGrowthDuration`
+  - Added continuous growth rates: Water (1 stage/2s), Fertilizer (1 stage/1.5s), Sprinkler (1 stage/30s)
+  - Integrated continuous growth checks into `updatePlantsSilent()` game loop
+  - Added automatic cleanup of growth states when effects expire
+- **Result**: Much more engaging and rewarding growth system - players see continuous progress while effects are active
+
+### Enhanced Sprinkler System Implementation
+- **Issue**: Sprinklers only provided growth bonuses but didn't actually cause plants to grow
+- **Problem**: Sprinklers were not valuable enough and didn't provide automated growing capabilities
+- **Solution**: Implemented active sprinkler growth system that automatically advances plant growth stages
+- **Technical Details**:
+  - Added `checkSprinklerGrowth()` function to handle automatic sprinkler growth
+  - Integrated sprinkler growth checks into `updatePlantsSilent()` game loop
+  - Added 30-second cooldown between sprinkler growth advances to prevent spam
+  - Added `lastSprinklerGrowth` timestamp tracking to prevent excessive growth
+  - Added growth messages and console logging for sprinkler growth events
+  - Maintained existing sprinkler bonus system for visual effects
+  - Added save game calls after sprinkler growth changes
+- **Result**: Much more valuable and strategic sprinkler placement - players can create automated growing zones
+
+### Active Growth System Implementation
+- **Issue**: Plants were growing automatically over time, making the game too passive
+- **Problem**: Players could plant seeds and wait for them to grow without active involvement
+- **Solution**: Completely redesigned growth system to require active player care
+- **Technical Details**:
+  - Modified `getPlantGrowthStage()` to return stored `growthStage` instead of calculating from time
+  - Updated `waterPlant()` to advance growth stage when watering (if not fully grown)
+  - Updated `fertilizePlant()` to advance growth stage when fertilizing (if not fully grown)
+  - Removed automatic growth updates from game loop
+  - Added growth stage advancement messages and visual feedback
+  - Maintained cooldown systems and resource consumption
+  - Added save game calls after growth changes
+- **Result**: Much more engaging and strategic gameplay - players must actively water and fertilize to grow plants
+
+### Improved Seed Selection Persistence
+- **Issue**: Seed selection was being cleared after each successful planting
+- **Problem**: Players had to re-select the same seed type for multiple plantings, creating inefficient workflow
+- **Solution**: Removed automatic seed selection clearing after successful planting
+- **Technical Details**:
+  - Removed `this.selectedSeed = null` assignment after planting
+  - Removed seed item visual deselection (`classList.remove('selected')`)
+  - Maintained all other planting functionality (stock reduction, money deduction, plant creation)
+  - Seed selection now persists until player manually selects a different seed or tool
+- **Result**: Much more efficient planting workflow - players can plant multiple seeds of the same type without re-selection
+
+### Garden Expansion Plant Preservation Fix
+- **Issue**: Plants were disappearing when expanding the garden
+- **Root Cause**: `expandGarden()` function was calling `this.initializeGarden()` which created a completely new empty garden array, destroying all existing plants
+- **Solution**: Modified `expandGarden()` to preserve existing plants when expanding
+- **Technical Details**: 
+  - Store old garden data before creating new garden array
+  - Copy all existing plants and their state (watered, fertilized, etc.) to new garden
+  - Preserve all plant properties including growth stage, water/fertilizer status, and timestamps
+  - Maintain garden expansion cost progression
+- **Result**: Players can now expand their garden without losing their carefully grown plants
+
+### Enhanced Admin Panel Reset Function
+- **Issue**: Reset function only reset statistics, leaving expanded garden and game data intact
+- **Problem**: Players expected complete reset but garden size and game state remained unchanged
+- **Solution**: Enhanced reset function to properly reset all game data to initial state
+- **Technical Details**:
+  - Reset garden size to 8x8 and recalculate grid dimensions
+  - Reset expansion cost to initial $5,000
+  - Clear all plants and sprinklers from garden
+  - Reset money, water, fertilizer, and score to starting values
+  - Reset all tools to level 1
+  - Reset shop inventory to initial quantities
+  - Update UI and save game after reset
+- **Result**: Complete reset now properly returns game to initial state
+
 ### Garden Expansion Persistence Fix
 - **Issue**: Garden size was resetting to 8x8 when switching save slots or reloading
 - **Root Cause**: `gridSize` and `cellSize` were not being updated after loading `gardenSize` from save data
@@ -116,7 +195,7 @@ This document contains every single update, bug fix, and change made to Grow You
 - **Reason**: Statistics are already visible in the main game interface
 - **Result**: Cleaner, more focused admin panel interface
 
-## 🔧 Admin Panel Improvements (v1.4.0)
+## 🔧 Admin Panel Improvements (v1.4.0 & v1.5.0)
 
 ### Fixed Admin Panel Garden Commands
 - **Issue**: Harvest, water, and fertilize all commands causing glitches
@@ -358,46 +437,50 @@ This document contains every single update, bug fix, and change made to Grow You
 
 ## 📊 Version History
 
-### v1.0.0 - Initial Release
-- Basic gardening mechanics
-- 15 seed types
-- Simple weather system
-- Achievement system
-- Multi-slot save system
+### 🆕 v1.5.0 - Continuous Growth Update (Latest)
+- **🌱 MAJOR FEATURE**: Continuous growth system - plants grow continuously while watered/fertilized
+- **💧 ENHANCED**: Sprinkler system now actively grows plants automatically
+- **⚡ IMPROVED**: Water growth (1 stage/2s for 8s), Fertilizer growth (1 stage/1.5s for 12s)
+- **🎯 STRATEGIC**: Sprinkler growth (1 stage/30s while in range) for automated growing zones
+- **🎮 ENGAGING**: Much more rewarding and hands-on gardening experience
 
-### v1.1.0 - Seasonal Update
-- Added seasonal system
-- Plant growth stages
-- Garden expansion
-- Enhanced admin panel
+### 📱 v1.4.0 - Mobile & Visual Update
+- **🔧 MAJOR FIX**: Completely resolved garden state bleeding between save slots
+- **🎨 ENHANCED**: Visual effects and particle system with comprehensive feedback
+- **📱 MOBILE**: Fixed touch controls for garden interaction
+- **⚙️ ADMIN**: Improved admin panel garden management commands
+- **🔄 SYSTEM**: Added performance monitoring and emergency recovery
+- **🎵 UI**: Moved sound toggle to main game header for easier access
+- **🏆 DESIGN**: Removed win condition system for endless seasonal gardening
+- **📊 TRACKING**: Added transparent admin panel usage tracking
+- **🌤️ SEASONAL**: Shortened seasonal system from 30 to 5 real-life days
 
-### v1.2.0 - Challenge & Stats Update
-- Garden challenges system
-- Comprehensive statistics
-- Advanced admin commands
-- Mobile optimizations
+### 🎯 v1.3.0 - Bug Fixes & Improvements
+- **🛠️ FIXED**: Shop interface and seed selection issues
+- **🌱 RESOLVED**: Plant growth and visual stage problems
+- **📱 IMPROVED**: Mobile responsiveness and touch controls
+- **⚙️ ADMIN**: Fixed admin panel commands and interface
+- **🌤️ SEASONAL**: Enhanced seasonal system and seed availability
+- **🚨 SAFETY**: Added emergency reset functionality
 
-### v1.3.0 - Bug Fixes & Improvements
-- Fixed shop interface and seed selection issues
-- Resolved plant growth and visual stage problems
-- Improved mobile responsiveness and touch controls
-- Fixed admin panel commands and interface
-- Enhanced seasonal system and seed availability
-- Added emergency reset functionality
+### 🎮 v1.2.0 - Challenge & Stats Update
+- **🎯 NEW**: Garden challenges system with daily and weekly goals
+- **📊 STATS**: Comprehensive statistics tracking
+- **⚙️ ADMIN**: Advanced admin commands for testing
+- **📱 MOBILE**: Mobile optimizations and responsive design
 
-### v1.4.0 - Mobile & Visual Update
-- **MAJOR FIX**: Completely resolved garden state bleeding between save slots
-- **MAJOR FIX**: Removed confusing admin messages for cleaner user experience
-- **MAJOR DESIGN CHANGE**: Removed win condition system for endless seasonal gardening
-- **NEW FEATURE**: Added transparent admin panel usage tracking for honesty
-- **GAMEPLAY IMPROVEMENT**: Shortened seasonal system from 30 to 5 real-life days for faster progression
-- Fixed mobile touch controls for garden interaction
-- Enhanced visual effects and particle system
-- Improved admin panel garden management commands
-- Added performance monitoring and emergency recovery
-- Cleaned up admin panel interface and organization
-- Moved sound toggle to main game header
-- Updated copyright year and formatting
+### 🌱 v1.1.0 - Seasonal Update
+- **🌤️ SEASONS**: Added seasonal system with 4 seasons
+- **🌿 GROWTH**: Plant growth stages implementation
+- **🏡 EXPANSION**: Garden expansion system
+- **⚙️ ADMIN**: Enhanced admin panel functionality
+
+### 🚀 v1.0.0 - Initial Release
+- **🌱 BASICS**: Basic gardening mechanics
+- **🌿 SEEDS**: 15 seed types available
+- **🌤️ WEATHER**: Simple weather system
+- **🏆 ACHIEVEMENTS**: Achievement system
+- **💾 SAVES**: Multi-slot save system
 
 ---
 
