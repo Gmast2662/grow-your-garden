@@ -390,14 +390,25 @@ app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, 'login.html'));
 });
 
-// Serve the main game page (protected)
-app.get('/', authenticateToken, (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-// Redirect root to login if no token
+// Serve the main game page (protected) or redirect to login
 app.get('/', (req, res) => {
-    res.redirect('/login');
+    const token = req.headers.authorization?.split(' ')[1];
+    
+    if (!token) {
+        // No token, redirect to login
+        res.redirect('/login');
+    } else {
+        // Check if token is valid
+        jwt.verify(token, JWT_SECRET, (err, user) => {
+            if (err) {
+                // Invalid token, redirect to login
+                res.redirect('/login');
+            } else {
+                // Valid token, serve the game
+                res.sendFile(path.join(__dirname, 'index.html'));
+            }
+        });
+    }
 });
 
 // Start server
