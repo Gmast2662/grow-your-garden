@@ -106,6 +106,17 @@
                 multiplayer.on('chat_message', (data) => {
                     addChatMessage(data);
                 });
+                
+                // Also listen for new messages from the server
+                multiplayer.socket.on('new_message', (data) => {
+                    addChatMessage(data);
+                });
+                
+                multiplayer.socket.on('message_sent', (data) => {
+                    if (data.success && data.message) {
+                        addChatMessage(data.message);
+                    }
+                });
             } else {
                 updateConnectionStatus(false, 'No token found');
             }

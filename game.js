@@ -1173,6 +1173,101 @@ class GardenGame {
         this.showMessage('Garden visit feature coming soon!', 'info');
     }
     
+    sendFriendRequest() {
+        console.log('🔍 sendFriendRequest called');
+        console.log('Multiplayer object:', this.multiplayer);
+        console.log('Multiplayer connected:', this.multiplayer?.isConnected);
+        
+        // Check if multiplayer exists and is connected
+        if (!this.multiplayer) {
+            console.error('❌ Multiplayer not initialized');
+            this.showMessage('Multiplayer not initialized. Please refresh the page.', 'error');
+            return;
+        }
+        
+        if (!this.multiplayer.isConnected) {
+            console.error('❌ Multiplayer not connected');
+            this.showMessage('Multiplayer not connected. Please wait...', 'error');
+            return;
+        }
+        
+        // Check if sendFriendRequest method exists
+        if (typeof this.multiplayer.sendFriendRequest !== 'function') {
+            console.error('❌ sendFriendRequest method not found');
+            this.showMessage('Friend system not ready. Please wait...', 'error');
+            return;
+        }
+        
+        const usernameInput = document.getElementById('friendUsername');
+        if (!usernameInput) {
+            console.error('❌ Friend input not found');
+            this.showMessage('Friend input not found. Please refresh the page.', 'error');
+            return;
+        }
+        
+        const username = usernameInput.value.trim();
+        console.log('Username to add:', username);
+        
+        if (username) {
+            try {
+                console.log('📤 Sending friend request to server...');
+                this.multiplayer.sendFriendRequest(username);
+                usernameInput.value = '';
+                this.showMessage(`Friend request sent to ${username}!`, 'success');
+            } catch (error) {
+                console.error('❌ Error sending friend request:', error);
+                this.showMessage('Failed to send friend request. Please try again.', 'error');
+            }
+        } else {
+            this.showMessage('Please enter a username', 'error');
+        }
+    }
+    
+    showFriendRequestNotification(data) {
+        const notification = document.createElement('div');
+        notification.className = 'friend-request-notification';
+        notification.innerHTML = `
+            <div class="notification-content">
+                <h4>👥 Friend Request</h4>
+                <p>${data.fromName} wants to be your friend!</p>
+                <div class="notification-buttons">
+                    <button onclick="window.game.respondToFriendRequest('${data.fromId}', true)" class="accept-btn">Accept</button>
+                    <button onclick="window.game.respondToFriendRequest('${data.fromId}', false)" class="reject-btn">Reject</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Auto-remove after 30 seconds
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 30000);
+    }
+    
+    respondToFriendRequest(fromId, accepted) {
+        if (!this.multiplayer) return;
+        
+        console.log(`Responding to friend request from ${fromId}, accepted: ${accepted}`);
+        this.multiplayer.respondToFriendRequest(fromId, accepted);
+        
+        // Remove the notification
+        const notification = document.querySelector('.friend-request-notification');
+        if (notification) {
+            notification.parentNode.removeChild(notification);
+        }
+        
+        const status = accepted ? 'accepted' : 'rejected';
+        this.showMessage(`Friend request ${status}!`, 'success');
+        
+        // Refresh the friends list to show updated status
+        setTimeout(() => {
+            this.loadFriendsList();
+        }, 1000);
+    }
+    
     makeAdminFunctionsGlobal() {
         // Helper function to track admin command usage
         const trackAdminCommand = () => {

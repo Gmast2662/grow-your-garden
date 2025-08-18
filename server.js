@@ -203,9 +203,7 @@ io.on('connection', (socket) => {
                 return;
             }
 
-            const messageId = uuidv4();
             const messageData = {
-                id: messageId,
                 senderId: socket.userId,
                 senderName: socket.username,
                 receiverId: data.receiverId || 'global',
@@ -213,10 +211,10 @@ io.on('connection', (socket) => {
                 timestamp: Date.now()
             };
 
-            // Save to database with error handling
+            // Save to database with error handling (let SQLite auto-generate the id)
             db.run(
-                'INSERT INTO chat_messages (id, sender_id, receiver_id, message) VALUES (?, ?, ?, ?)',
-                [messageId, socket.userId, data.receiverId || 'global', data.message],
+                'INSERT INTO chat_messages (sender_id, receiver_id, message) VALUES (?, ?, ?)',
+                [socket.userId, data.receiverId || 'global', data.message],
                 function(err) {
                     if (err) {
                         console.error('Database error saving message:', err);
@@ -227,17 +225,23 @@ io.on('connection', (socket) => {
                         return;
                     }
 
+                    // Add the auto-generated ID to the message data
+                    const savedMessageData = {
+                        ...messageData,
+                        id: this.lastID
+                    };
+
                     // Send to receiver if online (for private messages)
                     if (data.receiverId) {
                         const receiverSocket = userSockets.get(data.receiverId);
                         if (receiverSocket) {
-                            receiverSocket.emit('new_message', messageData);
+                            receiverSocket.emit('new_message', savedMessageData);
                         }
                     } else {
                         // Broadcast to all online users for global chat
                         userSockets.forEach((userSocket) => {
                             if (userSocket.id !== socket.id) {
-                                userSocket.emit('new_message', messageData);
+                                userSocket.emit('new_message', savedMessageData);
                             }
                         });
                     }
@@ -245,7 +249,7 @@ io.on('connection', (socket) => {
                     // Send confirmation to sender
                     socket.emit('message_sent', { 
                         success: true, 
-                        message: messageData 
+                        message: savedMessageData 
                     });
                 }
             );
@@ -260,7 +264,8 @@ io.on('connection', (socket) => {
 
     // Handle friend requests
     socket.on('send_friend_request', (targetUsername) => {
-        db.get('SELECT id, username FROM users WHERE username = ?', [targetUsername], (err, targetUser) => {
+        // Use case-insensitive search for username
+        db.get('SELECT id, username FROM users WHERE LOWER(username) = LOWER(?)', [targetUsername], (err, targetUser) => {
             if (err || !targetUser) {
                 socket.emit('friend_request_result', { success: false, message: 'User not found' });
                 return;
@@ -297,10 +302,13 @@ io.on('connection', (socket) => {
                     // Notify target user if online
                     const targetSocket = userSockets.get(targetUser.id);
                     if (targetSocket) {
+                        console.log(`📨 Sending friend request notification to ${targetUser.username} from ${socket.username}`);
                         targetSocket.emit('friend_request_received', {
                             fromId: socket.userId,
                             fromName: socket.username
                         });
+                    } else {
+                        console.log(`📨 Target user ${targetUser.username} is not online, friend request will be seen when they log in`);
                     }
                 });
             });
@@ -402,12 +410,12 @@ app.get('/api/users/:userId/friends', (req, res) => {
         SELECT u.id, u.username, u.is_online, f.status, f.created_at
         FROM friends f
         JOIN users u ON (f.friend_id = u.id)
-        WHERE f.user_id = ? AND f.status = 'accepted'
+        WHERE f.user_id = ?
         UNION
         SELECT u.id, u.username, u.is_online, f.status, f.created_at
         FROM friends f
         JOIN users u ON (f.user_id = u.id)
-        WHERE f.friend_id = ? AND f.status = 'accepted'
+        WHERE f.friend_id = ?
     `, [userId, userId], (err, friends) => {
         if (err) {
             res.status(500).json({ error: 'Database error' });
