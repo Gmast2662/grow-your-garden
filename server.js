@@ -57,6 +57,7 @@ db.serialize(() => {
     db.run(`CREATE TABLE IF NOT EXISTS gardens (
         id TEXT PRIMARY KEY,
         user_id TEXT NOT NULL,
+        slot_number INTEGER NOT NULL,
         garden_data TEXT NOT NULL,
         last_updated DATETIME DEFAULT CURRENT_TIMESTAMP,
         is_public BOOLEAN DEFAULT 0,
@@ -153,8 +154,8 @@ db.serialize(() => {
     db.run(`CREATE TABLE IF NOT EXISTS chat_filter_words (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         word TEXT UNIQUE NOT NULL,
-        added_by_admin_id TEXT,
-        added_by_admin_username TEXT,
+        added_by_admin_id TEXT NOT NULL,
+        added_by_admin_username TEXT NOT NULL,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (added_by_admin_id) REFERENCES users (id)
     )`, function(err) {
@@ -166,20 +167,23 @@ db.serialize(() => {
             // Add default filter words if table is empty
             db.get('SELECT COUNT(*) as count FROM chat_filter_words', (err, result) => {
                 if (!err && result.count === 0) {
-                    console.log('📝 Adding default chat filter words...');
                     const defaultWords = ['hack', 'cheat', 'exploit', 'scam', 'spam'];
                     defaultWords.forEach(word => {
-                        db.run('INSERT OR IGNORE INTO chat_filter_words (word, added_by_admin_username) VALUES (?, ?)', 
-                            [word, 'System'], function(err) {
-                            if (err) {
-                                console.error('❌ Error adding default word:', word, err);
-                            } else {
-                                console.log('✅ Added default filter word:', word);
-                            }
-                        });
+                        db.run('INSERT INTO chat_filter_words (word, added_by_admin_id, added_by_admin_username) VALUES (?, ?, ?)', 
+                            [word, 'system', 'System']);
                     });
+                    console.log('✅ Default chat filter words added');
                 }
             });
+        }
+    });
+
+    // Migration: Handle existing gardens without slot information
+    db.run(`UPDATE gardens SET slot_number = 1 WHERE slot_number IS NULL`, function(err) {
+        if (err) {
+            console.error('❌ Error migrating gardens:', err);
+        } else {
+            console.log('✅ Gardens migration completed');
         }
     });
 });
@@ -283,17 +287,20 @@ io.on('connection', (socket) => {
     // Handle garden updates
     socket.on('garden_update', (gardenData) => {
         try {
-            console.log(`Garden update from ${socket.username}`);
+            console.log(`Garden update from ${socket.username} for slot ${gardenData.saveSlot || 1}`);
             
-            // Save garden data to database
+            // Save garden data to database with slot information
             const gardenJson = JSON.stringify(gardenData);
+            const slot = gardenData.saveSlot || 1;
+            const gardenId = `garden_${socket.userId}_slot_${slot}`;
+            
             db.run(
-                'INSERT OR REPLACE INTO gardens (id, user_id, garden_data, last_updated) VALUES (?, ?, ?, CURRENT_TIMESTAMP)',
-                [`garden_${socket.userId}`, socket.userId, gardenJson]
+                'INSERT OR REPLACE INTO gardens (id, user_id, slot_number, garden_data, last_updated) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)',
+                [gardenId, socket.userId, slot, gardenJson]
             );
 
             // Broadcast to friends if garden is public
-            db.get('SELECT is_public FROM gardens WHERE user_id = ?', [socket.userId], (err, row) => {
+            db.get('SELECT is_public FROM gardens WHERE user_id = ? AND slot_number = ?', [socket.userId, slot], (err, row) => {
                 if (!err && row && row.is_public) {
                     // Get friends list
                     db.all('SELECT friend_id FROM friends WHERE user_id = ? AND status = "accepted"', [socket.userId], (err, friends) => {
@@ -304,7 +311,8 @@ io.on('connection', (socket) => {
                                     friendSocket.emit('friend_garden_update', {
                                         userId: socket.userId,
                                         username: socket.username,
-                                        gardenData: gardenData
+                                        gardenData: gardenData,
+                                        slot: slot
                                     });
                                 }
                             });

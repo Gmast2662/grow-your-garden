@@ -617,8 +617,14 @@ router.get('/stats', authenticateAdmin, (req, res) => {
                 if (err) reject(err);
                 else resolve(result.total_filter_words);
             });
+        }),
+        new Promise((resolve, reject) => {
+            db.get('SELECT COUNT(*) as total_gardens FROM gardens', (err, result) => {
+                if (err) reject(err);
+                else resolve(result.total_gardens || 0);
+            });
         })
-    ]).then(([totalUsers, onlineUsers, bannedUsers, totalMessages, totalFriends, pendingFriends, totalAnnouncements, adminUsers, totalLogs, todayUsers, todayMessages, mutedUsers, totalFilterWords]) => {
+    ]).then(([totalUsers, onlineUsers, bannedUsers, totalMessages, totalFriends, pendingFriends, totalAnnouncements, adminUsers, totalLogs, todayUsers, todayMessages, mutedUsers, totalFilterWords, totalGardens]) => {
         res.json({
             stats: {
                 totalUsers,
@@ -633,7 +639,8 @@ router.get('/stats', authenticateAdmin, (req, res) => {
                 todayUsers,
                 todayMessages,
                 mutedUsers,
-                totalFilterWords
+                totalFilterWords,
+                totalGardens
             }
         });
     }).catch(error => {

@@ -217,7 +217,12 @@ class MultiplayerManager {
     // Send garden update to server
     sendGardenUpdate(gardenData) {
         if (this.isConnected && this.socket) {
-            this.socket.emit('garden_update', gardenData);
+            // Include the current save slot in the garden data
+            const gardenDataWithSlot = {
+                ...gardenData,
+                saveSlot: window.game ? window.game.saveSlot : 1
+            };
+            this.socket.emit('garden_update', gardenDataWithSlot);
         }
     }
 
