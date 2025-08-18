@@ -132,43 +132,47 @@ io.on('connection', (socket) => {
         });
         userSockets.set(socket.userId, socket);
 
-    // Update user online status in database
-    db.run('UPDATE users SET is_online = 1, last_login = CURRENT_TIMESTAMP WHERE id = ?', [socket.userId]);
+        // Update user online status in database
+        db.run('UPDATE users SET is_online = 1, last_login = CURRENT_TIMESTAMP WHERE id = ?', [socket.userId]);
 
-    // Join user to their personal room
-    socket.join(`user_${socket.userId}`);
+        // Join user to their personal room
+        socket.join(`user_${socket.userId}`);
 
     // Handle garden updates
     socket.on('garden_update', (gardenData) => {
-        console.log(`Garden update from ${socket.username}`);
-        
-        // Save garden data to database
-        const gardenJson = JSON.stringify(gardenData);
-        db.run(
-            'INSERT OR REPLACE INTO gardens (id, user_id, garden_data, last_updated) VALUES (?, ?, ?, CURRENT_TIMESTAMP)',
-            [`garden_${socket.userId}`, socket.userId, gardenJson]
-        );
+        try {
+            console.log(`Garden update from ${socket.username}`);
+            
+            // Save garden data to database
+            const gardenJson = JSON.stringify(gardenData);
+            db.run(
+                'INSERT OR REPLACE INTO gardens (id, user_id, garden_data, last_updated) VALUES (?, ?, ?, CURRENT_TIMESTAMP)',
+                [`garden_${socket.userId}`, socket.userId, gardenJson]
+            );
 
-        // Broadcast to friends if garden is public
-        db.get('SELECT is_public FROM gardens WHERE user_id = ?', [socket.userId], (err, row) => {
-            if (!err && row && row.is_public) {
-                // Get friends list
-                db.all('SELECT friend_id FROM friends WHERE user_id = ? AND status = "accepted"', [socket.userId], (err, friends) => {
-                    if (!err && friends) {
-                        friends.forEach(friend => {
-                            const friendSocket = userSockets.get(friend.friend_id);
-                            if (friendSocket) {
-                                friendSocket.emit('friend_garden_update', {
-                                    userId: socket.userId,
-                                    username: socket.username,
-                                    gardenData: gardenData
-                                });
-                            }
-                        });
-                    }
-                });
-            }
-        });
+            // Broadcast to friends if garden is public
+            db.get('SELECT is_public FROM gardens WHERE user_id = ?', [socket.userId], (err, row) => {
+                if (!err && row && row.is_public) {
+                    // Get friends list
+                    db.all('SELECT friend_id FROM friends WHERE user_id = ? AND status = "accepted"', [socket.userId], (err, friends) => {
+                        if (!err && friends) {
+                            friends.forEach(friend => {
+                                const friendSocket = userSockets.get(friend.friend_id);
+                                if (friendSocket) {
+                                    friendSocket.emit('friend_garden_update', {
+                                        userId: socket.userId,
+                                        username: socket.username,
+                                        gardenData: gardenData
+                                    });
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        } catch (error) {
+            console.error('Error handling garden update:', error);
+        }
     });
 
     // Handle garden visit requests
@@ -341,32 +345,46 @@ io.on('connection', (socket) => {
     // Handle friend request responses
     socket.on('respond_friend_request', (data) => {
         if (data.accepted) {
-            // Accept the friend request
+            // Accept the friend request - use INSERT OR REPLACE to avoid duplicates
+            console.log(`✅ Accepting friend request: fromId=${data.fromId}, toId=${socket.userId}`);
+            
+            // First, update the existing request to accepted
             db.run('UPDATE friends SET status = ? WHERE user_id = ? AND friend_id = ?', 
                 ['accepted', data.fromId, socket.userId], function(err) {
                 if (err) {
+                    console.error('❌ Error updating friend request:', err);
                     socket.emit('friend_response_result', { success: false, message: 'Database error' });
                     return;
                 }
 
-                // Add reverse friendship
-                db.run('INSERT INTO friends (user_id, friend_id, status) VALUES (?, ?, "accepted")', 
-                    [socket.userId, data.fromId]);
+                console.log(`✅ Updated friend request. Rows affected: ${this.changes}`);
 
-                socket.emit('friend_response_result', { 
-                    success: true, 
-                    message: 'Friend request accepted!' 
-                });
+                // Add reverse friendship using INSERT OR REPLACE to avoid constraint violations
+                db.run('INSERT OR REPLACE INTO friends (user_id, friend_id, status) VALUES (?, ?, "accepted")', 
+                    [socket.userId, data.fromId], function(err) {
+                    if (err) {
+                        console.error('❌ Error creating reverse friendship:', err);
+                        socket.emit('friend_response_result', { success: false, message: 'Database error' });
+                        return;
+                    }
 
-                // Notify requester if online
-                const requesterSocket = userSockets.get(data.fromId);
-                if (requesterSocket) {
-                    requesterSocket.emit('friend_request_responded', {
-                        byId: socket.userId,
-                        byName: socket.username,
-                        accepted: true
+                    console.log(`✅ Created reverse friendship. Rows affected: ${this.changes}`);
+
+                    socket.emit('friend_response_result', { 
+                        success: true, 
+                        message: 'Friend request accepted!' 
                     });
-                }
+
+                    // Notify requester if online
+                    const requesterSocket = userSockets.get(data.fromId);
+                    if (requesterSocket) {
+                        requesterSocket.emit('friend_request_responded', {
+                            byId: socket.userId,
+                            byName: socket.username,
+                            accepted: true
+                        });
+                    }
+                });
             });
         } else {
             // Reject the friend request - DELETE it completely
