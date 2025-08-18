@@ -112,6 +112,26 @@ db.serialize(() => {
             console.log('✅ Announcements table ready');
         }
     });
+
+    // Admin logs table
+    db.run(`CREATE TABLE IF NOT EXISTS admin_logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        admin_id TEXT NOT NULL,
+        admin_username TEXT NOT NULL,
+        action TEXT NOT NULL,
+        target_user_id TEXT,
+        target_username TEXT,
+        details TEXT,
+        ip_address TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (admin_id) REFERENCES users (id)
+    )`, function(err) {
+        if (err) {
+            console.error('❌ Error creating admin_logs table:', err);
+        } else {
+            console.log('✅ Admin logs table ready');
+        }
+    });
 });
 
 // JWT secret (in production, use environment variable)

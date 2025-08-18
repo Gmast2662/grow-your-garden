@@ -318,6 +318,70 @@
             background: #f8d7da;
             color: #721c24;
         }
+
+        .logs-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .logs-controls select {
+            padding: 8px 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .log-item {
+            background: white;
+            border: 1px solid #e1e5e9;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .log-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .log-admin {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .log-action {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .log-target {
+            color: #666;
+            font-style: italic;
+        }
+
+        .log-time {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .log-details {
+            color: #333;
+            line-height: 1.4;
+            margin-top: 8px;
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .log-ip {
+            color: #999;
+            font-size: 0.8rem;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
@@ -352,6 +416,7 @@
                 <div class="tab active" onclick="showTab('stats')">📊 Statistics</div>
                 <div class="tab" onclick="showTab('users')">👥 Users</div>
                 <div class="tab" onclick="showTab('announcements')">📢 Announcements</div>
+                <div class="tab" onclick="showTab('logs')">📋 Admin Logs</div>
             </div>
 
             <!-- Statistics Tab -->
@@ -388,6 +453,26 @@
                     <button class="btn" onclick="loadAnnouncements()">Refresh Announcements</button>
                     <div id="announcementsTable"></div>
                 </div>
+            </div>
+
+            <!-- Admin Logs Tab -->
+            <div id="logsTab" class="tab-content">
+                <h2>Admin Activity Logs</h2>
+                <div class="logs-controls">
+                    <button class="btn" onclick="loadLogs()">Refresh Logs</button>
+                    <select id="logFilter" onchange="loadLogs()">
+                        <option value="">All Actions</option>
+                        <option value="banned user">Bans</option>
+                        <option value="unbanned user">Unbans</option>
+                        <option value="deleted user account">Deletions</option>
+                        <option value="reset user password">Password Resets</option>
+                        <option value="made user admin">Made Admin</option>
+                        <option value="removed admin privileges">Removed Admin</option>
+                        <option value="sent announcement">Announcements</option>
+                        <option value="deactivated announcement">Deactivated Announcements</option>
+                    </select>
+                </div>
+                <div id="logsTable"></div>
             </div>
 
 
@@ -452,6 +537,7 @@
                     showAdminSection();
                     loadStats();
                     loadUsers();
+                    loadLogs();
                 } else {
                     showAlert(result.error, 'error');
                 }
@@ -596,6 +682,38 @@
                         <div class="stat-card">
                             <h3>${stats.totalMessages}</h3>
                             <p>Total Messages</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${stats.totalFriends}</h3>
+                            <p>Total Friends</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${stats.pendingFriends}</h3>
+                            <p>Pending Friends</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${stats.totalAnnouncements}</h3>
+                            <p>Total Announcements</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${stats.activeAnnouncements}</h3>
+                            <p>Active Announcements</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${stats.adminUsers}</h3>
+                            <p>Admin Users</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${stats.totalLogs}</h3>
+                            <p>Admin Logs</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${stats.todayUsers}</h3>
+                            <p>New Users Today</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${stats.todayMessages}</h3>
+                            <p>Messages Today</p>
                         </div>
                     `;
                 } else {
@@ -839,6 +957,56 @@
                     }
                 })
                 .catch(error => showAlert('Deactivate failed: ' + error.message, 'error'));
+            }
+        }
+
+        async function loadLogs() {
+            try {
+                const filter = document.getElementById('logFilter').value;
+                const url = filter ? `/api/admin/logs?limit=100&filter=${encodeURIComponent(filter)}` : '/api/admin/logs?limit=100';
+                
+                const response = await fetch(url, {
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    const logs = result.logs;
+                    let tableHTML = '';
+
+                    if (logs.length === 0) {
+                        tableHTML = '<p>No admin logs found.</p>';
+                    } else {
+                        logs.forEach(log => {
+                            // Apply filter if selected
+                            if (filter && log.action !== filter) {
+                                return;
+                            }
+                            
+                            tableHTML += `
+                                <div class="log-item">
+                                    <div class="log-header">
+                                        <div>
+                                            <span class="log-admin">${log.admin_username}</span>
+                                            <span class="log-action">${log.action}</span>
+                                            ${log.target_username ? `<span class="log-target">→ ${log.target_username}</span>` : ''}
+                                        </div>
+                                        <span class="log-time">${new Date(log.created_at).toLocaleString()}</span>
+                                    </div>
+                                    ${log.details ? `<div class="log-details">${log.details}</div>` : ''}
+                                    ${log.ip_address ? `<div class="log-ip">IP: ${log.ip_address}</div>` : ''}
+                                </div>
+                            `;
+                        });
+                    }
+
+                    document.getElementById('logsTable').innerHTML = tableHTML;
+                } else {
+                    showAlert(result.error, 'error');
+                }
+            } catch (error) {
+                showAlert('Failed to load logs: ' + error.message, 'error');
             }
         }
 

@@ -32,6 +32,21 @@ const disconnectUser = (userId) => {
     }
 };
 
+// Function to log admin actions
+const logAdminAction = (adminId, adminUsername, action, targetUserId = null, targetUsername = null, details = null, ipAddress = null) => {
+    db.run(
+        'INSERT INTO admin_logs (admin_id, admin_username, action, target_user_id, target_username, details, ip_address) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [adminId, adminUsername, action, targetUserId, targetUsername, details, ipAddress],
+        function(err) {
+            if (err) {
+                console.error('❌ Error logging admin action:', err);
+            } else {
+                console.log(`📝 Admin log: ${adminUsername} ${action} ${targetUsername || ''}`);
+            }
+        }
+    );
+};
+
 // JWT secret
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this';
 
@@ -192,106 +207,172 @@ router.post('/users/:userId/ban', authenticateAdmin, (req, res) => {
         return res.status(400).json({ error: 'Ban reason required' });
     }
     
-    db.run(
-        'UPDATE users SET is_banned = 1, ban_reason = ? WHERE id = ?',
-        [reason, userId],
-        function(err) {
-            if (err) {
-                return res.status(500).json({ error: 'Database error' });
-            }
-            
-            if (this.changes === 0) {
-                return res.status(404).json({ error: 'User not found' });
-            }
-            
-            // Disconnect user if online
-            disconnectUser(userId);
-            
-            res.json({ 
-                message: 'User banned successfully',
-                userId,
-                reason
-            });
+    // Get target user info for logging
+    db.get('SELECT username FROM users WHERE id = ?', [userId], (err, targetUser) => {
+        if (err) {
+            return res.status(500).json({ error: 'Database error' });
         }
-    );
+        
+        if (!targetUser) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        
+        db.run(
+            'UPDATE users SET is_banned = 1, ban_reason = ? WHERE id = ?',
+            [reason, userId],
+            function(err) {
+                if (err) {
+                    return res.status(500).json({ error: 'Database error' });
+                }
+                
+                if (this.changes === 0) {
+                    return res.status(404).json({ error: 'User not found' });
+                }
+                
+                // Log the action
+                logAdminAction(
+                    req.user.userId,
+                    req.user.username,
+                    'banned user',
+                    userId,
+                    targetUser.username,
+                    `Reason: ${reason}`,
+                    req.ip
+                );
+                
+                // Disconnect user if online
+                disconnectUser(userId);
+                
+                res.json({ 
+                    message: 'User banned successfully',
+                    userId,
+                    reason
+                });
+            }
+        );
+    });
 });
 
 // Unban user (admin only)
 router.post('/users/:userId/unban', authenticateAdmin, (req, res) => {
     const { userId } = req.params;
     
-    db.run(
-        'UPDATE users SET is_banned = 0, ban_reason = NULL WHERE id = ?',
-        [userId],
-        function(err) {
-            if (err) {
-                return res.status(500).json({ error: 'Database error' });
-            }
-            
-            if (this.changes === 0) {
-                return res.status(404).json({ error: 'User not found' });
-            }
-            
-            res.json({ 
-                message: 'User unbanned successfully',
-                userId
-            });
+    // Get target user info for logging
+    db.get('SELECT username FROM users WHERE id = ?', [userId], (err, targetUser) => {
+        if (err) {
+            return res.status(500).json({ error: 'Database error' });
         }
-    );
+        
+        if (!targetUser) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        
+        db.run(
+            'UPDATE users SET is_banned = 0, ban_reason = NULL WHERE id = ?',
+            [userId],
+            function(err) {
+                if (err) {
+                    return res.status(500).json({ error: 'Database error' });
+                }
+                
+                if (this.changes === 0) {
+                    return res.status(404).json({ error: 'User not found' });
+                }
+                
+                // Log the action
+                logAdminAction(
+                    req.user.userId,
+                    req.user.username,
+                    'unbanned user',
+                    userId,
+                    targetUser.username,
+                    null,
+                    req.ip
+                );
+                
+                res.json({ 
+                    message: 'User unbanned successfully',
+                    userId
+                });
+            }
+        );
+    });
 });
 
 // Delete user account (admin only)
 router.delete('/users/:userId', authenticateAdmin, (req, res) => {
     const { userId } = req.params;
     
-    // Start a transaction to delete all user data
-    db.serialize(() => {
-        db.run('BEGIN TRANSACTION');
+    // Get target user info for logging
+    db.get('SELECT username FROM users WHERE id = ?', [userId], (err, targetUser) => {
+        if (err) {
+            return res.status(500).json({ error: 'Database error' });
+        }
         
-        // Delete user's chat messages
-        db.run('DELETE FROM chat_messages WHERE sender_id = ? OR receiver_id = ?', [userId, userId], (err) => {
-            if (err) {
-                db.run('ROLLBACK');
-                return res.status(500).json({ error: 'Database error' });
-            }
-        });
+        if (!targetUser) {
+            return res.status(404).json({ error: 'User not found' });
+        }
         
-        // Delete user's friends
-        db.run('DELETE FROM friends WHERE user_id = ? OR friend_id = ?', [userId, userId], (err) => {
-            if (err) {
-                db.run('ROLLBACK');
-                return res.status(500).json({ error: 'Database error' });
-            }
-        });
-        
-        // Delete user's garden
-        db.run('DELETE FROM gardens WHERE user_id = ?', [userId], (err) => {
-            if (err) {
-                db.run('ROLLBACK');
-                return res.status(500).json({ error: 'Database error' });
-            }
-        });
-        
-        // Delete user account
-        db.run('DELETE FROM users WHERE id = ?', [userId], function(err) {
-            if (err) {
-                db.run('ROLLBACK');
-                return res.status(500).json({ error: 'Database error' });
-            }
+        // Start a transaction to delete all user data
+        db.serialize(() => {
+            db.run('BEGIN TRANSACTION');
             
-            if (this.changes === 0) {
-                db.run('ROLLBACK');
-                return res.status(404).json({ error: 'User not found' });
-            }
+            // Delete user's chat messages
+            db.run('DELETE FROM chat_messages WHERE sender_id = ? OR receiver_id = ?', [userId, userId], (err) => {
+                if (err) {
+                    db.run('ROLLBACK');
+                    return res.status(500).json({ error: 'Database error' });
+                }
+            });
             
-            db.run('COMMIT');
+            // Delete user's friends
+            db.run('DELETE FROM friends WHERE user_id = ? OR friend_id = ?', [userId, userId], (err) => {
+                if (err) {
+                    db.run('ROLLBACK');
+                    return res.status(500).json({ error: 'Database error' });
+                }
+            });
             
-            // Disconnect user if online
-            disconnectUser(userId);
+            // Delete user's garden
+            db.run('DELETE FROM gardens WHERE user_id = ?', [userId], (err) => {
+                if (err) {
+                    db.run('ROLLBACK');
+                    return res.status(500).json({ error: 'Database error' });
+                }
+            });
             
-            res.json({ 
-                message: 'User account deleted successfully',
-                userId
+            // Delete user account
+            db.run('DELETE FROM users WHERE id = ?', [userId], function(err) {
+                if (err) {
+                    db.run('ROLLBACK');
+                    return res.status(500).json({ error: 'Database error' });
+                }
+                
+                if (this.changes === 0) {
+                    db.run('ROLLBACK');
+                    return res.status(404).json({ error: 'User not found' });
+                }
+                
+                db.run('COMMIT');
+                
+                // Log the action
+                logAdminAction(
+                    req.user.userId,
+                    req.user.username,
+                    'deleted user account',
+                    userId,
+                    targetUser.username,
+                    'All user data deleted (messages, friends, garden)',
+                    req.ip
+                );
+                
+                // Disconnect user if online
+                disconnectUser(userId);
+                
+                res.json({ 
+                    message: 'User account deleted successfully',
+                    userId
+                });
             });
         });
     });
@@ -306,12 +387,74 @@ router.post('/users/:userId/reset-password', authenticateAdmin, async (req, res)
         return res.status(400).json({ error: 'New password required' });
     }
     
-    try {
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
+    // Get target user info for logging
+    db.get('SELECT username FROM users WHERE id = ?', [userId], async (err, targetUser) => {
+        if (err) {
+            return res.status(500).json({ error: 'Database error' });
+        }
+        
+        if (!targetUser) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        
+        try {
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
+            
+            db.run(
+                'UPDATE users SET password_hash = ? WHERE id = ?',
+                [hashedPassword, userId],
+                function(err) {
+                    if (err) {
+                        return res.status(500).json({ error: 'Database error' });
+                    }
+                    
+                    if (this.changes === 0) {
+                        return res.status(404).json({ error: 'User not found' });
+                    }
+                    
+                    // Log the action
+                    logAdminAction(
+                        req.user.userId,
+                        req.user.username,
+                        'reset user password',
+                        userId,
+                        targetUser.username,
+                        'Password changed by admin',
+                        req.ip
+                    );
+                    
+                    // Disconnect user if online
+                    disconnectUser(userId);
+                    
+                    res.json({ 
+                        message: 'Password reset successfully',
+                        userId
+                    });
+                }
+            );
+        } catch (error) {
+            res.status(500).json({ error: 'Password hashing error' });
+        }
+    });
+});
+
+// Make user admin (admin only)
+router.post('/users/:userId/make-admin', authenticateAdmin, (req, res) => {
+    const { userId } = req.params;
+    
+    // Get target user info for logging
+    db.get('SELECT username FROM users WHERE id = ?', [userId], (err, targetUser) => {
+        if (err) {
+            return res.status(500).json({ error: 'Database error' });
+        }
+        
+        if (!targetUser) {
+            return res.status(404).json({ error: 'User not found' });
+        }
         
         db.run(
-            'UPDATE users SET password_hash = ? WHERE id = ?',
-            [hashedPassword, userId],
+            'UPDATE users SET is_admin = 1 WHERE id = ?',
+            [userId],
             function(err) {
                 if (err) {
                     return res.status(500).json({ error: 'Database error' });
@@ -321,42 +464,24 @@ router.post('/users/:userId/reset-password', authenticateAdmin, async (req, res)
                     return res.status(404).json({ error: 'User not found' });
                 }
                 
-                // Disconnect user if online
-                disconnectUser(userId);
+                // Log the action
+                logAdminAction(
+                    req.user.userId,
+                    req.user.username,
+                    'made user admin',
+                    userId,
+                    targetUser.username,
+                    'Admin privileges granted',
+                    req.ip
+                );
                 
                 res.json({ 
-                    message: 'Password reset successfully',
+                    message: 'User made admin successfully',
                     userId
                 });
             }
         );
-    } catch (error) {
-        res.status(500).json({ error: 'Password hashing error' });
-    }
-});
-
-// Make user admin (admin only)
-router.post('/users/:userId/make-admin', authenticateAdmin, (req, res) => {
-    const { userId } = req.params;
-    
-    db.run(
-        'UPDATE users SET is_admin = 1 WHERE id = ?',
-        [userId],
-        function(err) {
-            if (err) {
-                return res.status(500).json({ error: 'Database error' });
-            }
-            
-            if (this.changes === 0) {
-                return res.status(404).json({ error: 'User not found' });
-            }
-            
-            res.json({ 
-                message: 'User made admin successfully',
-                userId
-            });
-        }
-    );
+    });
 });
 
 // Remove admin privileges (admin only)
@@ -368,66 +493,151 @@ router.post('/users/:userId/remove-admin', authenticateAdmin, (req, res) => {
         return res.status(400).json({ error: 'Cannot remove admin privileges from yourself' });
     }
     
-    db.run(
-        'UPDATE users SET is_admin = 0 WHERE id = ?',
-        [userId],
-        function(err) {
-            if (err) {
-                return res.status(500).json({ error: 'Database error' });
-            }
-            
-            if (this.changes === 0) {
-                return res.status(404).json({ error: 'User not found' });
-            }
-            
-            res.json({ 
-                message: 'Admin privileges removed successfully',
-                userId
-            });
-        }
-    );
-});
-
-// Get server statistics (admin only)
-router.get('/stats', authenticateAdmin, (req, res) => {
-    db.get('SELECT COUNT(*) as total_users FROM users', (err, userCount) => {
+    // Get target user info for logging
+    db.get('SELECT username FROM users WHERE id = ?', [userId], (err, targetUser) => {
         if (err) {
             return res.status(500).json({ error: 'Database error' });
         }
         
-        db.get('SELECT COUNT(*) as online_users FROM users WHERE is_online = 1', (err, onlineCount) => {
-            if (err) {
-                return res.status(500).json({ error: 'Database error' });
-            }
-            
-            db.get('SELECT COUNT(*) as banned_users FROM users WHERE is_banned = 1', (err, bannedCount) => {
+        if (!targetUser) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        
+        db.run(
+            'UPDATE users SET is_admin = 0 WHERE id = ?',
+            [userId],
+            function(err) {
                 if (err) {
                     return res.status(500).json({ error: 'Database error' });
                 }
                 
-                db.get('SELECT COUNT(*) as total_gardens FROM gardens', (err, gardenCount) => {
-                    if (err) {
-                        return res.status(500).json({ error: 'Database error' });
-                    }
-                    
-                    db.get('SELECT COUNT(*) as total_messages FROM chat_messages', (err, messageCount) => {
-                        if (err) {
-                            return res.status(500).json({ error: 'Database error' });
-                        }
-                        
-                        res.json({
-                            stats: {
-                                totalUsers: userCount.total_users,
-                                onlineUsers: onlineCount.online_users,
-                                bannedUsers: bannedCount.banned_users,
-                                totalGardens: gardenCount.total_gardens,
-                                totalMessages: messageCount.total_messages
-                            }
-                        });
-                    });
+                if (this.changes === 0) {
+                    return res.status(404).json({ error: 'User not found' });
+                }
+                
+                // Log the action
+                logAdminAction(
+                    req.user.userId,
+                    req.user.username,
+                    'removed admin privileges',
+                    userId,
+                    targetUser.username,
+                    'Admin privileges revoked',
+                    req.ip
+                );
+                
+                res.json({ 
+                    message: 'Admin privileges removed successfully',
+                    userId
                 });
+            }
+        );
+    });
+});
+
+// Get server statistics (admin only)
+router.get('/stats', authenticateAdmin, (req, res) => {
+    // Get all stats in parallel for better performance
+    Promise.all([
+        new Promise((resolve, reject) => {
+            db.get('SELECT COUNT(*) as total_users FROM users', (err, result) => {
+                if (err) reject(err);
+                else resolve(result.total_users);
             });
+        }),
+        new Promise((resolve, reject) => {
+            db.get('SELECT COUNT(*) as online_users FROM users WHERE is_online = 1', (err, result) => {
+                if (err) reject(err);
+                else resolve(result.online_users);
+            });
+        }),
+        new Promise((resolve, reject) => {
+            db.get('SELECT COUNT(*) as banned_users FROM users WHERE is_banned = 1', (err, result) => {
+                if (err) reject(err);
+                else resolve(result.banned_users);
+            });
+        }),
+        new Promise((resolve, reject) => {
+            db.get('SELECT COUNT(*) as total_gardens FROM gardens', (err, result) => {
+                if (err) reject(err);
+                else resolve(result.total_gardens);
+            });
+        }),
+        new Promise((resolve, reject) => {
+            db.get('SELECT COUNT(*) as total_messages FROM chat_messages', (err, result) => {
+                if (err) reject(err);
+                else resolve(result.total_messages);
+            });
+        }),
+        new Promise((resolve, reject) => {
+            db.get('SELECT COUNT(*) as total_friends FROM friends WHERE status = "accepted"', (err, result) => {
+                if (err) reject(err);
+                else resolve(result.total_friends);
+            });
+        }),
+        new Promise((resolve, reject) => {
+            db.get('SELECT COUNT(*) as pending_friends FROM friends WHERE status = "pending"', (err, result) => {
+                if (err) reject(err);
+                else resolve(result.pending_friends);
+            });
+        }),
+        new Promise((resolve, reject) => {
+            db.get('SELECT COUNT(*) as total_announcements FROM announcements', (err, result) => {
+                if (err) reject(err);
+                else resolve(result.total_announcements);
+            });
+        }),
+        new Promise((resolve, reject) => {
+            db.get('SELECT COUNT(*) as active_announcements FROM announcements WHERE is_active = 1', (err, result) => {
+                if (err) reject(err);
+                else resolve(result.active_announcements);
+            });
+        }),
+        new Promise((resolve, reject) => {
+            db.get('SELECT COUNT(*) as admin_users FROM users WHERE is_admin = 1', (err, result) => {
+                if (err) reject(err);
+                else resolve(result.admin_users);
+            });
+        }),
+        new Promise((resolve, reject) => {
+            db.get('SELECT COUNT(*) as total_logs FROM admin_logs', (err, result) => {
+                if (err) reject(err);
+                else resolve(result.total_logs || 0);
+            });
+        }),
+        new Promise((resolve, reject) => {
+            db.get('SELECT COUNT(*) as today_users FROM users WHERE DATE(created_at) = DATE("now")', (err, result) => {
+                if (err) reject(err);
+                else resolve(result.today_users);
+            });
+        }),
+        new Promise((resolve, reject) => {
+            db.get('SELECT COUNT(*) as today_messages FROM chat_messages WHERE DATE(created_at) = DATE("now")', (err, result) => {
+                if (err) reject(err);
+                else resolve(result.today_messages);
+            });
+        })
+    ]).then(([totalUsers, onlineUsers, bannedUsers, totalGardens, totalMessages, totalFriends, pendingFriends, totalAnnouncements, activeAnnouncements, adminUsers, totalLogs, todayUsers, todayMessages]) => {
+        res.json({
+            stats: {
+                totalUsers,
+                onlineUsers,
+                bannedUsers,
+                totalGardens,
+                totalMessages,
+                totalFriends,
+                pendingFriends,
+                totalAnnouncements,
+                activeAnnouncements,
+                adminUsers,
+                totalLogs,
+                todayUsers,
+                todayMessages
+            }
         });
+    }).catch(err => {
+        console.error('Error getting stats:', err);
+        res.status(500).json({ error: 'Database error' });
     });
 });
 
@@ -507,6 +717,17 @@ router.post('/announce', authenticateAdmin, (req, res) => {
                 timestamp: new Date().toISOString()
             };
             
+            // Log the action
+            logAdminAction(
+                req.user.userId,
+                req.user.username,
+                'sent announcement',
+                null,
+                null,
+                `Message: ${message.substring(0, 100)}${message.length > 100 ? '...' : ''}`,
+                req.ip
+            );
+            
             // Broadcast to all online users
             userSockets.forEach((socket) => {
                 socket.emit('admin_announcement', announcementData);
@@ -542,21 +763,63 @@ router.get('/announcements', authenticateAdmin, (req, res) => {
 router.post('/announcements/:id/deactivate', authenticateAdmin, (req, res) => {
     const { id } = req.params;
     
-    db.run(
-        'UPDATE announcements SET is_active = 0 WHERE id = ?',
-        [id],
-        function(err) {
-            if (err) {
-                return res.status(500).json({ error: 'Database error' });
-            }
-            
-            if (this.changes === 0) {
-                return res.status(404).json({ error: 'Announcement not found' });
-            }
-            
-            res.json({ message: 'Announcement deactivated successfully' });
+    // Get announcement info for logging
+    db.get('SELECT admin_username, message FROM announcements WHERE id = ?', [id], (err, announcement) => {
+        if (err) {
+            return res.status(500).json({ error: 'Database error' });
         }
-    );
+        
+        if (!announcement) {
+            return res.status(404).json({ error: 'Announcement not found' });
+        }
+        
+        db.run(
+            'UPDATE announcements SET is_active = 0 WHERE id = ?',
+            [id],
+            function(err) {
+                if (err) {
+                    return res.status(500).json({ error: 'Database error' });
+                }
+                
+                if (this.changes === 0) {
+                    return res.status(404).json({ error: 'Announcement not found' });
+                }
+                
+                // Log the action
+                logAdminAction(
+                    req.user.userId,
+                    req.user.username,
+                    'deactivated announcement',
+                    null,
+                    announcement.admin_username,
+                    `Announcement ID: ${id}`,
+                    req.ip
+                );
+                
+                res.json({ message: 'Announcement deactivated successfully' });
+            }
+        );
+    });
+});
+
+// Get admin logs (admin only)
+router.get('/logs', authenticateAdmin, (req, res) => {
+    const limit = parseInt(req.query.limit) || 100;
+    const offset = parseInt(req.query.offset) || 0;
+    
+    db.all(`
+        SELECT 
+            id, admin_username, action, target_username, details, ip_address, created_at
+        FROM admin_logs 
+        ORDER BY created_at DESC 
+        LIMIT ? OFFSET ?
+    `, [limit, offset], (err, logs) => {
+        if (err) {
+            return res.status(500).json({ error: 'Database error' });
+        }
+        
+        res.json({ logs });
+    });
 });
 
 // Export the router and the setWebSocketMaps function
