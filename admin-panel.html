@@ -793,7 +793,13 @@
 
             // Show selected tab
             document.getElementById(tabName + 'Tab').classList.add('active');
-            event.target.classList.add('active');
+            
+            // Find and activate the correct tab button
+            document.querySelectorAll('.tab').forEach(tab => {
+                if (tab.getAttribute('onclick') && tab.getAttribute('onclick').includes(tabName)) {
+                    tab.classList.add('active');
+                }
+            });
         }
 
         async function loadStats() {
@@ -890,6 +896,7 @@
                         <table class="users-table">
                             <thead>
                                 <tr>
+                                    <th>User ID</th>
                                     <th>Username</th>
                                     <th>Email</th>
                                     <th>Status</th>
@@ -910,6 +917,7 @@
 
                         tableHTML += `
                             <tr>
+                                <td><code>${user.id}</code></td>
                                 <td>${user.username}</td>
                                 <td>${user.email || '-'}</td>
                                 <td>${status.join(' ')}</td>
