@@ -144,6 +144,16 @@ class MultiplayerManager {
                 }
             } else {
                 console.error('❌ Failed to send message:', data.error);
+                
+                // Show notification to user for mute and filter errors
+                if (data.error && (data.error.includes('muted') || data.error.includes('blocked') || data.error.includes('inappropriate'))) {
+                    if (window.game && window.game.showMessage) {
+                        window.game.showMessage(data.error, 'error');
+                    } else {
+                        // Fallback to alert if game.showMessage is not available
+                        alert(`❌ ${data.error}`);
+                    }
+                }
             }
         });
 
