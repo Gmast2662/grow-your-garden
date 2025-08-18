@@ -588,6 +588,11 @@ app.get('/setup-admin', (req, res) => {
     res.sendFile(path.join(__dirname, 'setup-admin.html'));
 });
 
+// Serve connection test page
+app.get('/test-connection', (req, res) => {
+    res.sendFile(path.join(__dirname, 'test-connection.html'));
+});
+
 // Health check endpoint for keep-alive
 app.get('/health', (req, res) => {
     res.json({ 
