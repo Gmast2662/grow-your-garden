@@ -47,10 +47,48 @@ db.serialize(() => {
         password_hash TEXT NOT NULL,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         last_login DATETIME,
+        last_login_ip TEXT,
+        registration_ip TEXT,
+        device_fingerprint TEXT,
         is_online BOOLEAN DEFAULT 0,
         is_banned BOOLEAN DEFAULT 0,
         ban_reason TEXT,
         is_admin BOOLEAN DEFAULT 0
+    )`);
+
+    // Banned IPs table
+    db.run(`CREATE TABLE IF NOT EXISTS banned_ips (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        ip_address TEXT UNIQUE NOT NULL,
+        reason TEXT,
+        banned_by_admin_id TEXT,
+        banned_by_admin_username TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (banned_by_admin_id) REFERENCES users (id)
+    )`);
+
+    // Banned devices table
+    db.run(`CREATE TABLE IF NOT EXISTS banned_devices (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        device_fingerprint TEXT UNIQUE NOT NULL,
+        reason TEXT,
+        banned_by_admin_id TEXT,
+        banned_by_admin_username TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (banned_by_admin_id) REFERENCES users (id)
+    )`);
+
+    // Security logs table
+    db.run(`CREATE TABLE IF NOT EXISTS security_logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id TEXT,
+        username TEXT,
+        action TEXT NOT NULL,
+        ip_address TEXT,
+        device_fingerprint TEXT,
+        details TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users (id)
     )`);
 
     // Gardens table

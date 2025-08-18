@@ -1,6 +1,6 @@
 {
   "name": "grow-your-garden-unified",
-  "version": "1.6.4",
+  "version": "1.6.5",
   "description": "A unified gardening game with both single-player and multiplayer features",
   "main": "server.js",
   "scripts": {

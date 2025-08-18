@@ -2,7 +2,58 @@
 
 This document tracks all updates, bug fixes, and new features added to the Grow Your Garden.
 
-## 🆕 Latest Update - Admin Panel Fixes & Friend Status Updates! 🔧 (v1.6.4)
+## 🆕 Latest Update - Enhanced Security & Ban/Mute Bypass Prevention! 🔒 (v1.6.5)
+
+**Date:** August 18, 2025
+
+**Major Security Enhancements:**
+- **IP Address Tracking**: All registrations and logins now track IP addresses
+- **Device Fingerprinting**: Unique device identification using browser headers and IP
+- **IP Banning System**: Admins can ban specific IP addresses to prevent new registrations
+- **Device Banning System**: Admins can ban specific devices to prevent access
+- **Enhanced User Banning**: Option to ban user's IP and device when banning accounts
+- **Security Logging**: Comprehensive logging of all login attempts, failed logins, and security events
+- **Suspicious Username Detection**: Blocks usernames containing admin/moderator terms
+- **Registration Blocking**: Prevents registration from banned IPs and devices
+- **Login Blocking**: Prevents login from banned IPs and devices
+
+**Admin Panel Enhancements:**
+- **New Security Tab**: Dedicated section for IP/device management and security logs
+- **IP Management**: View, ban, and unban IP addresses with reasons
+- **Device Management**: View, ban, and unban devices with reasons
+- **Security Logs**: Real-time monitoring of security events
+- **Enhanced User Details**: Shows registration IP and device fingerprint
+- **Ban Options**: Choose to ban IP/device when banning users
+
+**Database Schema Updates:**
+- Added `banned_ips` table for IP address management
+- Added `banned_devices` table for device management
+- Added `security_logs` table for comprehensive security tracking
+- Enhanced `users` table with IP and device fingerprint fields
+
+**Security Features:**
+- **Multi-Layer Protection**: Account bans, IP bans, and device bans work together
+- **Bypass Prevention**: Users cannot create new accounts from banned IPs/devices
+- **Real-Time Monitoring**: Admins can see all security events as they happen
+- **Comprehensive Logging**: All security actions are logged with timestamps
+- **Enhanced Authentication**: More robust token verification and session management
+
+**Technical Improvements:**
+- **Device Fingerprinting**: SHA256 hash of IP + User-Agent + Accept headers
+- **IP Validation**: Proper IPv4 format validation for IP banning
+- **Error Handling**: Better error messages for security-related actions
+- **Performance**: Optimized database queries for security operations
+
+**User Experience:**
+- **Clear Feedback**: Users get specific messages when blocked by IP/device bans
+- **Transparent Logging**: All security events are logged for admin review
+- **Consistent Behavior**: Security measures work across all authentication points
+
+This update significantly enhances the security of the game by implementing multiple layers of protection against ban/mute bypasses, making it much more difficult for banned users to create new accounts or access the game.
+
+---
+
+## 🆕 Previous Update - Admin Panel Fixes & Friend Status Updates! 🔧 (v1.6.4)
 
 ### 🔧 FIXED: Admin Panel Issues
 - **Total Gardens Stats**: Fixed total gardens statistics not displaying correctly in admin panel

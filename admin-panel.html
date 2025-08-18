@@ -494,13 +494,15 @@
 
         <!-- Admin Section -->
         <div id="adminSection" class="admin-section">
-            <div class="tabs">
-                <div class="tab active" onclick="showTab('stats')">📊 Statistics</div>
-                <div class="tab" onclick="showTab('users')">👥 Users</div>
-                <div class="tab" onclick="showTab('announcements')">📢 Announcements</div>
-                <div class="tab" onclick="showTab('mutes')">🔇 Mutes</div>
-                <div class="tab" onclick="showTab('chat-filter')">🚫 Chat Filter</div>
-                <div class="tab" onclick="showTab('logs')">📋 Admin Logs</div>
+            <!-- Tab Navigation -->
+            <div class="tab-nav">
+                <button class="tab-btn active" onclick="showTab('dashboard')">📊 Dashboard</button>
+                <button class="tab-btn" onclick="showTab('users')">👥 Users</button>
+                <button class="tab-btn" onclick="showTab('announcements')">📢 Announcements</button>
+                <button class="tab-btn" onclick="showTab('mutes')">🔇 Mutes</button>
+                <button class="tab-btn" onclick="showTab('chat-filter')">🚫 Chat Filter</button>
+                <button class="tab-btn" onclick="showTab('security')">🔒 Security</button>
+                <button class="tab-btn" onclick="showTab('logs')">📝 Logs</button>
             </div>
 
             <!-- Statistics Tab -->
@@ -616,6 +618,59 @@
                     <h3>Filtered Words</h3>
                     <button class="btn" onclick="loadFilterWords()">Refresh Filter Words</button>
                     <div id="filterWordsTable"></div>
+                </div>
+            </div>
+
+            <!-- Security Tab -->
+            <div class="admin-tab-content" id="securityTab">
+                <h3>🔒 Security Management</h3>
+                
+                <!-- IP Banning Section -->
+                <div class="admin-section">
+                    <h4>🌐 IP Address Management</h4>
+                    <div class="admin-input-group">
+                        <label>IP Address:</label>
+                        <input type="text" id="ipAddressInput" placeholder="192.168.1.1">
+                    </div>
+                    <div class="admin-input-group">
+                        <label>Reason:</label>
+                        <input type="text" id="ipBanReasonInput" placeholder="Reason for IP ban">
+                    </div>
+                    <button class="btn btn-danger" onclick="banIP()">Ban IP Address</button>
+                    <button class="btn btn-warning" onclick="unbanIP()">Unban IP Address</button>
+                    
+                    <div id="bannedIPsList" class="admin-list">
+                        <h5>Banned IP Addresses</h5>
+                        <div class="loading">Loading...</div>
+                    </div>
+                </div>
+                
+                <!-- Device Banning Section -->
+                <div class="admin-section">
+                    <h4>📱 Device Management</h4>
+                    <div class="admin-input-group">
+                        <label>Device Fingerprint:</label>
+                        <input type="text" id="deviceFingerprintInput" placeholder="Device fingerprint hash">
+                    </div>
+                    <div class="admin-input-group">
+                        <label>Reason:</label>
+                        <input type="text" id="deviceBanReasonInput" placeholder="Reason for device ban">
+                    </div>
+                    <button class="btn btn-danger" onclick="banDevice()">Ban Device</button>
+                    <button class="btn btn-warning" onclick="unbanDevice()">Unban Device</button>
+                    
+                    <div id="bannedDevicesList" class="admin-list">
+                        <h5>Banned Devices</h5>
+                        <div class="loading">Loading...</div>
+                    </div>
+                </div>
+                
+                <!-- Security Logs Section -->
+                <div class="admin-section">
+                    <h4>📋 Security Logs</h4>
+                    <div id="securityLogsList" class="admin-list">
+                        <div class="loading">Loading...</div>
+                    </div>
                 </div>
             </div>
 
@@ -804,7 +859,7 @@
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
             });
-            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(tab => tab.classList.remove('active'));
 
             // Show selected tab - handle special case for chat-filter
             let targetTabId = tabName + 'Tab';
@@ -819,11 +874,23 @@
                 // Load data for specific tabs
                 if (tabName === 'chat-filter') {
                     loadFilterWords();
+                } else if (tabName === 'users') {
+                    loadUsers();
+                } else if (tabName === 'announcements') {
+                    loadAnnouncements();
+                } else if (tabName === 'mutes') {
+                    loadMutedUsers();
+                } else if (tabName === 'logs') {
+                    loadAdminLogs();
+                } else if (tabName === 'dashboard') {
+                    loadStats();
+                } else if (tabName === 'security') {
+                    loadSecurityData();
                 }
             }
             
             // Find and activate the correct tab button
-            document.querySelectorAll('.tab').forEach(tab => {
+            document.querySelectorAll('.tab-btn').forEach(tab => {
                 if (tab.getAttribute('onclick') && tab.getAttribute('onclick').includes(tabName)) {
                     tab.classList.add('active');
                 }
@@ -1401,6 +1468,256 @@
                     }
                 })
                 .catch(error => showAlert('Remove failed: ' + error.message, 'error'));
+            }
+        }
+
+        // Load security data
+        async function loadSecurityData() {
+            await Promise.all([
+                loadBannedIPs(),
+                loadBannedDevices(),
+                loadSecurityLogs()
+            ]);
+        }
+
+        // Load banned IPs
+        async function loadBannedIPs() {
+            try {
+                const response = await fetch('/api/admin/banned-ips', {
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+                const result = await response.json();
+                
+                if (response.ok) {
+                    const bannedIPsList = document.getElementById('bannedIPsList');
+                    if (result.bannedIPs.length === 0) {
+                        bannedIPsList.innerHTML = '<h5>Banned IP Addresses</h5><p>No banned IP addresses</p>';
+                    } else {
+                        let html = '<h5>Banned IP Addresses</h5>';
+                        result.bannedIPs.forEach(ip => {
+                            html += `
+                                <div class="admin-item">
+                                    <div class="item-info">
+                                        <strong>${ip.ip_address}</strong>
+                                        <span class="item-meta">Banned by: ${ip.banned_by_admin_username}</span>
+                                        <span class="item-meta">Date: ${new Date(ip.created_at).toLocaleString()}</span>
+                                        ${ip.reason ? `<span class="item-meta">Reason: ${ip.reason}</span>` : ''}
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        bannedIPsList.innerHTML = html;
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading banned IPs:', error);
+            }
+        }
+
+        // Load banned devices
+        async function loadBannedDevices() {
+            try {
+                const response = await fetch('/api/admin/banned-devices', {
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+                const result = await response.json();
+                
+                if (response.ok) {
+                    const bannedDevicesList = document.getElementById('bannedDevicesList');
+                    if (result.bannedDevices.length === 0) {
+                        bannedDevicesList.innerHTML = '<h5>Banned Devices</h5><p>No banned devices</p>';
+                    } else {
+                        let html = '<h5>Banned Devices</h5>';
+                        result.bannedDevices.forEach(device => {
+                            html += `
+                                <div class="admin-item">
+                                    <div class="item-info">
+                                        <strong>${device.device_fingerprint.substring(0, 16)}...</strong>
+                                        <span class="item-meta">Banned by: ${device.banned_by_admin_username}</span>
+                                        <span class="item-meta">Date: ${new Date(device.created_at).toLocaleString()}</span>
+                                        ${device.reason ? `<span class="item-meta">Reason: ${device.reason}</span>` : ''}
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        bannedDevicesList.innerHTML = html;
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading banned devices:', error);
+            }
+        }
+
+        // Load security logs
+        async function loadSecurityLogs() {
+            try {
+                const response = await fetch('/api/admin/security-logs?limit=50', {
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+                const result = await response.json();
+                
+                if (response.ok) {
+                    const securityLogsList = document.getElementById('securityLogsList');
+                    if (result.securityLogs.length === 0) {
+                        securityLogsList.innerHTML = '<p>No security logs</p>';
+                    } else {
+                        let html = '';
+                        result.securityLogs.forEach(log => {
+                            html += `
+                                <div class="admin-item">
+                                    <div class="item-info">
+                                        <strong>${log.username || 'Unknown'}</strong>
+                                        <span class="item-meta">Action: ${log.action}</span>
+                                        <span class="item-meta">IP: ${log.ip_address || 'Unknown'}</span>
+                                        <span class="item-meta">Date: ${new Date(log.created_at).toLocaleString()}</span>
+                                        ${log.details ? `<span class="item-meta">Details: ${log.details}</span>` : ''}
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        securityLogsList.innerHTML = html;
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading security logs:', error);
+            }
+        }
+
+        // Ban IP address
+        async function banIP() {
+            const ipAddress = document.getElementById('ipAddressInput').value.trim();
+            const reason = document.getElementById('ipBanReasonInput').value.trim();
+            
+            if (!ipAddress) {
+                showAlert('IP address is required', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/admin/ban-ip', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify({ ipAddress, reason })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showAlert('IP address banned successfully', 'success');
+                    document.getElementById('ipAddressInput').value = '';
+                    document.getElementById('ipBanReasonInput').value = '';
+                    loadBannedIPs();
+                } else {
+                    showAlert(result.error, 'error');
+                }
+            } catch (error) {
+                showAlert('Failed to ban IP address: ' + error.message, 'error');
+            }
+        }
+
+        // Unban IP address
+        async function unbanIP() {
+            const ipAddress = document.getElementById('ipAddressInput').value.trim();
+            
+            if (!ipAddress) {
+                showAlert('IP address is required', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/admin/unban-ip', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify({ ipAddress })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showAlert('IP address unbanned successfully', 'success');
+                    document.getElementById('ipAddressInput').value = '';
+                    document.getElementById('ipBanReasonInput').value = '';
+                    loadBannedIPs();
+                } else {
+                    showAlert(result.error, 'error');
+                }
+            } catch (error) {
+                showAlert('Failed to unban IP address: ' + error.message, 'error');
+            }
+        }
+
+        // Ban device
+        async function banDevice() {
+            const deviceFingerprint = document.getElementById('deviceFingerprintInput').value.trim();
+            const reason = document.getElementById('deviceBanReasonInput').value.trim();
+            
+            if (!deviceFingerprint) {
+                showAlert('Device fingerprint is required', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/admin/ban-device', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify({ deviceFingerprint, reason })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showAlert('Device banned successfully', 'success');
+                    document.getElementById('deviceFingerprintInput').value = '';
+                    document.getElementById('deviceBanReasonInput').value = '';
+                    loadBannedDevices();
+                } else {
+                    showAlert(result.error, 'error');
+                }
+            } catch (error) {
+                showAlert('Failed to ban device: ' + error.message, 'error');
+            }
+        }
+
+        // Unban device
+        async function unbanDevice() {
+            const deviceFingerprint = document.getElementById('deviceFingerprintInput').value.trim();
+            
+            if (!deviceFingerprint) {
+                showAlert('Device fingerprint is required', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/admin/unban-device', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify({ deviceFingerprint })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showAlert('Device unbanned successfully', 'success');
+                    document.getElementById('deviceFingerprintInput').value = '';
+                    document.getElementById('deviceBanReasonInput').value = '';
+                    loadBannedDevices();
+                } else {
+                    showAlert(result.error, 'error');
+                }
+            } catch (error) {
+                showAlert('Failed to unban device: ' + error.message, 'error');
             }
         }
 

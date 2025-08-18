@@ -133,7 +133,8 @@ router.post('/login', async (req, res) => {
 router.get('/users', authenticateAdmin, (req, res) => {
     db.all(`
         SELECT 
-            id, username, email, created_at, last_login, is_online, is_banned, ban_reason, is_admin
+            id, username, email, created_at, last_login, last_login_ip, registration_ip, device_fingerprint,
+            is_online, is_banned, ban_reason, is_admin
         FROM users 
         ORDER BY created_at DESC
     `, (err, users) => {
@@ -142,6 +143,242 @@ router.get('/users', authenticateAdmin, (req, res) => {
         }
         
         res.json({ users });
+    });
+});
+
+// Ban IP address (admin only)
+router.post('/ban-ip', authenticateAdmin, (req, res) => {
+    const { ipAddress, reason } = req.body;
+    
+    if (!ipAddress) {
+        return res.status(400).json({ error: 'IP address is required' });
+    }
+    
+    // Validate IP address format
+    const ipRegex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+    if (!ipRegex.test(ipAddress)) {
+        return res.status(400).json({ error: 'Invalid IP address format' });
+    }
+    
+    db.run(
+        'INSERT OR REPLACE INTO banned_ips (ip_address, reason, banned_by_admin_id, banned_by_admin_username) VALUES (?, ?, ?, ?)',
+        [ipAddress, reason || null, req.user.id, req.user.username],
+        function(err) {
+            if (err) {
+                return res.status(500).json({ error: 'Database error' });
+            }
+            
+            // Log the action
+            logAdminAction(
+                req.user.id,
+                req.user.username,
+                'banned IP address',
+                null,
+                null,
+                `IP: ${ipAddress}${reason ? ` - Reason: ${reason}` : ''}`,
+                req.ip
+            );
+            
+            // Disconnect all users from this IP
+            userSockets.forEach((socket, userId) => {
+                if (socket.handshake.address === ipAddress) {
+                    socket.emit('admin_action', {
+                        type: 'force_logout',
+                        message: 'Your IP address has been banned from this server.'
+                    });
+                    socket.disconnect();
+                }
+            });
+            
+            res.json({
+                message: 'IP address banned successfully',
+                ipAddress,
+                reason
+            });
+        }
+    );
+});
+
+// Unban IP address (admin only)
+router.post('/unban-ip', authenticateAdmin, (req, res) => {
+    const { ipAddress } = req.body;
+    
+    if (!ipAddress) {
+        return res.status(400).json({ error: 'IP address is required' });
+    }
+    
+    db.run(
+        'DELETE FROM banned_ips WHERE ip_address = ?',
+        [ipAddress],
+        function(err) {
+            if (err) {
+                return res.status(500).json({ error: 'Database error' });
+            }
+            
+            if (this.changes === 0) {
+                return res.status(404).json({ error: 'IP address not found in ban list' });
+            }
+            
+            // Log the action
+            logAdminAction(
+                req.user.id,
+                req.user.username,
+                'unbanned IP address',
+                null,
+                null,
+                `IP: ${ipAddress}`,
+                req.ip
+            );
+            
+            res.json({
+                message: 'IP address unbanned successfully',
+                ipAddress
+            });
+        }
+    );
+});
+
+// Ban device (admin only)
+router.post('/ban-device', authenticateAdmin, (req, res) => {
+    const { deviceFingerprint, reason } = req.body;
+    
+    if (!deviceFingerprint) {
+        return res.status(400).json({ error: 'Device fingerprint is required' });
+    }
+    
+    db.run(
+        'INSERT OR REPLACE INTO banned_devices (device_fingerprint, reason, banned_by_admin_id, banned_by_admin_username) VALUES (?, ?, ?, ?)',
+        [deviceFingerprint, reason || null, req.user.id, req.user.username],
+        function(err) {
+            if (err) {
+                return res.status(500).json({ error: 'Database error' });
+            }
+            
+            // Log the action
+            logAdminAction(
+                req.user.id,
+                req.user.username,
+                'banned device',
+                null,
+                null,
+                `Device: ${deviceFingerprint}${reason ? ` - Reason: ${reason}` : ''}`,
+                req.ip
+            );
+            
+            // Disconnect all users with this device fingerprint
+            userSockets.forEach((socket, userId) => {
+                // Note: This would require storing device fingerprint in socket data
+                // For now, we'll just log the action
+            });
+            
+            res.json({
+                message: 'Device banned successfully',
+                deviceFingerprint,
+                reason
+            });
+        }
+    );
+});
+
+// Unban device (admin only)
+router.post('/unban-device', authenticateAdmin, (req, res) => {
+    const { deviceFingerprint } = req.body;
+    
+    if (!deviceFingerprint) {
+        return res.status(400).json({ error: 'Device fingerprint is required' });
+    }
+    
+    db.run(
+        'DELETE FROM banned_devices WHERE device_fingerprint = ?',
+        [deviceFingerprint],
+        function(err) {
+            if (err) {
+                return res.status(500).json({ error: 'Database error' });
+            }
+            
+            if (this.changes === 0) {
+                return res.status(404).json({ error: 'Device not found in ban list' });
+            }
+            
+            // Log the action
+            logAdminAction(
+                req.user.id,
+                req.user.username,
+                'unbanned device',
+                null,
+                null,
+                `Device: ${deviceFingerprint}`,
+                req.ip
+            );
+            
+            res.json({
+                message: 'Device unbanned successfully',
+                deviceFingerprint
+            });
+        }
+    );
+});
+
+// Get banned IPs (admin only)
+router.get('/banned-ips', authenticateAdmin, (req, res) => {
+    db.all(`
+        SELECT 
+            ip_address,
+            reason,
+            banned_by_admin_username,
+            created_at
+        FROM banned_ips 
+        ORDER BY created_at DESC
+    `, (err, bannedIPs) => {
+        if (err) {
+            return res.status(500).json({ error: 'Database error' });
+        }
+        
+        res.json({ bannedIPs });
+    });
+});
+
+// Get banned devices (admin only)
+router.get('/banned-devices', authenticateAdmin, (req, res) => {
+    db.all(`
+        SELECT 
+            device_fingerprint,
+            reason,
+            banned_by_admin_username,
+            created_at
+        FROM banned_devices 
+        ORDER BY created_at DESC
+    `, (err, bannedDevices) => {
+        if (err) {
+            return res.status(500).json({ error: 'Database error' });
+        }
+        
+        res.json({ bannedDevices });
+    });
+});
+
+// Get security logs (admin only)
+router.get('/security-logs', authenticateAdmin, (req, res) => {
+    const limit = parseInt(req.query.limit) || 100;
+    const offset = parseInt(req.query.offset) || 0;
+    
+    db.all(`
+        SELECT 
+            username,
+            action,
+            ip_address,
+            device_fingerprint,
+            details,
+            created_at
+        FROM security_logs 
+        ORDER BY created_at DESC 
+        LIMIT ? OFFSET ?
+    `, [limit, offset], (err, securityLogs) => {
+        if (err) {
+            return res.status(500).json({ error: 'Database error' });
+        }
+        
+        res.json({ securityLogs });
     });
 });
 
@@ -206,14 +443,14 @@ router.get('/users/:userId', authenticateAdmin, (req, res) => {
 // Ban user (admin only)
 router.post('/users/:userId/ban', authenticateAdmin, (req, res) => {
     const { userId } = req.params;
-    const { reason } = req.body;
+    const { reason, banIP = false, banDevice = false } = req.body;
     
     if (!reason) {
         return res.status(400).json({ error: 'Ban reason required' });
     }
     
     // Get target user info for logging
-    db.get('SELECT username FROM users WHERE id = ?', [userId], (err, targetUser) => {
+    db.get('SELECT username, registration_ip, device_fingerprint FROM users WHERE id = ?', [userId], (err, targetUser) => {
         if (err) {
             return res.status(500).json({ error: 'Database error' });
         }
@@ -234,16 +471,32 @@ router.post('/users/:userId/ban', authenticateAdmin, (req, res) => {
                     return res.status(404).json({ error: 'User not found' });
                 }
                 
-                            // Log the action
-            logAdminAction(
-                req.user.id,
-                req.user.username,
-                'banned user',
-                userId,
-                targetUser.username,
-                `Reason: ${reason}`,
-                req.ip
-            );
+                // Log the action
+                logAdminAction(
+                    req.user.id,
+                    req.user.username,
+                    'banned user',
+                    userId,
+                    targetUser.username,
+                    `Reason: ${reason}${banIP ? ' + IP banned' : ''}${banDevice ? ' + Device banned' : ''}`,
+                    req.ip
+                );
+                
+                // Ban IP address if requested and available
+                if (banIP && targetUser.registration_ip) {
+                    db.run(
+                        'INSERT OR REPLACE INTO banned_ips (ip_address, reason, banned_by_admin_id, banned_by_admin_username) VALUES (?, ?, ?, ?)',
+                        [targetUser.registration_ip, `User ban: ${reason}`, req.user.id, req.user.username]
+                    );
+                }
+                
+                // Ban device if requested and available
+                if (banDevice && targetUser.device_fingerprint) {
+                    db.run(
+                        'INSERT OR REPLACE INTO banned_devices (device_fingerprint, reason, banned_by_admin_id, banned_by_admin_username) VALUES (?, ?, ?, ?)',
+                        [targetUser.device_fingerprint, `User ban: ${reason}`, req.user.id, req.user.username]
+                    );
+                }
                 
                 // Disconnect user if online
                 disconnectUser(userId);
@@ -251,7 +504,9 @@ router.post('/users/:userId/ban', authenticateAdmin, (req, res) => {
                 res.json({ 
                     message: 'User banned successfully',
                     userId,
-                    reason
+                    reason,
+                    ipBanned: banIP && targetUser.registration_ip,
+                    deviceBanned: banDevice && targetUser.device_fingerprint
                 });
             }
         );
