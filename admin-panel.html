@@ -630,8 +630,9 @@
             </div>
 
             <!-- Security Tab -->
-            <div class="admin-tab-content" id="securityTab">
-                <h3>🔒 Security Management</h3>
+            <div class="tab-content" id="securityTab">
+                <h2>🔒 Security Management</h2>
+                <button class="btn" onclick="loadSecurityData()">🔄 Refresh Security Data</button>
                 
                 <!-- IP Banning Section -->
                 <div class="admin-section">
@@ -890,10 +891,14 @@
                     loadMutedUsers();
                 } else if (tabName === 'logs') {
                     loadLogs();
+                    startLogsAutoRefresh();
                 } else if (tabName === 'dashboard') {
                     loadStats();
                 } else if (tabName === 'security') {
                     loadSecurityData();
+                } else {
+                    // Stop auto-refresh for other tabs
+                    stopLogsAutoRefresh();
                 }
             }
             
@@ -1263,6 +1268,26 @@
                 }
             } catch (error) {
                 showAlert('Failed to load logs: ' + error.message, 'error');
+            }
+        }
+
+        // Auto-refresh logs every 10 seconds when logs tab is active
+        let logsRefreshInterval;
+        function startLogsAutoRefresh() {
+            if (logsRefreshInterval) {
+                clearInterval(logsRefreshInterval);
+            }
+            logsRefreshInterval = setInterval(() => {
+                if (document.getElementById('logsTab').classList.contains('active')) {
+                    loadLogs();
+                }
+            }, 10000); // Refresh every 10 seconds
+        }
+
+        function stopLogsAutoRefresh() {
+            if (logsRefreshInterval) {
+                clearInterval(logsRefreshInterval);
+                logsRefreshInterval = null;
             }
         }
 

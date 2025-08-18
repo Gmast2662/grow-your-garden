@@ -2,7 +2,53 @@
 
 This document tracks all updates, bug fixes, and new features added to the Grow Your Garden.
 
-## 🆕 Latest Update - Admin Panel Fixes & Database Migration! 🔧 (v1.6.6)
+## 🆕 Latest Update - Admin Panel Fixes & Log Auto-Refresh! 🔧 (v1.6.8)
+
+**Date:** August 18, 2025
+
+**Major Admin Panel Fixes:**
+- **Log Auto-Refresh**: Admin logs now automatically refresh every 10 seconds when logs tab is active
+- **Dashboard Loading**: Fixed dashboard tab not showing statistics properly
+- **Security Tab Loading**: Fixed security tab not displaying IP bans, device bans, and security logs
+- **Tab Structure Fix**: Corrected CSS class inconsistencies between tab content sections
+- **Clear Garden Functionality**: Verified clear garden actions work properly with server-side garden deletion
+
+**Technical Improvements:**
+- **Auto-Refresh System**: Added intelligent auto-refresh for logs that only runs when logs tab is active
+- **Tab Navigation**: Fixed tab switching and content loading for all admin panel sections
+- **Security Data Loading**: Enhanced security tab with proper data loading and refresh functionality
+- **Error Handling**: Improved error handling for admin panel data loading operations
+- **UI Consistency**: Standardized tab content structure across all admin panel sections
+
+**Admin Panel Enhancements:**
+- **Real-Time Logs**: Admin logs now update automatically without manual refresh
+- **Refresh Buttons**: Added refresh buttons to dashboard and security tabs for manual updates
+- **Better Feedback**: Improved loading states and error messages throughout admin panel
+- **Consistent Styling**: Fixed visual inconsistencies in tab navigation and content areas
+
+**Bug Fixes:**
+- Fixed admin logs not updating automatically
+- Resolved dashboard tab not showing statistics
+- Fixed security tab not displaying any data
+- Corrected "Security management" text appearing at bottom of all tabs
+- Fixed clear garden actions not working properly
+- Resolved tab navigation inconsistencies
+
+**User Experience:**
+- **Real-Time Updates**: Admins can see log updates in real-time without manual refresh
+- **Better Navigation**: Improved tab switching and content loading
+- **Clear Feedback**: Better loading states and error messages
+- **Consistent Interface**: Standardized admin panel layout and functionality
+
+This update significantly improves the admin panel experience with real-time updates and fixes all major display and functionality issues.
+
+---
+
+## 🆕 Previous Update - Muting System Fixes & Connection Blocking! 🔇 (v1.6.7)
+
+---
+
+## 🆕 Previous Update - Admin Panel Fixes & Database Migration! 🔧 (v1.6.6)
 
 **Date:** August 18, 2025
 

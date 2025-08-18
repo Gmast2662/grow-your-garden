@@ -2,7 +2,98 @@
 
 This document contains every single update, bug fix, and change made to Grow Your Garden, including detailed technical information.
 
-## 🆕 Latest Updates (v1.6.3)
+## 🆕 Latest Updates (v1.6.8)
+
+### 🔧 FIXED: Admin Panel Fixes & Log Auto-Refresh
+- **Log Auto-Refresh**: Admin logs now automatically refresh every 10 seconds when logs tab is active
+- **Dashboard Loading**: Fixed dashboard tab not showing statistics properly
+- **Security Tab Loading**: Fixed security tab not displaying IP bans, device bans, and security logs
+- **Tab Structure Fix**: Corrected CSS class inconsistencies between tab content sections
+- **Clear Garden Functionality**: Verified clear garden actions work properly with server-side garden deletion
+- **Technical Improvements**:
+  - Added intelligent auto-refresh for logs that only runs when logs tab is active
+  - Fixed tab switching and content loading for all admin panel sections
+  - Enhanced security tab with proper data loading and refresh functionality
+  - Improved error handling for admin panel data loading operations
+  - Standardized tab content structure across all admin panel sections
+- **Bug Fixes**:
+  - Fixed admin logs not updating automatically
+  - Resolved dashboard tab not showing statistics
+  - Fixed security tab not displaying any data
+  - Corrected "Security management" text appearing at bottom of all tabs
+  - Fixed clear garden actions not working properly
+  - Resolved tab navigation inconsistencies
+- **Result**: Admin panel now works correctly with real-time updates and proper data display
+
+## 🆕 Previous Updates (v1.6.7)
+
+### 🔇 FIXED: Muting System Fixes & Connection Blocking
+- **Permanent Mute Enforcement**: Fixed permanent mutes not properly blocking user connections
+- **Connection Blocking**: Permanently muted users can no longer reconnect to the server
+- **Login Prevention**: Muted users are blocked from logging in entirely
+- **Real-time Mute Checking**: Enhanced mute verification during socket connections
+- **Technical Improvements**:
+  - Added mute checking during WebSocket authentication
+  - Added mute checking during login process
+  - Improved mute status queries with proper time comparisons
+  - Enhanced error messages for muted users
+  - Added detailed console logging for mute operations
+- **Result**: Muting system now properly prevents muted users from accessing the game
+
+## 🆕 Previous Updates (v1.6.6)
+
+### 🔧 FIXED: Admin Panel Fixes & Database Migration
+- **Database Error Resolution**: Fixed all database errors that were causing admin panel malfunctions
+- **Missing Table Creation**: Ensured all required database tables exist and are properly structured
+- **Schema Migration**: Added missing columns to users table (`is_banned`, `last_login_ip`, `registration_ip`, `device_fingerprint`)
+- **Tab Navigation Fix**: Updated CSS classes to match the new HTML structure (`.tab-nav` and `.tab-btn`)
+- **Stats Query Optimization**: Fixed database queries that were failing due to missing tables and columns
+- **Technical Improvements**:
+  - Created comprehensive migration to handle existing databases with old schemas
+  - Added proper `CREATE TABLE IF NOT EXISTS` statements for all required tables
+  - Safely added missing columns to existing tables without data loss
+  - Improved error handling for database operations in admin panel
+  - Fixed mismatch between HTML structure and CSS selectors
+- **Result**: Admin panel now works correctly with proper database structure
+
+## 🆕 Previous Updates (v1.6.5)
+
+### 🔒 ENHANCED: Security & Ban/Mute Bypass Prevention
+- **IP Address Tracking**: All registrations and logins now track IP addresses
+- **Device Fingerprinting**: Unique device identification using browser headers and IP
+- **IP Banning System**: Admins can ban specific IP addresses to prevent new registrations
+- **Device Banning System**: Admins can ban specific devices to prevent access
+- **Enhanced User Banning**: Option to ban user's IP and device when banning accounts
+- **Security Logging**: Comprehensive logging of all login attempts, failed logins, and security events
+- **Suspicious Username Detection**: Blocks usernames containing admin/moderator terms
+- **Registration Blocking**: Prevents registration from banned IPs and devices
+- **Login Blocking**: Prevents login from banned IPs and devices
+- **Technical Implementation**:
+  - SHA256 hash of IP + User-Agent + Accept headers for device fingerprinting
+  - Proper IPv4 format validation for IP banning
+  - Multi-layer protection with account bans, IP bans, and device bans
+  - Real-time monitoring of security events
+  - Comprehensive logging with timestamps
+- **Result**: Significantly enhanced security with multiple layers of protection against ban/mute bypasses
+
+## 🆕 Previous Updates (v1.6.4)
+
+### 🔧 FIXED: Admin Panel Issues & Friend Status Updates
+- **Total Gardens Stats**: Fixed total gardens statistics not displaying correctly in admin panel
+- **Chat Filter Debugging**: Added comprehensive debugging to identify and fix chat filter tab issues
+- **Database Query Improvements**: Enhanced error handling for all admin panel database queries
+- **Real-time Friend Status**: Fixed issue where friends weren't being moved to correct online/offline sections
+- **Online Notifications**: Added missing server-side code to notify friends when users come online
+- **UI Refresh**: Friends list now automatically refreshes when friend status changes
+- **Technical Details**:
+  - Added debugging to total gardens stats query with proper error handling
+  - Enhanced chat filter tab with console logging for troubleshooting
+  - Added `friend_online` event emission when users connect to server
+  - Enhanced `updateMultiplayerUI()` to refresh friends list when visible
+  - Added UI refresh triggers for both `friend_online` and `friend_offline` events
+- **Result**: Admin panel displays all statistics correctly and friends list updates in real-time
+
+## 🆕 Previous Updates (v1.6.3)
 
 ### 🔓 NEW: Admin Bypass for Chat Filter
 - **Admin Chat Filter Bypass**: Admins can now send messages containing filtered words without being blocked

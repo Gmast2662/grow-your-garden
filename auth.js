@@ -187,15 +187,47 @@ router.post('/login', (req, res) => {
             });
         }
 
-        // Check password
-        const isValidPassword = await bcrypt.compare(password, user.password_hash);
-        if (!isValidPassword) {
-            // Log failed login attempt
-            db.run('INSERT INTO security_logs (user_id, username, action, ip_address, device_fingerprint, details) VALUES (?, ?, ?, ?, ?, ?)',
-                [user.id, username, 'failed_login', clientIP, deviceFingerprint, 'Invalid password']);
-            
-            return res.status(401).json({ error: 'Invalid username or password' });
-        }
+        // Check if user is muted
+        db.get(`
+            SELECT muted_until, mute_reason 
+            FROM user_mutes 
+            WHERE user_id = ? AND (muted_until IS NULL OR muted_until > datetime('now'))
+        `, [user.id], async (err, muteData) => {
+            if (err) {
+                return res.status(500).json({ error: 'Database error' });
+            }
+
+            if (muteData && muteData.mute_reason !== null) {
+                if (muteData.muted_until === null) {
+                    // Permanent mute
+                    const muteMessage = `Account permanently muted: ${muteData.mute_reason}`;
+                    console.log(`🚫 Blocking login for permanently muted user: ${username} - ${muteMessage}`);
+                    return res.status(403).json({ 
+                        error: muteMessage 
+                    });
+                } else {
+                    // Temporary mute - check if still active
+                    const now = new Date();
+                    const muteUntil = new Date(muteData.muted_until);
+                    if (muteUntil > now) {
+                        const muteMessage = `Account muted until ${muteData.muted_until}: ${muteData.mute_reason}`;
+                        console.log(`🚫 Blocking login for temporarily muted user: ${username} - ${muteMessage}`);
+                        return res.status(403).json({ 
+                            error: muteMessage 
+                        });
+                    }
+                }
+            }
+
+            // Check password
+            const isValidPassword = await bcrypt.compare(password, user.password_hash);
+            if (!isValidPassword) {
+                // Log failed login attempt
+                db.run('INSERT INTO security_logs (user_id, username, action, ip_address, device_fingerprint, details) VALUES (?, ?, ?, ?, ?, ?)',
+                    [user.id, username, 'failed_login', clientIP, deviceFingerprint, 'Invalid password']);
+                
+                return res.status(401).json({ error: 'Invalid username or password' });
+            }
 
         // Check if IP is banned
         db.get('SELECT COUNT(*) as banned_count FROM banned_ips WHERE ip_address = ?', [clientIP], (err, result) => {
