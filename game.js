@@ -1145,8 +1145,8 @@ class GardenGame {
                                     <span class="friend-status">⏳ Pending</span>
                                 </div>
                                 <div class="friend-actions">
-                                    <button onclick="window.game.respondToFriendRequest('${friendId}', true)" class="accept-btn-small">Accept</button>
-                                    <button onclick="window.game.respondToFriendRequest('${friendId}', false)" class="reject-btn-small">Reject</button>
+                                    <button class="accept-btn-small" data-friend-id="${friendId}" data-action="accept">Accept</button>
+                                    <button class="reject-btn-small" data-friend-id="${friendId}" data-action="reject">Reject</button>
                                 </div>
                             </div>
                         `;
@@ -1180,6 +1180,30 @@ class GardenGame {
                         this.sendFriendRequest();
                     });
                 }
+                
+                // Add event listeners for accept/reject buttons
+                const acceptButtons = document.querySelectorAll('.accept-btn-small');
+                const rejectButtons = document.querySelectorAll('.reject-btn-small');
+                
+                acceptButtons.forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const friendId = e.target.getAttribute('data-friend-id');
+                        console.log('🔍 Accept button clicked for friend ID:', friendId);
+                        if (window.game && friendId) {
+                            window.game.respondToFriendRequest(friendId, true);
+                        }
+                    });
+                });
+                
+                rejectButtons.forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const friendId = e.target.getAttribute('data-friend-id');
+                        console.log('🔍 Reject button clicked for friend ID:', friendId);
+                        if (window.game && friendId) {
+                            window.game.respondToFriendRequest(friendId, false);
+                        }
+                    });
+                });
             });
         }
     }
@@ -1289,8 +1313,8 @@ class GardenGame {
                 <h4>👥 Friend Request</h4>
                 <p>${data.fromName} wants to be your friend!</p>
                 <div class="notification-buttons">
-                    <button onclick="window.game.respondToFriendRequest('${data.fromId}', true)" class="accept-btn">Accept</button>
-                    <button onclick="window.game.respondToFriendRequest('${data.fromId}', false)" class="reject-btn">Reject</button>
+                                                    <button onclick="if(window.game) window.game.respondToFriendRequest('${data.fromId}', true)" class="accept-btn">Accept</button>
+                                <button onclick="if(window.game) window.game.respondToFriendRequest('${data.fromId}', false)" class="reject-btn">Reject</button>
                 </div>
             </div>
         `;
