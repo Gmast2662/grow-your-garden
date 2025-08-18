@@ -62,7 +62,7 @@ const authenticateAdmin = (req, res, next) => {
         const decoded = jwt.verify(token, JWT_SECRET);
         
         // Check if user is admin
-        db.get('SELECT is_admin FROM users WHERE id = ?', [decoded.userId], (err, user) => {
+        db.get('SELECT is_admin FROM users WHERE id = ?', [decoded.id], (err, user) => {
             if (err) {
                 return res.status(500).json({ error: 'Database error' });
             }
@@ -107,7 +107,7 @@ router.post('/login', async (req, res) => {
         }
         
         const token = jwt.sign(
-            { userId: user.id, username: user.username, isAdmin: true },
+            { id: user.id, username: user.username, isAdmin: true },
             JWT_SECRET,
             { expiresIn: '24h' }
         );
