@@ -974,6 +974,24 @@ class GardenGame {
                         console.error('Error parsing token:', error);
                     }
                     
+                    // Send current garden data to server after successful connection
+                    setTimeout(() => {
+                        if (this.garden && Object.keys(this.garden).length > 0) {
+                            const gardenData = {
+                                garden: this.garden,
+                                money: this.money,
+                                score: this.score,
+                                achievements: this.achievements,
+                                stats: this.stats,
+                                currentSeason: this.currentSeason,
+                                seasonDay: this.seasonDay,
+                                gardenSize: this.gardenSize
+                            };
+                            this.multiplayer.sendGardenUpdate(gardenData);
+                            console.log('🌐 Initial garden data sent to multiplayer server');
+                        }
+                    }, 1000); // Small delay to ensure connection is fully established
+                    
                     this.updateMultiplayerUI();
                 } else {
                     console.log('❌ Failed to initialize multiplayer');
@@ -4568,6 +4586,26 @@ class GardenGame {
         
         console.log(`Game saved to slot ${this.saveSlot} at ${new Date().toLocaleTimeString()}`);
         console.log(`Save data: money=${this.money}, sprinklerInventory=`, this.sprinklerInventory);
+        
+        // Send garden data to multiplayer server if connected
+        if (window.multiplayer && window.multiplayer.isConnected) {
+            try {
+                const gardenData = {
+                    garden: this.garden,
+                    money: this.money,
+                    score: this.score,
+                    achievements: this.achievements,
+                    stats: this.stats,
+                    currentSeason: this.currentSeason,
+                    seasonDay: this.seasonDay,
+                    gardenSize: this.gardenSize
+                };
+                window.multiplayer.sendGardenUpdate(gardenData);
+                console.log('🌐 Garden data sent to multiplayer server');
+            } catch (error) {
+                console.error('Error sending garden data to server:', error);
+            }
+        }
         
         // Verify the save was successful by reading it back
         const savedData = localStorage.getItem(saveKey);

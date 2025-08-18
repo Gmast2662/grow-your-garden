@@ -792,7 +792,10 @@
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
 
             // Show selected tab
-            document.getElementById(tabName + 'Tab').classList.add('active');
+            const targetTab = document.getElementById(tabName + 'Tab');
+            if (targetTab) {
+                targetTab.classList.add('active');
+            }
             
             // Find and activate the correct tab button
             document.querySelectorAll('.tab').forEach(tab => {

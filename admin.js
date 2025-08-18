@@ -559,8 +559,11 @@ router.get('/stats', authenticateAdmin, (req, res) => {
         }),
         new Promise((resolve, reject) => {
             db.get('SELECT COUNT(*) as total_gardens FROM gardens', (err, result) => {
-                if (err) reject(err);
-                else resolve(result.total_gardens);
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result.total_gardens || 0);
+                }
             });
         }),
         new Promise((resolve, reject) => {
@@ -1081,6 +1084,7 @@ router.get('/chat-filter/words', authenticateAdmin, (req, res) => {
         ORDER BY created_at DESC
     `, (err, words) => {
         if (err) {
+            console.error('❌ Database error getting filter words:', err);
             return res.status(500).json({ error: 'Database error' });
         }
         
