@@ -616,8 +616,20 @@ router.get('/stats', authenticateAdmin, (req, res) => {
                 if (err) reject(err);
                 else resolve(result.today_messages);
             });
+        }),
+        new Promise((resolve, reject) => {
+            db.get('SELECT COUNT(*) as muted_users FROM user_mutes WHERE muted_until IS NULL OR muted_until > datetime("now")', (err, result) => {
+                if (err) reject(err);
+                else resolve(result.muted_users);
+            });
+        }),
+        new Promise((resolve, reject) => {
+            db.get('SELECT COUNT(*) as total_filter_words FROM chat_filter_words', (err, result) => {
+                if (err) reject(err);
+                else resolve(result.total_filter_words);
+            });
         })
-    ]).then(([totalUsers, onlineUsers, bannedUsers, totalGardens, totalMessages, totalFriends, pendingFriends, totalAnnouncements, activeAnnouncements, adminUsers, totalLogs, todayUsers, todayMessages]) => {
+    ]).then(([totalUsers, onlineUsers, bannedUsers, totalGardens, totalMessages, totalFriends, pendingFriends, totalAnnouncements, activeAnnouncements, adminUsers, totalLogs, todayUsers, todayMessages, mutedUsers, totalFilterWords]) => {
         res.json({
             stats: {
                 totalUsers,
@@ -632,7 +644,9 @@ router.get('/stats', authenticateAdmin, (req, res) => {
                 adminUsers,
                 totalLogs,
                 todayUsers,
-                todayMessages
+                todayMessages,
+                mutedUsers,
+                totalFilterWords
             }
         });
     }).catch(err => {
@@ -819,6 +833,258 @@ router.get('/logs', authenticateAdmin, (req, res) => {
         }
         
         res.json({ logs });
+    });
+});
+
+// Mute user (admin only)
+router.post('/mute', authenticateAdmin, (req, res) => {
+    const { userId, duration, reason } = req.body;
+    
+    if (!userId || !duration) {
+        return res.status(400).json({ error: 'User ID and duration required' });
+    }
+    
+    // Calculate mute end time
+    let mutedUntil = null;
+    if (duration === 'permanent') {
+        mutedUntil = null; // NULL means permanent
+    } else {
+        const now = new Date();
+        const durationInMinutes = parseInt(duration);
+        if (isNaN(durationInMinutes) || durationInMinutes <= 0) {
+            return res.status(400).json({ error: 'Invalid duration' });
+        }
+        now.setMinutes(now.getMinutes() + durationInMinutes);
+        mutedUntil = now.toISOString().slice(0, 19).replace('T', ' ');
+    }
+    
+    // Get target user info for logging
+    db.get('SELECT username FROM users WHERE id = ?', [userId], (err, targetUser) => {
+        if (err) {
+            return res.status(500).json({ error: 'Database error' });
+        }
+        
+        if (!targetUser) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        
+        // Remove any existing mutes for this user
+        db.run('DELETE FROM user_mutes WHERE user_id = ?', [userId], (err) => {
+            if (err) {
+                return res.status(500).json({ error: 'Database error' });
+            }
+            
+            // Add new mute
+            db.run(
+                'INSERT INTO user_mutes (user_id, muted_until, mute_reason, muted_by_admin_id, muted_by_admin_username) VALUES (?, ?, ?, ?, ?)',
+                [userId, mutedUntil, reason || null, req.user.userId, req.user.username],
+                function(err) {
+                    if (err) {
+                        return res.status(500).json({ error: 'Database error' });
+                    }
+                    
+                    // Log the action
+                    const muteDetails = duration === 'permanent' ? 
+                        'Permanent mute' : 
+                        `Muted for ${duration} minutes`;
+                    logAdminAction(
+                        req.user.userId,
+                        req.user.username,
+                        'muted user',
+                        userId,
+                        targetUser.username,
+                        `${muteDetails}${reason ? ` - Reason: ${reason}` : ''}`,
+                        req.ip
+                    );
+                    
+                    // Disconnect user if online
+                    disconnectUser(userId);
+                    
+                    res.json({
+                        message: 'User muted successfully',
+                        userId,
+                        mutedUntil,
+                        reason
+                    });
+                }
+            );
+        });
+    });
+});
+
+// Unmute user (admin only)
+router.post('/unmute', authenticateAdmin, (req, res) => {
+    const { userId } = req.body;
+    
+    if (!userId) {
+        return res.status(400).json({ error: 'User ID required' });
+    }
+    
+    // Get target user info for logging
+    db.get('SELECT username FROM users WHERE id = ?', [userId], (err, targetUser) => {
+        if (err) {
+            return res.status(500).json({ error: 'Database error' });
+        }
+        
+        if (!targetUser) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        
+        db.run(
+            'DELETE FROM user_mutes WHERE user_id = ?',
+            [userId],
+            function(err) {
+                if (err) {
+                    return res.status(500).json({ error: 'Database error' });
+                }
+                
+                if (this.changes === 0) {
+                    return res.status(404).json({ error: 'User is not muted' });
+                }
+                
+                // Log the action
+                logAdminAction(
+                    req.user.userId,
+                    req.user.username,
+                    'unmuted user',
+                    userId,
+                    targetUser.username,
+                    'User unmuted',
+                    req.ip
+                );
+                
+                res.json({
+                    message: 'User unmuted successfully',
+                    userId
+                });
+            }
+        );
+    });
+});
+
+// Get muted users (admin only)
+router.get('/muted-users', authenticateAdmin, (req, res) => {
+    db.all(`
+        SELECT 
+            um.user_id,
+            u.username,
+            um.muted_until,
+            um.mute_reason,
+            um.muted_by_admin_username,
+            um.created_at,
+            CASE 
+                WHEN um.muted_until IS NULL THEN 'permanent'
+                WHEN um.muted_until > datetime('now') THEN 'active'
+                ELSE 'expired'
+            END as status
+        FROM user_mutes um
+        JOIN users u ON um.user_id = u.id
+        ORDER BY um.created_at DESC
+    `, (err, mutedUsers) => {
+        if (err) {
+            return res.status(500).json({ error: 'Database error' });
+        }
+        
+        res.json({ mutedUsers });
+    });
+});
+
+// Add word to chat filter (admin only)
+router.post('/chat-filter/add', authenticateAdmin, (req, res) => {
+    const { word } = req.body;
+    
+    if (!word || typeof word !== 'string' || word.trim().length === 0) {
+        return res.status(400).json({ error: 'Valid word required' });
+    }
+    
+    const cleanWord = word.trim().toLowerCase();
+    
+    db.run(
+        'INSERT INTO chat_filter_words (word, added_by_admin_id, added_by_admin_username) VALUES (?, ?, ?)',
+        [cleanWord, req.user.userId, req.user.username],
+        function(err) {
+            if (err) {
+                if (err.code === 'SQLITE_CONSTRAINT') {
+                    return res.status(400).json({ error: 'Word already exists in filter' });
+                }
+                return res.status(500).json({ error: 'Database error' });
+            }
+            
+            // Log the action
+            logAdminAction(
+                req.user.userId,
+                req.user.username,
+                'added word to chat filter',
+                null,
+                null,
+                `Word: "${cleanWord}"`,
+                req.ip
+            );
+            
+            res.json({
+                message: 'Word added to chat filter successfully',
+                word: cleanWord
+            });
+        }
+    );
+});
+
+// Remove word from chat filter (admin only)
+router.post('/chat-filter/remove', authenticateAdmin, (req, res) => {
+    const { word } = req.body;
+    
+    if (!word || typeof word !== 'string' || word.trim().length === 0) {
+        return res.status(400).json({ error: 'Valid word required' });
+    }
+    
+    const cleanWord = word.trim().toLowerCase();
+    
+    db.run(
+        'DELETE FROM chat_filter_words WHERE word = ?',
+        [cleanWord],
+        function(err) {
+            if (err) {
+                return res.status(500).json({ error: 'Database error' });
+            }
+            
+            if (this.changes === 0) {
+                return res.status(404).json({ error: 'Word not found in filter' });
+            }
+            
+            // Log the action
+            logAdminAction(
+                req.user.userId,
+                req.user.username,
+                'removed word from chat filter',
+                null,
+                null,
+                `Word: "${cleanWord}"`,
+                req.ip
+            );
+            
+            res.json({
+                message: 'Word removed from chat filter successfully',
+                word: cleanWord
+            });
+        }
+    );
+});
+
+// Get chat filter words (admin only)
+router.get('/chat-filter/words', authenticateAdmin, (req, res) => {
+    db.all(`
+        SELECT 
+            word,
+            added_by_admin_username,
+            created_at
+        FROM chat_filter_words 
+        ORDER BY created_at DESC
+    `, (err, words) => {
+        if (err) {
+            return res.status(500).json({ error: 'Database error' });
+        }
+        
+        res.json({ words });
     });
 });
 

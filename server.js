@@ -132,6 +132,41 @@ db.serialize(() => {
             console.log('✅ Admin logs table ready');
         }
     });
+
+    // User mutes table
+    db.run(`CREATE TABLE IF NOT EXISTS user_mutes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id TEXT NOT NULL,
+        muted_until DATETIME,
+        mute_reason TEXT,
+        muted_by_admin_id TEXT,
+        muted_by_admin_username TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users (id),
+        FOREIGN KEY (muted_by_admin_id) REFERENCES users (id)
+    )`, function(err) {
+        if (err) {
+            console.error('❌ Error creating user_mutes table:', err);
+        } else {
+            console.log('✅ User mutes table ready');
+        }
+    });
+
+    // Chat filter words table
+    db.run(`CREATE TABLE IF NOT EXISTS chat_filter_words (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        word TEXT UNIQUE NOT NULL,
+        added_by_admin_id TEXT,
+        added_by_admin_username TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (added_by_admin_id) REFERENCES users (id)
+    )`, function(err) {
+        if (err) {
+            console.error('❌ Error creating chat_filter_words table:', err);
+        } else {
+            console.log('✅ Chat filter words table ready');
+        }
+    });
 });
 
 // JWT secret (in production, use environment variable)
@@ -152,8 +187,15 @@ const authenticateSocketToken = (socket, next) => {
         
         const decoded = jwt.verify(token, JWT_SECRET);
         
-        // Check if user is banned
-        db.get('SELECT is_banned, ban_reason FROM users WHERE id = ?', [decoded.id], (err, user) => {
+        // Check if user is banned or muted
+        db.get(`
+            SELECT u.is_banned, u.ban_reason, 
+                   um.muted_until, um.mute_reason
+            FROM users u
+            LEFT JOIN user_mutes um ON u.id = um.user_id 
+                AND (um.muted_until IS NULL OR um.muted_until > datetime('now'))
+            WHERE u.id = ?
+        `, [decoded.id], (err, user) => {
             if (err) {
                 return next(new Error('Database error'));
             }
@@ -164,6 +206,13 @@ const authenticateSocketToken = (socket, next) => {
             
             if (user.is_banned) {
                 return next(new Error(`Account banned: ${user.ban_reason || 'No reason provided'}`));
+            }
+            
+            if (user.muted_until) {
+                const muteMessage = user.mute_reason ? 
+                    `Account muted until ${user.muted_until}: ${user.mute_reason}` :
+                    `Account muted until ${user.muted_until}`;
+                return next(new Error(muteMessage));
             }
             
             socket.userId = decoded.id;
@@ -272,67 +321,124 @@ io.on('connection', (socket) => {
                 return;
             }
 
-            const messageData = {
-                senderId: socket.userId,
-                senderName: socket.username,
-                receiverId: data.receiverId || 'global',
-                message: data.message,
-                timestamp: Date.now()
-            };
+            // Check if user is muted
+            db.get(`
+                SELECT muted_until, mute_reason 
+                FROM user_mutes 
+                WHERE user_id = ? AND (muted_until IS NULL OR muted_until > datetime('now'))
+            `, [socket.userId], (err, muteData) => {
+                if (err) {
+                    console.error('Error checking mute status:', err);
+                    socket.emit('message_sent', { 
+                        success: false, 
+                        error: 'Server error checking mute status' 
+                    });
+                    return;
+                }
 
-            // Save to database with error handling (let SQLite auto-generate the id)
-            console.log('📝 Attempting to save message:', {
-                senderId: socket.userId,
-                receiverId: data.receiverId || 'global',
-                message: data.message
-            });
-            
-            db.run(
-                'INSERT INTO chat_messages (sender_id, receiver_id, message) VALUES (?, ?, ?)',
-                [socket.userId, data.receiverId || 'global', data.message],
-                function(err) {
+                if (muteData && muteData.muted_until) {
+                    const muteMessage = muteData.mute_reason ? 
+                        `You are muted until ${muteData.muted_until}: ${muteData.mute_reason}` :
+                        `You are muted until ${muteData.muted_until}`;
+                    socket.emit('message_sent', { 
+                        success: false, 
+                        error: muteMessage 
+                    });
+                    return;
+                }
+
+                // Check chat filter
+                db.all('SELECT word FROM chat_filter_words', (err, filterWords) => {
                     if (err) {
-                        console.error('❌ Database error saving message:', err);
-                        console.error('Error details:', {
-                            code: err.code,
-                            errno: err.errno,
-                            message: err.message
-                        });
-                        socket.emit('message_sent', { 
-                            success: false, 
-                            error: 'Failed to save message' 
-                        });
-                        return;
+                        console.error('Error checking chat filter:', err);
+                        // Continue without filter if there's an error
                     }
 
-                    // Add the auto-generated ID to the message data
-                    const savedMessageData = {
-                        ...messageData,
-                        id: this.lastID
-                    };
+                    let filteredMessage = data.message;
+                    let messageBlocked = false;
+                    let blockedWords = [];
 
-                    // Send to receiver if online (for private messages)
-                    if (data.receiverId) {
-                        const receiverSocket = userSockets.get(data.receiverId);
-                        if (receiverSocket) {
-                            receiverSocket.emit('new_message', savedMessageData);
-                        }
-                    } else {
-                        // Broadcast to all online users for global chat
-                        userSockets.forEach((userSocket) => {
-                            if (userSocket.id !== socket.id) {
-                                userSocket.emit('new_message', savedMessageData);
+                    if (filterWords && filterWords.length > 0) {
+                        const messageLower = data.message.toLowerCase();
+                        filterWords.forEach(filterWord => {
+                            if (messageLower.includes(filterWord.word.toLowerCase())) {
+                                messageBlocked = true;
+                                blockedWords.push(filterWord.word);
                             }
                         });
+
+                        if (messageBlocked) {
+                            socket.emit('message_sent', { 
+                                success: false, 
+                                error: `Message blocked due to inappropriate content: ${blockedWords.join(', ')}` 
+                            });
+                            return;
+                        }
                     }
 
-                    // Send confirmation to sender
-                    socket.emit('message_sent', { 
-                        success: true, 
-                        message: savedMessageData 
+                    const messageData = {
+                        senderId: socket.userId,
+                        senderName: socket.username,
+                        receiverId: data.receiverId || 'global',
+                        message: filteredMessage,
+                        timestamp: Date.now()
+                    };
+
+                    // Save to database with error handling (let SQLite auto-generate the id)
+                    console.log('📝 Attempting to save message:', {
+                        senderId: socket.userId,
+                        receiverId: data.receiverId || 'global',
+                        message: filteredMessage
                     });
-                }
-            );
+                    
+                    db.run(
+                        'INSERT INTO chat_messages (sender_id, receiver_id, message) VALUES (?, ?, ?)',
+                        [socket.userId, data.receiverId || 'global', filteredMessage],
+                        function(err) {
+                            if (err) {
+                                console.error('❌ Database error saving message:', err);
+                                console.error('Error details:', {
+                                    code: err.code,
+                                    errno: err.errno,
+                                    message: err.message
+                                });
+                                socket.emit('message_sent', { 
+                                    success: false, 
+                                    error: 'Failed to save message' 
+                                });
+                                return;
+                            }
+
+                            // Add the auto-generated ID to the message data
+                            const savedMessageData = {
+                                ...messageData,
+                                id: this.lastID
+                            };
+
+                            // Send to receiver if online (for private messages)
+                            if (data.receiverId) {
+                                const receiverSocket = userSockets.get(data.receiverId);
+                                if (receiverSocket) {
+                                    receiverSocket.emit('new_message', savedMessageData);
+                                }
+                            } else {
+                                // Broadcast to all online users for global chat
+                                userSockets.forEach((userSocket) => {
+                                    if (userSocket.id !== socket.id) {
+                                        userSocket.emit('new_message', savedMessageData);
+                                    }
+                                });
+                            }
+
+                            // Send confirmation to sender
+                            socket.emit('message_sent', { 
+                                success: true, 
+                                message: savedMessageData 
+                            });
+                        }
+                    );
+                });
+            });
         } catch (error) {
             console.error('Error handling chat message:', error);
             socket.emit('message_sent', { 

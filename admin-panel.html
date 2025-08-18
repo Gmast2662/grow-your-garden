@@ -382,6 +382,83 @@
             font-size: 0.8rem;
             margin-top: 5px;
         }
+
+        .mute-form, .filter-form {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .muted-users-list, .filter-words-list {
+            margin-top: 30px;
+        }
+
+        .muted-user-item, .filter-word-item {
+            background: white;
+            border: 1px solid #e1e5e9;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .muted-user-header, .filter-word-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .muted-user-name, .filter-word-text {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .muted-user-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-permanent {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-expired {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .muted-user-time, .filter-word-time {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .muted-user-details, .filter-word-details {
+            color: #333;
+            line-height: 1.4;
+            margin: 10px 0;
+        }
+
+        .muted-user-details div, .filter-word-details div {
+            margin-bottom: 5px;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+            color: #212529;
+        }
     </style>
 </head>
 <body>
@@ -416,6 +493,8 @@
                 <div class="tab active" onclick="showTab('stats')">📊 Statistics</div>
                 <div class="tab" onclick="showTab('users')">👥 Users</div>
                 <div class="tab" onclick="showTab('announcements')">📢 Announcements</div>
+                <div class="tab" onclick="showTab('mutes')">🔇 Mutes</div>
+                <div class="tab" onclick="showTab('chat-filter')">🚫 Chat Filter</div>
                 <div class="tab" onclick="showTab('logs')">📋 Admin Logs</div>
             </div>
 
@@ -470,11 +549,71 @@
                         <option value="removed admin privileges">Removed Admin</option>
                         <option value="sent announcement">Announcements</option>
                         <option value="deactivated announcement">Deactivated Announcements</option>
+                        <option value="muted user">Mutes</option>
+                        <option value="unmuted user">Unmutes</option>
+                        <option value="added word to chat filter">Chat Filter Add</option>
+                        <option value="removed word from chat filter">Chat Filter Remove</option>
                     </select>
                 </div>
                 <div id="logsTable"></div>
             </div>
 
+            <!-- Mutes Tab -->
+            <div id="mutesTab" class="tab-content">
+                <h2>User Mutes</h2>
+                <div class="mute-form">
+                    <h3>Mute User</h3>
+                    <form id="muteForm">
+                        <div class="form-group">
+                            <label for="muteUserId">User ID:</label>
+                            <input type="text" id="muteUserId" name="userId" required placeholder="Enter user ID">
+                        </div>
+                        <div class="form-group">
+                            <label for="muteDuration">Duration:</label>
+                            <select id="muteDuration" name="duration" required>
+                                <option value="">Select duration</option>
+                                <option value="5">5 minutes</option>
+                                <option value="15">15 minutes</option>
+                                <option value="30">30 minutes</option>
+                                <option value="60">1 hour</option>
+                                <option value="1440">24 hours</option>
+                                <option value="10080">1 week</option>
+                                <option value="permanent">Permanent</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="muteReason">Reason (optional):</label>
+                            <textarea id="muteReason" name="reason" rows="3" placeholder="Enter mute reason..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-danger">🔇 Mute User</button>
+                    </form>
+                </div>
+                <div class="muted-users-list">
+                    <h3>Currently Muted Users</h3>
+                    <button class="btn" onclick="loadMutedUsers()">Refresh Muted Users</button>
+                    <div id="mutedUsersTable"></div>
+                </div>
+            </div>
+
+            <!-- Chat Filter Tab -->
+            <div id="chatFilterTab" class="tab-content">
+                <h2>Chat Filter Management</h2>
+                <div class="filter-form">
+                    <h3>Add Word to Filter</h3>
+                    <form id="filterForm">
+                        <div class="form-group">
+                            <label for="filterWord">Word to Filter:</label>
+                            <input type="text" id="filterWord" name="word" required placeholder="Enter word to filter">
+                        </div>
+                        <button type="submit" class="btn btn-danger">🚫 Add to Filter</button>
+                    </form>
+                </div>
+                <div class="filter-words-list">
+                    <h3>Filtered Words</h3>
+                    <button class="btn" onclick="loadFilterWords()">Refresh Filter Words</button>
+                    <div id="filterWordsTable"></div>
+                </div>
+            </div>
 
         </div>
     </div>
@@ -640,6 +779,11 @@
         function showAdminSection() {
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('adminSection').style.display = 'block';
+            loadStats();
+            loadUsers();
+            loadLogs();
+            loadMutedUsers();
+            loadFilterWords();
         }
 
         function showTab(tabName) {
@@ -714,6 +858,14 @@
                         <div class="stat-card">
                             <h3>${stats.todayMessages}</h3>
                             <p>Messages Today</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${stats.mutedUsers}</h3>
+                            <p>Muted Users</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${stats.totalFilterWords}</h3>
+                            <p>Filtered Words</p>
                         </div>
                     `;
                 } else {
@@ -1007,6 +1159,214 @@
                 }
             } catch (error) {
                 showAlert('Failed to load logs: ' + error.message, 'error');
+            }
+        }
+
+        // Mute form handler
+        document.getElementById('muteForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = {
+                userId: formData.get('userId'),
+                duration: formData.get('duration'),
+                reason: formData.get('reason') || null
+            };
+
+            try {
+                const response = await fetch('/api/admin/mute', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showAlert('User muted successfully!', 'success');
+                    document.getElementById('muteForm').reset();
+                    loadMutedUsers();
+                } else {
+                    showAlert(result.error, 'error');
+                }
+            } catch (error) {
+                showAlert('Mute failed: ' + error.message, 'error');
+            }
+        });
+
+        // Filter form handler
+        document.getElementById('filterForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = {
+                word: formData.get('word')
+            };
+
+            try {
+                const response = await fetch('/api/admin/chat-filter/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showAlert('Word added to filter successfully!', 'success');
+                    document.getElementById('filterForm').reset();
+                    loadFilterWords();
+                } else {
+                    showAlert(result.error, 'error');
+                }
+            } catch (error) {
+                showAlert('Add to filter failed: ' + error.message, 'error');
+            }
+        });
+
+        async function loadMutedUsers() {
+            try {
+                const response = await fetch('/api/admin/muted-users', {
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    const mutedUsers = result.mutedUsers;
+                    let tableHTML = '';
+
+                    if (mutedUsers.length === 0) {
+                        tableHTML = '<p>No muted users found.</p>';
+                    } else {
+                        mutedUsers.forEach(user => {
+                            const statusClass = user.status === 'active' ? 'status-active' : 
+                                              user.status === 'permanent' ? 'status-permanent' : 'status-expired';
+                            const statusText = user.status === 'permanent' ? 'Permanent' : 
+                                             user.status === 'active' ? 'Active' : 'Expired';
+                            
+                            tableHTML += `
+                                <div class="muted-user-item">
+                                    <div class="muted-user-header">
+                                        <div>
+                                            <span class="muted-user-name">${user.username}</span>
+                                            <span class="muted-user-status ${statusClass}">${statusText}</span>
+                                        </div>
+                                        <span class="muted-user-time">${new Date(user.created_at).toLocaleString()}</span>
+                                    </div>
+                                    <div class="muted-user-details">
+                                        <div><strong>User ID:</strong> ${user.user_id}</div>
+                                        <div><strong>Muted by:</strong> ${user.muted_by_admin_username}</div>
+                                        ${user.muted_until ? `<div><strong>Until:</strong> ${user.muted_until}</div>` : ''}
+                                        ${user.mute_reason ? `<div><strong>Reason:</strong> ${user.mute_reason}</div>` : ''}
+                                    </div>
+                                    ${user.status === 'active' || user.status === 'permanent' ? 
+                                        `<button class="btn btn-success" onclick="unmuteUser('${user.user_id}')">Unmute</button>` : 
+                                        ''
+                                    }
+                                </div>
+                            `;
+                        });
+                    }
+
+                    document.getElementById('mutedUsersTable').innerHTML = tableHTML;
+                } else {
+                    showAlert(result.error, 'error');
+                }
+            } catch (error) {
+                showAlert('Failed to load muted users: ' + error.message, 'error');
+            }
+        }
+
+        function unmuteUser(userId) {
+            if (confirm('Are you sure you want to unmute this user?')) {
+                fetch('/api/admin/unmute', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify({ userId })
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.message) {
+                        showAlert('User unmuted successfully!', 'success');
+                        loadMutedUsers();
+                    } else {
+                        showAlert(result.error, 'error');
+                    }
+                })
+                .catch(error => showAlert('Unmute failed: ' + error.message, 'error'));
+            }
+        }
+
+        async function loadFilterWords() {
+            try {
+                const response = await fetch('/api/admin/chat-filter/words', {
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    const words = result.words;
+                    let tableHTML = '';
+
+                    if (words.length === 0) {
+                        tableHTML = '<p>No filtered words found.</p>';
+                    } else {
+                        words.forEach(word => {
+                            tableHTML += `
+                                <div class="filter-word-item">
+                                    <div class="filter-word-header">
+                                        <div>
+                                            <span class="filter-word-text">"${word.word}"</span>
+                                        </div>
+                                        <span class="filter-word-time">${new Date(word.created_at).toLocaleString()}</span>
+                                    </div>
+                                    <div class="filter-word-details">
+                                        <div><strong>Added by:</strong> ${word.added_by_admin_username}</div>
+                                    </div>
+                                    <button class="btn btn-warning" onclick="removeFilterWord('${word.word}')">Remove</button>
+                                </div>
+                            `;
+                        });
+                    }
+
+                    document.getElementById('filterWordsTable').innerHTML = tableHTML;
+                } else {
+                    showAlert(result.error, 'error');
+                }
+            } catch (error) {
+                showAlert('Failed to load filter words: ' + error.message, 'error');
+            }
+        }
+
+        function removeFilterWord(word) {
+            if (confirm(`Are you sure you want to remove "${word}" from the filter?`)) {
+                fetch('/api/admin/chat-filter/remove', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify({ word })
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.message) {
+                        showAlert('Word removed from filter successfully!', 'success');
+                        loadFilterWords();
+                    } else {
+                        showAlert(result.error, 'error');
+                    }
+                })
+                .catch(error => showAlert('Remove failed: ' + error.message, 'error'));
             }
         }
 
