@@ -800,12 +800,17 @@
             });
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
 
-            // Show selected tab
-            const targetTab = document.getElementById(tabName + 'Tab');
-            console.log('🎯 Target tab element:', targetTab);
+            // Show selected tab - handle special case for chat-filter
+            let targetTabId = tabName + 'Tab';
+            if (tabName === 'chat-filter') {
+                targetTabId = 'chatFilterTab'; // Remove hyphen for chat filter
+            }
+            
+            const targetTab = document.getElementById(targetTabId);
+            console.log('🎯 Target tab element:', targetTab, 'Looking for ID:', targetTabId);
             if (targetTab) {
                 targetTab.classList.add('active');
-                console.log('✅ Tab activated:', tabName + 'Tab');
+                console.log('✅ Tab activated:', targetTabId);
                 console.log('📋 Tab content:', targetTab.innerHTML.substring(0, 200) + '...');
                 
                 // Load data for specific tabs
@@ -814,7 +819,7 @@
                     loadFilterWords();
                 }
             } else {
-                console.log('❌ Tab not found:', tabName + 'Tab');
+                console.log('❌ Tab not found:', targetTabId);
             }
             
             // Find and activate the correct tab button
