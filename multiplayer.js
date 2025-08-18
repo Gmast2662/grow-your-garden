@@ -126,6 +126,11 @@ class MultiplayerManager {
                 if (data.message && !data.message.receiverId) {
                     this.chatMessages.push(data.message);
                     this.emit('chat_message', data.message);
+                    
+                    // Update UI if game is available
+                    if (window.game && window.game.loadChatMessages) {
+                        window.game.loadChatMessages();
+                    }
                 }
             } else {
                 console.error('❌ Failed to send message:', data.error);

@@ -1109,18 +1109,72 @@ class GardenGame {
             
             // Get friends from multiplayer manager
             this.multiplayer.getFriends().then(friends => {
-                if (friends && friends.length > 0) {
-                    const friendsHtml = friends.map(friend => 
-                        `<div class="friend-item">
+                let friendsHtml = '';
+                
+                // Show accepted friends
+                const acceptedFriends = friends.filter(friend => friend.status === 'accepted');
+                if (acceptedFriends.length > 0) {
+                    friendsHtml += '<h4>👥 Friends</h4>';
+                    friendsHtml += acceptedFriends.map(friend => {
+                        // Show current user as online if they're connected
+                        const isOnline = friend.id === this.multiplayer?.currentUser?.id ? 
+                            this.multiplayer.isConnected : friend.online;
+                        
+                        return `<div class="friend-item">
                             <span class="friend-name">${friend.username}</span>
-                            <span class="friend-status ${friend.online ? 'online' : 'offline'}">
-                                ${friend.online ? '🟢' : '🔴'}
+                            <span class="friend-status ${isOnline ? 'online' : 'offline'}">
+                                ${isOnline ? '🟢' : '🔴'}
                             </span>
-                        </div>`
-                    ).join('');
-                    onlineFriendsDiv.innerHTML = friendsHtml;
+                        </div>`;
+                    }).join('');
+                }
+                
+                // Show pending friend requests
+                const pendingRequests = friends.filter(friend => friend.status === 'pending');
+                if (pendingRequests.length > 0) {
+                    friendsHtml += '<h4>⏳ Pending Requests</h4>';
+                    pendingRequests.forEach(friend => {
+                        friendsHtml += `
+                            <div class="friend-item pending">
+                                <div class="friend-info">
+                                    <span class="friend-name">${friend.username}</span>
+                                    <span class="friend-status">⏳ Pending</span>
+                                </div>
+                                <div class="friend-actions">
+                                    <button onclick="window.game.respondToFriendRequest('${friend.id}', true)" class="accept-btn-small">Accept</button>
+                                    <button onclick="window.game.respondToFriendRequest('${friend.id}', false)" class="reject-btn-small">Reject</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+                
+                // Always show the add friend section
+                const isConnected = this.multiplayer && this.multiplayer.isConnected;
+                const addFriendSection = `
+                    <div class="add-friend-section">
+                        <input type="text" id="friendUsername" placeholder="Enter username to add" ${!isConnected ? 'disabled' : ''}>
+                        <button id="addFriendBtn" ${!isConnected ? 'disabled' : ''}>
+                            ${isConnected ? 'Add Friend' : 'Connecting...'}
+                        </button>
+                    </div>
+                `;
+                
+                if (friendsHtml) {
+                    onlineFriendsDiv.innerHTML = friendsHtml + addFriendSection;
                 } else {
-                    onlineFriendsDiv.innerHTML = '<p>No friends found. Add some friends to get started!</p>';
+                    onlineFriendsDiv.innerHTML = `
+                        <p>No friends found. Add some friends to get started!</p>
+                        ${addFriendSection}
+                    `;
+                }
+                
+                // Add event listener after creating the button
+                const addFriendBtn = document.getElementById('addFriendBtn');
+                if (addFriendBtn) {
+                    addFriendBtn.addEventListener('click', () => {
+                        this.sendFriendRequest();
+                    });
                 }
             });
         }
