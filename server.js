@@ -262,11 +262,17 @@ const authenticateSocketToken = (socket, next) => {
                 return next(new Error(`Account banned: ${user.ban_reason || 'No reason provided'}`));
             }
             
-            if (user.muted_until) {
-                const muteMessage = user.mute_reason ? 
-                    `Account muted until ${user.muted_until}: ${user.mute_reason}` :
-                    `Account muted until ${user.muted_until}`;
-                return next(new Error(muteMessage));
+            // Check if user is muted (either temporary or permanent)
+            if (user.mute_reason !== null) {
+                if (user.muted_until === null) {
+                    // Permanent mute
+                    const muteMessage = `Account permanently muted: ${user.mute_reason}`;
+                    return next(new Error(muteMessage));
+                } else {
+                    // Temporary mute
+                    const muteMessage = `Account muted until ${user.muted_until}: ${user.mute_reason}`;
+                    return next(new Error(muteMessage));
+                }
             }
             
             socket.userId = decoded.id;
@@ -441,15 +447,24 @@ io.on('connection', (socket) => {
                     return;
                 }
 
-                if (muteData && muteData.muted_until) {
-                    const muteMessage = muteData.mute_reason ? 
-                        `You are muted until ${muteData.muted_until}: ${muteData.mute_reason}` :
-                        `You are muted until ${muteData.muted_until}`;
-                    socket.emit('message_sent', { 
-                        success: false, 
-                        error: muteMessage 
-                    });
-                    return;
+                if (muteData && muteData.mute_reason !== null) {
+                    if (muteData.muted_until === null) {
+                        // Permanent mute
+                        const muteMessage = `You are permanently muted: ${muteData.mute_reason}`;
+                        socket.emit('message_sent', { 
+                            success: false, 
+                            error: muteMessage 
+                        });
+                        return;
+                    } else {
+                        // Temporary mute
+                        const muteMessage = `You are muted until ${muteData.muted_until}: ${muteData.mute_reason}`;
+                        socket.emit('message_sent', { 
+                            success: false, 
+                            error: muteMessage 
+                        });
+                        return;
+                    }
                 }
 
                 // Check chat filter

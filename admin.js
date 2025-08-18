@@ -891,9 +891,6 @@ router.post('/mute', authenticateAdmin, (req, res) => {
                         req.ip
                     );
                     
-                    // Disconnect user if online
-                    disconnectUser(userId);
-                    
                     res.json({
                         message: 'User muted successfully',
                         userId,
