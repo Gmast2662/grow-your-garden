@@ -552,7 +552,18 @@ app.get('/api/users/:userId/friends', (req, res) => {
             res.status(500).json({ error: 'Database error' });
             return;
         }
-        res.json(friends);
+        
+        // Add real-time online status from onlineUsers Map
+        const friendsWithRealTimeStatus = friends.map(friend => {
+            const isOnlineRealTime = onlineUsers.has(friend.id);
+            return {
+                ...friend,
+                online: isOnlineRealTime,
+                isOnline: isOnlineRealTime
+            };
+        });
+        
+        res.json(friendsWithRealTimeStatus);
     });
 });
 

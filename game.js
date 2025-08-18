@@ -1127,9 +1127,10 @@ class GardenGame {
                 if (acceptedFriends.length > 0) {
                     friendsHtml += '<h4>👥 Friends</h4>';
                     friendsHtml += acceptedFriends.map(friend => {
-                        // Show current user as online if they're connected
+                        // Check online status - prioritize real-time status over database status
                         const isOnline = friend.id === this.multiplayer?.currentUser?.id ? 
-                            this.multiplayer.isConnected : (friend.online || friend.isOnline);
+                            this.multiplayer.isConnected : 
+                            (friend.online !== undefined ? friend.online : friend.isOnline);
                         
                         return `<div class="friend-item">
                             <div class="friend-info">
