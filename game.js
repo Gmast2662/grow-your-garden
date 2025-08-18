@@ -1189,8 +1189,12 @@ class GardenGame {
                     button.addEventListener('click', (e) => {
                         const friendId = e.target.getAttribute('data-friend-id');
                         console.log('🔍 Accept button clicked for friend ID:', friendId);
+                        console.log('🔍 window.game exists:', !!window.game);
                         if (window.game && friendId) {
+                            console.log('🔍 Calling respondToFriendRequest...');
                             window.game.respondToFriendRequest(friendId, true);
+                        } else {
+                            console.error('❌ Cannot call respondToFriendRequest - window.game or friendId missing');
                         }
                     });
                 });
@@ -1199,8 +1203,12 @@ class GardenGame {
                     button.addEventListener('click', (e) => {
                         const friendId = e.target.getAttribute('data-friend-id');
                         console.log('🔍 Reject button clicked for friend ID:', friendId);
+                        console.log('🔍 window.game exists:', !!window.game);
                         if (window.game && friendId) {
+                            console.log('🔍 Calling respondToFriendRequest...');
                             window.game.respondToFriendRequest(friendId, false);
+                        } else {
+                            console.error('❌ Cannot call respondToFriendRequest - window.game or friendId missing');
                         }
                     });
                 });
@@ -1331,6 +1339,8 @@ class GardenGame {
     
     respondToFriendRequest(fromId, accepted) {
         console.log('🔍 respondToFriendRequest called with:', { fromId, accepted });
+        console.log('🔍 this.multiplayer exists:', !!this.multiplayer);
+        console.log('🔍 this.multiplayer.isConnected:', this.multiplayer?.isConnected);
         
         if (!this.multiplayer) {
             console.error('❌ Multiplayer not initialized');
