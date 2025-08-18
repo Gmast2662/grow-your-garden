@@ -334,34 +334,59 @@ io.on('connection', (socket) => {
 
     // Handle friend request responses
     socket.on('respond_friend_request', (data) => {
-        db.run('UPDATE friends SET status = ? WHERE user_id = ? AND friend_id = ?', 
-            [data.accepted ? 'accepted' : 'rejected', data.fromId, socket.userId], function(err) {
-            if (err) {
-                socket.emit('friend_response_result', { success: false, message: 'Database error' });
-                return;
-            }
+        if (data.accepted) {
+            // Accept the friend request
+            db.run('UPDATE friends SET status = ? WHERE user_id = ? AND friend_id = ?', 
+                ['accepted', data.fromId, socket.userId], function(err) {
+                if (err) {
+                    socket.emit('friend_response_result', { success: false, message: 'Database error' });
+                    return;
+                }
 
-            if (data.accepted) {
                 // Add reverse friendship
                 db.run('INSERT INTO friends (user_id, friend_id, status) VALUES (?, ?, "accepted")', 
                     [socket.userId, data.fromId]);
-            }
 
-            socket.emit('friend_response_result', { 
-                success: true, 
-                message: data.accepted ? 'Friend request accepted!' : 'Friend request rejected' 
-            });
-
-            // Notify requester if online
-            const requesterSocket = userSockets.get(data.fromId);
-            if (requesterSocket) {
-                requesterSocket.emit('friend_request_responded', {
-                    byId: socket.userId,
-                    byName: socket.username,
-                    accepted: data.accepted
+                socket.emit('friend_response_result', { 
+                    success: true, 
+                    message: 'Friend request accepted!' 
                 });
-            }
-        });
+
+                // Notify requester if online
+                const requesterSocket = userSockets.get(data.fromId);
+                if (requesterSocket) {
+                    requesterSocket.emit('friend_request_responded', {
+                        byId: socket.userId,
+                        byName: socket.username,
+                        accepted: true
+                    });
+                }
+            });
+        } else {
+            // Reject the friend request - DELETE it completely
+            db.run('DELETE FROM friends WHERE (user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)', 
+                [data.fromId, socket.userId, socket.userId, data.fromId], function(err) {
+                if (err) {
+                    socket.emit('friend_response_result', { success: false, message: 'Database error' });
+                    return;
+                }
+
+                socket.emit('friend_response_result', { 
+                    success: true, 
+                    message: 'Friend request rejected' 
+                });
+
+                // Notify requester if online
+                const requesterSocket = userSockets.get(data.fromId);
+                if (requesterSocket) {
+                    requesterSocket.emit('friend_request_responded', {
+                        byId: socket.userId,
+                        byName: socket.username,
+                        accepted: false
+                    });
+                }
+            });
+        }
     });
 
     // Handle unfriend requests
