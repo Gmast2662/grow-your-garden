@@ -1132,6 +1132,10 @@ class GardenGame {
         
         const friendsContainer = document.getElementById('friendsContainer');
         if (friendsContainer) {
+            // Preserve the current input field value before refreshing
+            const currentInput = document.getElementById('friendUsername');
+            const preservedValue = currentInput ? currentInput.value : '';
+            
             friendsContainer.innerHTML = '<p>Loading friends...</p>';
             
             // Get friends from multiplayer manager
@@ -1255,6 +1259,12 @@ class GardenGame {
                         <p>No friends found. Add some friends to get started!</p>
                         ${addFriendSection}
                     `;
+                }
+                
+                // Restore the input field value if it was preserved
+                const newInput = document.getElementById('friendUsername');
+                if (newInput && preservedValue) {
+                    newInput.value = preservedValue;
                 }
                 
                 // Add event listener after creating the button
