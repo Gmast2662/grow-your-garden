@@ -1143,58 +1143,75 @@ class GardenGame {
                     index === self.findIndex(f => f.id === friend.id || f.user_id === friend.user_id)
                 );
                 console.log('🔍 Unique friends after deduplication:', uniqueFriends);
+                console.log('🔍 Current user ID:', this.multiplayer?.currentUser?.id);
+                
+                // Debug each friend's online status
+                uniqueFriends.forEach(friend => {
+                    console.log(`🔍 Friend ${friend.username}:`, {
+                        id: friend.id,
+                        online: friend.online,
+                        isOnline: friend.isOnline,
+                        isCurrentUser: friend.id === this.multiplayer?.currentUser?.id
+                    });
+                });
                 
                 let friendsHtml = '';
                 
                 // Show accepted friends
                 const acceptedFriends = uniqueFriends.filter(friend => friend.status === 'accepted');
                 if (acceptedFriends.length > 0) {
-                    // Separate online and offline friends
-                    const onlineFriends = acceptedFriends.filter(friend => {
-                        const isOnline = friend.id === this.multiplayer?.currentUser?.id ? 
-                            this.multiplayer.isConnected : 
-                            (friend.online !== undefined ? friend.online : friend.isOnline);
-                        return isOnline;
-                    });
-                    
-                    const offlineFriends = acceptedFriends.filter(friend => {
-                        const isOnline = friend.id === this.multiplayer?.currentUser?.id ? 
-                            this.multiplayer.isConnected : 
-                            (friend.online !== undefined ? friend.online : friend.isOnline);
-                        return !isOnline;
-                    });
-                    
-                    // Show online friends first
-                    if (onlineFriends.length > 0) {
-                        friendsHtml += '<h4>🟢 Online Friends</h4>';
-                        friendsHtml += onlineFriends.map(friend => {
-                            return `<div class="friend-item">
-                                <div class="friend-info">
-                                    <span class="friend-name">${friend.username}</span>
-                                    <span class="friend-status online">🟢</span>
-                                </div>
-                                <div class="friend-actions">
-                                    <button class="unfriend-btn-small" data-friend-id="${friend.id || friend.user_id}" data-action="unfriend">Unfriend</button>
-                                </div>
-                            </div>`;
-                        }).join('');
+                                    // Separate online and offline friends
+                const onlineFriends = acceptedFriends.filter(friend => {
+                    // Don't show current user in friends list
+                    if (friend.id === this.multiplayer?.currentUser?.id) {
+                        return false;
                     }
-                    
-                    // Show offline friends
-                    if (offlineFriends.length > 0) {
-                        friendsHtml += '<h4>🔴 Offline Friends</h4>';
-                        friendsHtml += offlineFriends.map(friend => {
-                            return `<div class="friend-item">
-                                <div class="friend-info">
-                                    <span class="friend-name">${friend.username}</span>
-                                    <span class="friend-status offline">🔴</span>
-                                </div>
-                                <div class="friend-actions">
-                                    <button class="unfriend-btn-small" data-friend-id="${friend.id || friend.user_id}" data-action="unfriend">Unfriend</button>
-                                </div>
-                            </div>`;
-                        }).join('');
+                    // Check real-time online status
+                    return friend.online === true || friend.isOnline === true;
+                });
+                
+                const offlineFriends = acceptedFriends.filter(friend => {
+                    // Don't show current user in friends list
+                    if (friend.id === this.multiplayer?.currentUser?.id) {
+                        return false;
                     }
+                    // Check real-time online status
+                    return !(friend.online === true || friend.isOnline === true);
+                });
+                    
+                                    // Show online friends first
+                if (onlineFriends.length > 0) {
+                    console.log('🟢 Online friends:', onlineFriends);
+                    friendsHtml += '<h4>🟢 Online Friends</h4>';
+                    friendsHtml += onlineFriends.map(friend => {
+                        return `<div class="friend-item">
+                            <div class="friend-info">
+                                <span class="friend-name">${friend.username}</span>
+                                <span class="friend-status online">🟢</span>
+                            </div>
+                            <div class="friend-actions">
+                                <button class="unfriend-btn-small" data-friend-id="${friend.id || friend.user_id}" data-action="unfriend">Unfriend</button>
+                            </div>
+                        </div>`;
+                    }).join('');
+                }
+                    
+                                    // Show offline friends
+                if (offlineFriends.length > 0) {
+                    console.log('🔴 Offline friends:', offlineFriends);
+                    friendsHtml += '<h4>🔴 Offline Friends</h4>';
+                    friendsHtml += offlineFriends.map(friend => {
+                        return `<div class="friend-item">
+                            <div class="friend-info">
+                                <span class="friend-name">${friend.username}</span>
+                                <span class="friend-status offline">🔴</span>
+                            </div>
+                            <div class="friend-actions">
+                                <button class="unfriend-btn-small" data-friend-id="${friend.id || friend.user_id}" data-action="unfriend">Unfriend</button>
+                            </div>
+                        </div>`;
+                    }).join('');
+                }
                 }
                 
                 // Show pending friend requests
