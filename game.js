@@ -1130,9 +1130,9 @@ class GardenGame {
     loadFriendsList() {
         if (!this.multiplayer) return;
         
-        const onlineFriendsDiv = document.getElementById('onlineFriends');
-        if (onlineFriendsDiv) {
-            onlineFriendsDiv.innerHTML = '<p>Loading friends...</p>';
+        const friendsContainer = document.getElementById('friendsContainer');
+        if (friendsContainer) {
+            friendsContainer.innerHTML = '<p>Loading friends...</p>';
             
             // Get friends from multiplayer manager
             this.multiplayer.getFriends().then(friends => {
@@ -1249,9 +1249,9 @@ class GardenGame {
                 `;
                 
                 if (friendsHtml) {
-                    onlineFriendsDiv.innerHTML = friendsHtml + addFriendSection;
+                    friendsContainer.innerHTML = friendsHtml + addFriendSection;
                 } else {
-                    onlineFriendsDiv.innerHTML = `
+                    friendsContainer.innerHTML = `
                         <p>No friends found. Add some friends to get started!</p>
                         ${addFriendSection}
                     `;
