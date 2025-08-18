@@ -293,18 +293,24 @@ io.on('connection', (socket) => {
                 return;
             }
 
-            // Check if already friends
-            db.get('SELECT * FROM friends WHERE (user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)', 
+            // Check if already friends or request pending (only check for active relationships)
+            console.log(`🔍 Checking existing friendship: userId=${socket.userId}, targetId=${targetUser.id}`);
+            db.get('SELECT * FROM friends WHERE ((user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)) AND status IN ("pending", "accepted")', 
                 [socket.userId, targetUser.id, targetUser.id, socket.userId], (err, existing) => {
                 if (err) {
+                    console.error('❌ Database error checking friendship:', err);
                     socket.emit('friend_request_result', { success: false, message: 'Database error' });
                     return;
                 }
 
                 if (existing) {
-                    socket.emit('friend_request_result', { success: false, message: 'Already friends or request pending' });
+                    const status = existing.status === 'accepted' ? 'already friends' : 'request pending';
+                    console.log(`❌ Friendship exists with status: ${existing.status}`);
+                    socket.emit('friend_request_result', { success: false, message: `Already ${status}` });
                     return;
                 }
+
+                console.log(`✅ No existing friendship found, proceeding with friend request`);
 
                 // Send friend request
                 db.run('INSERT INTO friends (user_id, friend_id, status) VALUES (?, ?, "pending")', 
@@ -364,13 +370,16 @@ io.on('connection', (socket) => {
             });
         } else {
             // Reject the friend request - DELETE it completely
+            console.log(`🗑️ Deleting friend request: fromId=${data.fromId}, toId=${socket.userId}`);
             db.run('DELETE FROM friends WHERE (user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)', 
                 [data.fromId, socket.userId, socket.userId, data.fromId], function(err) {
                 if (err) {
+                    console.error('❌ Error deleting friend request:', err);
                     socket.emit('friend_response_result', { success: false, message: 'Database error' });
                     return;
                 }
 
+                console.log(`✅ Friend request deleted successfully. Rows affected: ${this.changes}`);
                 socket.emit('friend_response_result', { 
                     success: true, 
                     message: 'Friend request rejected' 
