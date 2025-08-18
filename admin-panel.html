@@ -713,6 +713,7 @@
                     showAlert('User banned successfully!', 'success');
                     closeModal('banModal');
                     loadUsers();
+                    loadStats();
                 } else {
                     showAlert(result.error, 'error');
                 }
@@ -788,6 +789,14 @@
             loadLogs();
             loadMutedUsers();
             loadFilterWords();
+            
+            // Set up automatic stats refresh every 30 seconds
+            if (window.adminStatsInterval) {
+                clearInterval(window.adminStatsInterval);
+            }
+            window.adminStatsInterval = setInterval(() => {
+                loadStats();
+            }, 30000); // Refresh stats every 30 seconds
         }
 
         function showTab(tabName) {
@@ -981,6 +990,7 @@
                     if (result.message) {
                         showAlert('User unbanned successfully!', 'success');
                         loadUsers();
+                        loadStats();
                     } else {
                         showAlert(result.error, 'error');
                     }
@@ -1186,6 +1196,7 @@
                     showAlert('User muted successfully!', 'success');
                     document.getElementById('muteForm').reset();
                     loadMutedUsers();
+                    loadStats();
                 } else {
                     showAlert(result.error, 'error');
                 }
@@ -1295,6 +1306,7 @@
                     if (result.message) {
                         showAlert('User unmuted successfully!', 'success');
                         loadMutedUsers();
+                        loadStats();
                     } else {
                         showAlert(result.error, 'error');
                     }
@@ -1377,6 +1389,13 @@
                 event.target.style.display = 'none';
             }
         }
+        
+        // Clean up interval when page is unloaded
+        window.addEventListener('beforeunload', () => {
+            if (window.adminStatsInterval) {
+                clearInterval(window.adminStatsInterval);
+            }
+        });
     </script>
 </body>
 </html>
