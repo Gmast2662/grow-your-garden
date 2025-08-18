@@ -1113,16 +1113,23 @@ class GardenGame {
             // Get friends from multiplayer manager
             this.multiplayer.getFriends().then(friends => {
                 console.log('🔍 Friends data received:', friends);
+                
+                // Remove duplicates based on user ID
+                const uniqueFriends = friends.filter((friend, index, self) => 
+                    index === self.findIndex(f => f.id === friend.id || f.user_id === friend.user_id)
+                );
+                console.log('🔍 Unique friends after deduplication:', uniqueFriends);
+                
                 let friendsHtml = '';
                 
                 // Show accepted friends
-                const acceptedFriends = friends.filter(friend => friend.status === 'accepted');
+                const acceptedFriends = uniqueFriends.filter(friend => friend.status === 'accepted');
                 if (acceptedFriends.length > 0) {
                     friendsHtml += '<h4>👥 Friends</h4>';
                     friendsHtml += acceptedFriends.map(friend => {
                         // Show current user as online if they're connected
                         const isOnline = friend.id === this.multiplayer?.currentUser?.id ? 
-                            this.multiplayer.isConnected : friend.online;
+                            this.multiplayer.isConnected : (friend.online || friend.isOnline);
                         
                         return `<div class="friend-item">
                             <span class="friend-name">${friend.username}</span>
@@ -1134,7 +1141,7 @@ class GardenGame {
                 }
                 
                 // Show pending friend requests
-                const pendingRequests = friends.filter(friend => friend.status === 'pending');
+                const pendingRequests = uniqueFriends.filter(friend => friend.status === 'pending');
                 if (pendingRequests.length > 0) {
                     friendsHtml += '<h4>⏳ Pending Requests</h4>';
                     pendingRequests.forEach(friend => {
@@ -1393,7 +1400,12 @@ class GardenGame {
         // Refresh the friends list to show updated status
         setTimeout(() => {
             this.loadFriendsList();
-        }, 1000);
+        }, 500);
+        
+        // Also refresh after a longer delay to ensure server updates are processed
+        setTimeout(() => {
+            this.loadFriendsList();
+        }, 2000);
     }
     
     makeAdminFunctionsGlobal() {
