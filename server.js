@@ -847,6 +847,11 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
+// Token verification endpoint
+app.get('/api/auth/verify', authenticateToken, (req, res) => {
+    res.json({ valid: true, user: req.user });
+});
+
 // Serve login page
 app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, 'login.html'));
@@ -877,25 +882,9 @@ app.get('/health', (req, res) => {
     });
 });
 
-// Serve the main game page (protected) or redirect to login
+// Serve the main game page (client-side handles authentication)
 app.get('/', (req, res) => {
-    const token = req.headers.authorization?.split(' ')[1];
-    
-    if (!token) {
-        // No token, redirect to login
-        res.redirect('/login');
-    } else {
-        // Check if token is valid
-        jwt.verify(token, JWT_SECRET, (err, user) => {
-            if (err) {
-                // Invalid token, redirect to login
-                res.redirect('/login');
-            } else {
-                // Valid token, serve the game
-                res.sendFile(path.join(__dirname, 'index.html'));
-            }
-        });
-    }
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // Start server

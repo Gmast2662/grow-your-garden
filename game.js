@@ -6807,17 +6807,48 @@ class MenuSystem {
 // Initialize the menu system when the page loads
 let menuSystem;
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM Content Loaded - Initializing MenuSystem...');
-    try {
-    menuSystem = new MenuSystem();
-        console.log('MenuSystem created successfully');
-    // Make menuSystem globally accessible for admin functions
-    window.menuSystem = menuSystem;
-        console.log('MenuSystem added to window object');
-    } catch (error) {
-        console.error('Error creating MenuSystem:', error);
-        alert('Error initializing game. Please refresh the page.');
+    console.log('DOM Content Loaded - Checking authentication...');
+    
+    // Check if user is authenticated
+    const token = localStorage.getItem('garden_game_token');
+    if (!token) {
+        console.log('No authentication token found, redirecting to login...');
+        window.location.href = '/login';
+        return;
     }
+    
+    // Verify token is valid by making a request to the server
+    fetch('/api/auth/verify', {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            console.log('Invalid token, redirecting to login...');
+            localStorage.removeItem('garden_game_token');
+            window.location.href = '/login';
+            return;
+        }
+        
+        console.log('Authentication verified, initializing MenuSystem...');
+        try {
+            menuSystem = new MenuSystem();
+            console.log('MenuSystem created successfully');
+            // Make menuSystem globally accessible for admin functions
+            window.menuSystem = menuSystem;
+            console.log('MenuSystem added to window object');
+        } catch (error) {
+            console.error('Error creating MenuSystem:', error);
+            alert('Error initializing game. Please refresh the page.');
+        }
+    })
+    .catch(error => {
+        console.error('Error verifying token:', error);
+        localStorage.removeItem('garden_game_token');
+        window.location.href = '/login';
+    });
 });
 
 // Clean up background processing when page is unloaded
