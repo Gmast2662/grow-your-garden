@@ -30,6 +30,9 @@ app.use(express.static(path.join(__dirname)));
 const authRoutes = require('./auth');
 app.use('/api/auth', authRoutes);
 
+// Admin routes
+app.use('/api/admin', require('./admin'));
+
 // Database setup
 const db = new sqlite3.Database('./garden_game.db');
 
@@ -43,7 +46,10 @@ db.serialize(() => {
         password_hash TEXT NOT NULL,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         last_login DATETIME,
-        is_online BOOLEAN DEFAULT 0
+        is_online BOOLEAN DEFAULT 0,
+        is_banned BOOLEAN DEFAULT 0,
+        ban_reason TEXT,
+        is_admin BOOLEAN DEFAULT 0
     )`);
 
     // Gardens table
@@ -98,21 +104,33 @@ const userSockets = new Map();
 const authenticateSocketToken = (socket, next) => {
     try {
         const token = socket.handshake.auth.token;
+        
         if (!token) {
-            return next(new Error('Authentication error'));
+            return next(new Error('Authentication token required'));
         }
-
-        jwt.verify(token, JWT_SECRET, (err, user) => {
+        
+        const decoded = jwt.verify(token, JWT_SECRET);
+        
+        // Check if user is banned
+        db.get('SELECT is_banned, ban_reason FROM users WHERE id = ?', [decoded.userId], (err, user) => {
             if (err) {
-                return next(new Error('Invalid token'));
+                return next(new Error('Database error'));
             }
-            socket.userId = user.id;
-            socket.username = user.username;
+            
+            if (!user) {
+                return next(new Error('User not found'));
+            }
+            
+            if (user.is_banned) {
+                return next(new Error(`Account banned: ${user.ban_reason || 'No reason provided'}`));
+            }
+            
+            socket.userId = decoded.userId;
+            socket.username = decoded.username;
             next();
         });
     } catch (error) {
-        console.error('Socket authentication error:', error);
-        return next(new Error('Authentication failed'));
+        return next(new Error('Invalid token'));
     }
 };
 
@@ -558,6 +576,11 @@ const authenticateToken = (req, res, next) => {
 // Serve login page
 app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, 'login.html'));
+});
+
+// Serve admin panel page
+app.get('/admin-panel', (req, res) => {
+    res.sendFile(path.join(__dirname, 'admin-panel.html'));
 });
 
 // Health check endpoint for keep-alive

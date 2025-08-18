@@ -111,13 +111,21 @@ router.post('/login', (req, res) => {
     }
 
     // Find user by username
-    db.get('SELECT id, username, email, password_hash FROM users WHERE username = ?', [username], async (err, user) => {
+    db.get('SELECT id, username, email, password_hash, is_banned, ban_reason FROM users WHERE username = ?', [username], async (err, user) => {
         if (err) {
             return res.status(500).json({ error: 'Database error' });
         }
 
         if (!user) {
             return res.status(401).json({ error: 'Invalid username or password' });
+        }
+
+        // Check if user is banned
+        if (user.is_banned) {
+            return res.status(403).json({ 
+                error: 'Account banned', 
+                reason: user.ban_reason || 'No reason provided' 
+            });
         }
 
         // Check password

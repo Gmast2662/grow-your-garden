@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Garden Game Admin Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .login-section {
+            padding: 40px;
+            text-align: center;
+        }
+
+        .admin-section {
+            display: none;
+            padding: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            opacity: 0.9;
+        }
+
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .users-table th, .users-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e1e5e9;
+        }
+
+        .users-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .users-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-online {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-offline {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-banned {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-admin {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+        }
+
+        .close {
+            position: absolute;
+            right: 20px;
+            top: 15px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .alert {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e1e5e9;
+        }
+
+        .tab {
+            padding: 15px 30px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            border-bottom-color: #667eea;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌱 Garden Game Admin Panel</h1>
+            <p>Manage users, view statistics, and control your server</p>
+        </div>
+
+        <!-- Login Section -->
+        <div id="loginSection" class="login-section">
+            <h2>Admin Login</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="btn">Login</button>
+            </form>
+            <p style="margin-top: 20px; color: #666;">
+                <strong>First time setup:</strong> If no admin account exists, you can create one using the setup endpoint.
+            </p>
+        </div>
+
+        <!-- Admin Section -->
+        <div id="adminSection" class="admin-section">
+            <div class="tabs">
+                <div class="tab active" onclick="showTab('stats')">📊 Statistics</div>
+                <div class="tab" onclick="showTab('users')">👥 Users</div>
+                <div class="tab" onclick="showTab('setup')">⚙️ Setup</div>
+            </div>
+
+            <!-- Statistics Tab -->
+            <div id="statsTab" class="tab-content active">
+                <h2>Server Statistics</h2>
+                <div id="statsGrid" class="stats-grid">
+                    <!-- Stats will be loaded here -->
+                </div>
+                <button class="btn" onclick="loadStats()">Refresh Stats</button>
+            </div>
+
+            <!-- Users Tab -->
+            <div id="usersTab" class="tab-content">
+                <h2>User Management</h2>
+                <button class="btn" onclick="loadUsers()">Refresh Users</button>
+                <div id="usersTable"></div>
+            </div>
+
+            <!-- Setup Tab -->
+            <div id="setupTab" class="tab-content">
+                <h2>Admin Setup</h2>
+                <p>Create the first admin account (only works if no admin exists):</p>
+                <form id="setupForm">
+                    <div class="form-group">
+                        <label for="setupUsername">Username:</label>
+                        <input type="text" id="setupUsername" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="setupPassword">Password:</label>
+                        <input type="password" id="setupPassword" name="password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="setupEmail">Email (optional):</label>
+                        <input type="email" id="setupEmail" name="email">
+                    </div>
+                    <button type="submit" class="btn">Create Admin Account</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="banModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('banModal')">&times;</span>
+            <h3>Ban User</h3>
+            <form id="banForm">
+                <div class="form-group">
+                    <label for="banReason">Ban Reason:</label>
+                    <textarea id="banReason" name="reason" rows="3" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-danger">Ban User</button>
+                <button type="button" class="btn" onclick="closeModal('banModal')">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="resetPasswordModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('resetPasswordModal')">&times;</span>
+            <h3>Reset Password</h3>
+            <form id="resetPasswordForm">
+                <div class="form-group">
+                    <label for="newPassword">New Password:</label>
+                    <input type="password" id="newPassword" name="password" required>
+                </div>
+                <button type="submit" class="btn btn-warning">Reset Password</button>
+                <button type="button" class="btn" onclick="closeModal('resetPasswordModal')">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let adminToken = null;
+        let currentUserId = null;
+
+        // Login form handler
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = {
+                username: formData.get('username'),
+                password: formData.get('password')
+            };
+
+            try {
+                const response = await fetch('/api/admin/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    adminToken = result.token;
+                    showAdminSection();
+                    loadStats();
+                    loadUsers();
+                } else {
+                    showAlert(result.error, 'error');
+                }
+            } catch (error) {
+                showAlert('Login failed: ' + error.message, 'error');
+            }
+        });
+
+        // Setup form handler
+        document.getElementById('setupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = {
+                username: formData.get('username'),
+                password: formData.get('password'),
+                email: formData.get('email') || null
+            };
+
+            try {
+                const response = await fetch('/api/admin/setup-admin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    adminToken = result.token;
+                    showAlert('Admin account created successfully!', 'success');
+                    showAdminSection();
+                    loadStats();
+                    loadUsers();
+                } else {
+                    showAlert(result.error, 'error');
+                }
+            } catch (error) {
+                showAlert('Setup failed: ' + error.message, 'error');
+            }
+        });
+
+        // Ban form handler
+        document.getElementById('banForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const reason = formData.get('reason');
+
+            try {
+                const response = await fetch(`/api/admin/users/${currentUserId}/ban`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify({ reason })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showAlert('User banned successfully!', 'success');
+                    closeModal('banModal');
+                    loadUsers();
+                } else {
+                    showAlert(result.error, 'error');
+                }
+            } catch (error) {
+                showAlert('Ban failed: ' + error.message, 'error');
+            }
+        });
+
+        // Reset password form handler
+        document.getElementById('resetPasswordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const password = formData.get('password');
+
+            try {
+                const response = await fetch(`/api/admin/users/${currentUserId}/reset-password`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify({ newPassword: password })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showAlert('Password reset successfully!', 'success');
+                    closeModal('resetPasswordModal');
+                } else {
+                    showAlert(result.error, 'error');
+                }
+            } catch (error) {
+                showAlert('Password reset failed: ' + error.message, 'error');
+            }
+        });
+
+        function showAdminSection() {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('adminSection').style.display = 'block';
+        }
+
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+
+            // Show selected tab
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/admin/stats', {
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    const stats = result.stats;
+                    document.getElementById('statsGrid').innerHTML = `
+                        <div class="stat-card">
+                            <h3>${stats.totalUsers}</h3>
+                            <p>Total Users</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${stats.onlineUsers}</h3>
+                            <p>Online Users</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${stats.bannedUsers}</h3>
+                            <p>Banned Users</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${stats.totalGardens}</h3>
+                            <p>Total Gardens</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${stats.totalMessages}</h3>
+                            <p>Total Messages</p>
+                        </div>
+                    `;
+                } else {
+                    showAlert(result.error, 'error');
+                }
+            } catch (error) {
+                showAlert('Failed to load stats: ' + error.message, 'error');
+            }
+        }
+
+        async function loadUsers() {
+            try {
+                const response = await fetch('/api/admin/users', {
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    const users = result.users;
+                    let tableHTML = `
+                        <table class="users-table">
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                    <th>Last Login</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+
+                    users.forEach(user => {
+                        const status = [];
+                        if (user.is_admin) status.push('<span class="status-badge status-admin">Admin</span>');
+                        if (user.is_banned) status.push('<span class="status-badge status-banned">Banned</span>');
+                        else if (user.is_online) status.push('<span class="status-badge status-online">Online</span>');
+                        else status.push('<span class="status-badge status-offline">Offline</span>');
+
+                        tableHTML += `
+                            <tr>
+                                <td>${user.username}</td>
+                                <td>${user.email || '-'}</td>
+                                <td>${status.join(' ')}</td>
+                                <td>${new Date(user.created_at).toLocaleDateString()}</td>
+                                <td>${user.last_login ? new Date(user.last_login).toLocaleString() : 'Never'}</td>
+                                <td>
+                                    ${user.is_banned ? 
+                                        `<button class="btn btn-success" onclick="unbanUser('${user.id}')">Unban</button>` :
+                                        `<button class="btn btn-danger" onclick="banUser('${user.id}')">Ban</button>`
+                                    }
+                                    <button class="btn btn-warning" onclick="resetPassword('${user.id}')">Reset Password</button>
+                                    ${!user.is_admin ? 
+                                        `<button class="btn" onclick="makeAdmin('${user.id}')">Make Admin</button>` :
+                                        `<button class="btn btn-warning" onclick="removeAdmin('${user.id}')">Remove Admin</button>`
+                                    }
+                                    <button class="btn btn-danger" onclick="deleteUser('${user.id}')">Delete</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+
+                    tableHTML += '</tbody></table>';
+                    document.getElementById('usersTable').innerHTML = tableHTML;
+                } else {
+                    showAlert(result.error, 'error');
+                }
+            } catch (error) {
+                showAlert('Failed to load users: ' + error.message, 'error');
+            }
+        }
+
+        function banUser(userId) {
+            currentUserId = userId;
+            document.getElementById('banModal').style.display = 'block';
+        }
+
+        function unbanUser(userId) {
+            if (confirm('Are you sure you want to unban this user?')) {
+                fetch(`/api/admin/users/${userId}/unban`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.message) {
+                        showAlert('User unbanned successfully!', 'success');
+                        loadUsers();
+                    } else {
+                        showAlert(result.error, 'error');
+                    }
+                })
+                .catch(error => showAlert('Unban failed: ' + error.message, 'error'));
+            }
+        }
+
+        function resetPassword(userId) {
+            currentUserId = userId;
+            document.getElementById('resetPasswordModal').style.display = 'block';
+        }
+
+        function makeAdmin(userId) {
+            if (confirm('Are you sure you want to make this user an admin?')) {
+                fetch(`/api/admin/users/${userId}/make-admin`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.message) {
+                        showAlert('User made admin successfully!', 'success');
+                        loadUsers();
+                    } else {
+                        showAlert(result.error, 'error');
+                    }
+                })
+                .catch(error => showAlert('Make admin failed: ' + error.message, 'error'));
+            }
+        }
+
+        function removeAdmin(userId) {
+            if (confirm('Are you sure you want to remove admin privileges from this user?')) {
+                fetch(`/api/admin/users/${userId}/remove-admin`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.message) {
+                        showAlert('Admin privileges removed successfully!', 'success');
+                        loadUsers();
+                    } else {
+                        showAlert(result.error, 'error');
+                    }
+                })
+                .catch(error => showAlert('Remove admin failed: ' + error.message, 'error'));
+            }
+        }
+
+        function deleteUser(userId) {
+            if (confirm('Are you sure you want to delete this user? This action cannot be undone!')) {
+                fetch(`/api/admin/users/${userId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.message) {
+                        showAlert('User deleted successfully!', 'success');
+                        loadUsers();
+                        loadStats();
+                    } else {
+                        showAlert(result.error, 'error');
+                    }
+                })
+                .catch(error => showAlert('Delete failed: ' + error.message, 'error'));
+            }
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+            if (modalId === 'banModal') {
+                document.getElementById('banForm').reset();
+            } else if (modalId === 'resetPasswordModal') {
+                document.getElementById('resetPasswordForm').reset();
+            }
+        }
+
+        function showAlert(message, type) {
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            
+            document.querySelector('.container').insertBefore(alert, document.querySelector('.container').firstChild);
+            
+            setTimeout(() => alert.remove(), 5000);
+        }
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
