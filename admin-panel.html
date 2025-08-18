@@ -261,6 +261,11 @@
             display: block;
         }
 
+        /* Ensure chat filter tab content is visible when active */
+        #chatFilterTab.active {
+            display: block !important;
+        }
+
         .announcement-form {
             background: #f8f9fa;
             padding: 20px;
@@ -548,7 +553,6 @@
                         <option value="made user admin">Made Admin</option>
                         <option value="removed admin privileges">Removed Admin</option>
                         <option value="sent announcement">Announcements</option>
-                        <option value="deactivated announcement">Deactivated Announcements</option>
                         <option value="muted user">Mutes</option>
                         <option value="unmuted user">Unmutes</option>
                         <option value="added word to chat filter">Chat Filter Add</option>
@@ -790,7 +794,10 @@
             console.log('🔍 showTab called with:', tabName);
             
             // Hide all tabs
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+                console.log('❌ Hiding tab:', tab.id);
+            });
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
 
             // Show selected tab
@@ -799,6 +806,7 @@
             if (targetTab) {
                 targetTab.classList.add('active');
                 console.log('✅ Tab activated:', tabName + 'Tab');
+                console.log('📋 Tab content:', targetTab.innerHTML.substring(0, 200) + '...');
                 
                 // Load data for specific tabs
                 if (tabName === 'chat-filter') {
@@ -1099,10 +1107,6 @@
                                         <span class="announcement-time">${new Date(announcement.created_at).toLocaleString()}</span>
                                     </div>
                                     <div class="announcement-message">${announcement.message}</div>
-                                    ${announcement.is_active ? 
-                                        `<button class="btn btn-warning" onclick="deactivateAnnouncement('${announcement.id}')">Deactivate</button>` : 
-                                        ''
-                                    }
                                 </div>
                             `;
                         });
@@ -1114,25 +1118,6 @@
                 }
             } catch (error) {
                 showAlert('Failed to load announcements: ' + error.message, 'error');
-            }
-        }
-
-        function deactivateAnnouncement(announcementId) {
-            if (confirm('Are you sure you want to deactivate this announcement?')) {
-                fetch(`/api/admin/announcements/${announcementId}/deactivate`, {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${adminToken}` }
-                })
-                .then(response => response.json())
-                .then(result => {
-                    if (result.message) {
-                        showAlert('Announcement deactivated successfully!', 'success');
-                        loadAnnouncements();
-                    } else {
-                        showAlert(result.error, 'error');
-                    }
-                })
-                .catch(error => showAlert('Deactivate failed: ' + error.message, 'error'));
             }
         }
 

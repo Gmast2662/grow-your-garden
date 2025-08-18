@@ -558,12 +558,14 @@ router.get('/stats', authenticateAdmin, (req, res) => {
             });
         }),
         new Promise((resolve, reject) => {
+            // Count all garden entries in the database (this counts all gardens, not just unique users)
             db.get('SELECT COUNT(*) as total_gardens FROM gardens', (err, result) => {
                 if (err) {
                     console.error('❌ Error getting total gardens:', err);
                     reject(err);
                 } else {
                     console.log('🌱 Total gardens query result:', result);
+                    // This counts all garden entries in the database
                     resolve(result.total_gardens || 0);
                 }
             });
