@@ -791,12 +791,9 @@
         }
 
         function showTab(tabName) {
-            console.log('🔍 showTab called with:', tabName);
-            
             // Hide all tabs
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
-                console.log('❌ Hiding tab:', tab.id);
             });
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
 
@@ -807,26 +804,19 @@
             }
             
             const targetTab = document.getElementById(targetTabId);
-            console.log('🎯 Target tab element:', targetTab, 'Looking for ID:', targetTabId);
             if (targetTab) {
                 targetTab.classList.add('active');
-                console.log('✅ Tab activated:', targetTabId);
-                console.log('📋 Tab content:', targetTab.innerHTML.substring(0, 200) + '...');
                 
                 // Load data for specific tabs
                 if (tabName === 'chat-filter') {
-                    console.log('🔄 Loading filter words for chat-filter tab');
                     loadFilterWords();
                 }
-            } else {
-                console.log('❌ Tab not found:', targetTabId);
             }
             
             // Find and activate the correct tab button
             document.querySelectorAll('.tab').forEach(tab => {
                 if (tab.getAttribute('onclick') && tab.getAttribute('onclick').includes(tabName)) {
                     tab.classList.add('active');
-                    console.log('✅ Tab button activated for:', tabName);
                 }
             });
         }
@@ -856,7 +846,7 @@
                         </div>
                         <div class="stat-card">
                             <h3>${stats.totalGardens}</h3>
-                            <p>Total Gardens</p>
+                            <p>Users with Gardens</p>
                         </div>
                         <div class="stat-card">
                             <h3>${stats.totalMessages}</h3>
@@ -873,10 +863,6 @@
                         <div class="stat-card">
                             <h3>${stats.totalAnnouncements}</h3>
                             <p>Total Announcements</p>
-                        </div>
-                        <div class="stat-card">
-                            <h3>${stats.activeAnnouncements}</h3>
-                            <p>Active Announcements</p>
                         </div>
                         <div class="stat-card">
                             <h3>${stats.adminUsers}</h3>
@@ -1105,9 +1091,6 @@
                                     <div class="announcement-header">
                                         <div>
                                             <span class="announcement-admin">${announcement.admin_username}</span>
-                                            <span class="announcement-status ${announcement.is_active ? 'status-active' : 'status-inactive'}">
-                                                ${announcement.is_active ? 'Active' : 'Inactive'}
-                                            </span>
                                         </div>
                                         <span class="announcement-time">${new Date(announcement.created_at).toLocaleString()}</span>
                                     </div>
@@ -1320,20 +1303,15 @@
         }
 
         async function loadFilterWords() {
-            console.log('🔄 loadFilterWords called');
             try {
-                console.log('📡 Fetching filter words from API...');
                 const response = await fetch('/api/admin/chat-filter/words', {
                     headers: { 'Authorization': `Bearer ${adminToken}` }
                 });
 
-                console.log('📥 Response status:', response.status);
                 const result = await response.json();
-                console.log('📄 Response data:', result);
 
                 if (response.ok) {
                     const words = result.words;
-                    console.log('📝 Filter words received:', words);
                     let tableHTML = '';
 
                     if (words.length === 0) {
@@ -1358,19 +1336,13 @@
                     }
 
                     const filterWordsTable = document.getElementById('filterWordsTable');
-                    console.log('🎯 Filter words table element:', filterWordsTable);
                     if (filterWordsTable) {
                         filterWordsTable.innerHTML = tableHTML;
-                        console.log('✅ Filter words table updated');
-                    } else {
-                        console.log('❌ Filter words table element not found');
                     }
                 } else {
-                    console.log('❌ API error:', result.error);
                     showAlert(result.error, 'error');
                 }
             } catch (error) {
-                console.log('❌ Exception in loadFilterWords:', error);
                 showAlert('Failed to load filter words: ' + error.message, 'error');
             }
         }

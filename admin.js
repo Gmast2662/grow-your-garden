@@ -558,16 +558,9 @@ router.get('/stats', authenticateAdmin, (req, res) => {
             });
         }),
         new Promise((resolve, reject) => {
-            // Count all garden entries in the database (this counts all gardens, not just unique users)
             db.get('SELECT COUNT(*) as total_gardens FROM gardens', (err, result) => {
-                if (err) {
-                    console.error('❌ Error getting total gardens:', err);
-                    reject(err);
-                } else {
-                    console.log('🌱 Total gardens query result:', result);
-                    // This counts all garden entries in the database
-                    resolve(result.total_gardens || 0);
-                }
+                if (err) reject(err);
+                else resolve(result.total_gardens || 0);
             });
         }),
         new Promise((resolve, reject) => {
@@ -592,12 +585,6 @@ router.get('/stats', authenticateAdmin, (req, res) => {
             db.get('SELECT COUNT(*) as total_announcements FROM announcements', (err, result) => {
                 if (err) reject(err);
                 else resolve(result.total_announcements);
-            });
-        }),
-        new Promise((resolve, reject) => {
-            db.get('SELECT COUNT(*) as active_announcements FROM announcements WHERE is_active = 1', (err, result) => {
-                if (err) reject(err);
-                else resolve(result.active_announcements);
             });
         }),
         new Promise((resolve, reject) => {
@@ -636,25 +623,7 @@ router.get('/stats', authenticateAdmin, (req, res) => {
                 else resolve(result.total_filter_words);
             });
         })
-    ]).then(([totalUsers, onlineUsers, bannedUsers, totalGardens, totalMessages, totalFriends, pendingFriends, totalAnnouncements, activeAnnouncements, adminUsers, totalLogs, todayUsers, todayMessages, mutedUsers, totalFilterWords]) => {
-        console.log('📊 Stats response data:', {
-            totalUsers,
-            onlineUsers,
-            bannedUsers,
-            totalGardens,
-            totalMessages,
-            totalFriends,
-            pendingFriends,
-            totalAnnouncements,
-            activeAnnouncements,
-            adminUsers,
-            totalLogs,
-            todayUsers,
-            todayMessages,
-            mutedUsers,
-            totalFilterWords
-        });
-        
+    ]).then(([totalUsers, onlineUsers, bannedUsers, totalGardens, totalMessages, totalFriends, pendingFriends, totalAnnouncements, adminUsers, totalLogs, todayUsers, todayMessages, mutedUsers, totalFilterWords]) => {
         res.json({
             stats: {
                 totalUsers,
@@ -665,7 +634,6 @@ router.get('/stats', authenticateAdmin, (req, res) => {
                 totalFriends,
                 pendingFriends,
                 totalAnnouncements,
-                activeAnnouncements,
                 adminUsers,
                 totalLogs,
                 todayUsers,
@@ -1097,8 +1065,6 @@ router.post('/chat-filter/remove', authenticateAdmin, (req, res) => {
 
 // Get chat filter words (admin only)
 router.get('/chat-filter/words', authenticateAdmin, (req, res) => {
-    console.log('🔍 Chat filter words API called by admin:', req.user.username);
-    
     db.all(`
         SELECT 
             word,
@@ -1108,11 +1074,9 @@ router.get('/chat-filter/words', authenticateAdmin, (req, res) => {
         ORDER BY created_at DESC
     `, (err, words) => {
         if (err) {
-            console.error('❌ Database error getting filter words:', err);
             return res.status(500).json({ error: 'Database error' });
         }
         
-        console.log('📝 Filter words found:', words);
         res.json({ words });
     });
 });
