@@ -31,7 +31,11 @@ const authRoutes = require('./auth');
 app.use('/api/auth', authRoutes);
 
 // Admin routes
-app.use('/api/admin', require('./admin'));
+const adminModule = require('./admin');
+app.use('/api/admin', adminModule.router);
+
+// Set WebSocket maps in admin module
+adminModule.setWebSocketMaps(userSockets, onlineUsers);
 
 // Database setup
 const db = new sqlite3.Database('./garden_game.db');
@@ -89,6 +93,23 @@ db.serialize(() => {
             console.error('❌ Error creating chat_messages table:', err);
         } else {
             console.log('✅ Chat messages table ready');
+        }
+    });
+
+    // Announcements table
+    db.run(`CREATE TABLE IF NOT EXISTS announcements (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        admin_id TEXT NOT NULL,
+        admin_username TEXT NOT NULL,
+        message TEXT NOT NULL,
+        is_active BOOLEAN DEFAULT 1,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (admin_id) REFERENCES users (id)
+    )`, function(err) {
+        if (err) {
+            console.error('❌ Error creating announcements table:', err);
+        } else {
+            console.log('✅ Announcements table ready');
         }
     });
 });

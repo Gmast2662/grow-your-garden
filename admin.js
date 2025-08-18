@@ -9,6 +9,29 @@ const router = express.Router();
 // Database connection
 const db = new sqlite3.Database('./garden_game.db');
 
+// WebSocket maps (will be set by server.js)
+let userSockets = new Map();
+let onlineUsers = new Map();
+
+// Function to set WebSocket maps from server
+const setWebSocketMaps = (sockets, users) => {
+    userSockets = sockets;
+    onlineUsers = users;
+};
+
+// Function to disconnect user via WebSocket
+const disconnectUser = (userId) => {
+    const socket = userSockets.get(userId);
+    if (socket) {
+        socket.emit('admin_action', {
+            type: 'force_logout',
+            message: 'Your account has been modified by an administrator. Please log in again.'
+        });
+        socket.disconnect();
+        console.log(`🔌 Admin forced logout for user: ${userId}`);
+    }
+};
+
 // JWT secret
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this';
 
@@ -181,6 +204,9 @@ router.post('/users/:userId/ban', authenticateAdmin, (req, res) => {
                 return res.status(404).json({ error: 'User not found' });
             }
             
+            // Disconnect user if online
+            disconnectUser(userId);
+            
             res.json({ 
                 message: 'User banned successfully',
                 userId,
@@ -259,6 +285,10 @@ router.delete('/users/:userId', authenticateAdmin, (req, res) => {
             }
             
             db.run('COMMIT');
+            
+            // Disconnect user if online
+            disconnectUser(userId);
+            
             res.json({ 
                 message: 'User account deleted successfully',
                 userId
@@ -290,6 +320,9 @@ router.post('/users/:userId/reset-password', authenticateAdmin, async (req, res)
                 if (this.changes === 0) {
                     return res.status(404).json({ error: 'User not found' });
                 }
+                
+                // Disconnect user if online
+                disconnectUser(userId);
                 
                 res.json({ 
                     message: 'Password reset successfully',
@@ -450,4 +483,81 @@ router.post('/setup-admin', async (req, res) => {
     });
 });
 
-module.exports = router;
+// Send announcement (admin only)
+router.post('/announce', authenticateAdmin, (req, res) => {
+    const { message } = req.body;
+    
+    if (!message) {
+        return res.status(400).json({ error: 'Announcement message required' });
+    }
+    
+    // Save announcement to database
+    db.run(
+        'INSERT INTO announcements (admin_id, admin_username, message) VALUES (?, ?, ?)',
+        [req.user.userId, req.user.username, message],
+        function(err) {
+            if (err) {
+                return res.status(500).json({ error: 'Database error' });
+            }
+            
+            const announcementData = {
+                id: this.lastID,
+                adminUsername: req.user.username,
+                message: message,
+                timestamp: new Date().toISOString()
+            };
+            
+            // Broadcast to all online users
+            userSockets.forEach((socket) => {
+                socket.emit('admin_announcement', announcementData);
+            });
+            
+            console.log(`📢 Admin announcement from ${req.user.username}: ${message}`);
+            
+            res.json({
+                message: 'Announcement sent successfully',
+                announcement: announcementData
+            });
+        }
+    );
+});
+
+// Get recent announcements (admin only)
+router.get('/announcements', authenticateAdmin, (req, res) => {
+    db.all(`
+        SELECT id, admin_username, message, is_active, created_at
+        FROM announcements 
+        ORDER BY created_at DESC 
+        LIMIT 50
+    `, (err, announcements) => {
+        if (err) {
+            return res.status(500).json({ error: 'Database error' });
+        }
+        
+        res.json({ announcements });
+    });
+});
+
+// Deactivate announcement (admin only)
+router.post('/announcements/:id/deactivate', authenticateAdmin, (req, res) => {
+    const { id } = req.params;
+    
+    db.run(
+        'UPDATE announcements SET is_active = 0 WHERE id = ?',
+        [id],
+        function(err) {
+            if (err) {
+                return res.status(500).json({ error: 'Database error' });
+            }
+            
+            if (this.changes === 0) {
+                return res.status(404).json({ error: 'Announcement not found' });
+            }
+            
+            res.json({ message: 'Announcement deactivated successfully' });
+        }
+    );
+});
+
+// Export the router and the setWebSocketMaps function
+module.exports = { router, setWebSocketMaps };

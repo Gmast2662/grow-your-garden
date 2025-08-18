@@ -260,6 +260,64 @@
         .tab-content.active {
             display: block;
         }
+
+        .announcement-form {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .announcements-list {
+            margin-top: 30px;
+        }
+
+        .announcement-item {
+            background: white;
+            border: 1px solid #e1e5e9;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .announcement-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .announcement-admin {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .announcement-time {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .announcement-message {
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .announcement-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
     </style>
 </head>
 <body>
@@ -293,6 +351,7 @@
             <div class="tabs">
                 <div class="tab active" onclick="showTab('stats')">📊 Statistics</div>
                 <div class="tab" onclick="showTab('users')">👥 Users</div>
+                <div class="tab" onclick="showTab('announcements')">📢 Announcements</div>
             </div>
 
             <!-- Statistics Tab -->
@@ -309,6 +368,26 @@
                 <h2>User Management</h2>
                 <button class="btn" onclick="loadUsers()">Refresh Users</button>
                 <div id="usersTable"></div>
+            </div>
+
+            <!-- Announcements Tab -->
+            <div id="announcementsTab" class="tab-content">
+                <h2>Server Announcements</h2>
+                <div class="announcement-form">
+                    <h3>Send New Announcement</h3>
+                    <form id="announcementForm">
+                        <div class="form-group">
+                            <label for="announcementMessage">Message:</label>
+                            <textarea id="announcementMessage" name="message" rows="4" placeholder="Enter your announcement message..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn">📢 Send Announcement</button>
+                    </form>
+                </div>
+                <div class="announcements-list">
+                    <h3>Recent Announcements</h3>
+                    <button class="btn" onclick="loadAnnouncements()">Refresh Announcements</button>
+                    <div id="announcementsTable"></div>
+                </div>
             </div>
 
 
@@ -439,6 +518,36 @@
                 }
             } catch (error) {
                 showAlert('Password reset failed: ' + error.message, 'error');
+            }
+        });
+
+        // Announcement form handler
+        document.getElementById('announcementForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const message = formData.get('message');
+
+            try {
+                const response = await fetch('/api/admin/announce', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify({ message })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showAlert('Announcement sent successfully!', 'success');
+                    document.getElementById('announcementForm').reset();
+                    loadAnnouncements();
+                } else {
+                    showAlert(result.error, 'error');
+                }
+            } catch (error) {
+                showAlert('Announcement failed: ' + error.message, 'error');
             }
         });
 
@@ -666,6 +775,71 @@
             document.querySelector('.container').insertBefore(alert, document.querySelector('.container').firstChild);
             
             setTimeout(() => alert.remove(), 5000);
+        }
+
+        async function loadAnnouncements() {
+            try {
+                const response = await fetch('/api/admin/announcements', {
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    const announcements = result.announcements;
+                    let tableHTML = '';
+
+                    if (announcements.length === 0) {
+                        tableHTML = '<p>No announcements yet.</p>';
+                    } else {
+                        announcements.forEach(announcement => {
+                            tableHTML += `
+                                <div class="announcement-item">
+                                    <div class="announcement-header">
+                                        <div>
+                                            <span class="announcement-admin">${announcement.admin_username}</span>
+                                            <span class="announcement-status ${announcement.is_active ? 'status-active' : 'status-inactive'}">
+                                                ${announcement.is_active ? 'Active' : 'Inactive'}
+                                            </span>
+                                        </div>
+                                        <span class="announcement-time">${new Date(announcement.created_at).toLocaleString()}</span>
+                                    </div>
+                                    <div class="announcement-message">${announcement.message}</div>
+                                    ${announcement.is_active ? 
+                                        `<button class="btn btn-warning" onclick="deactivateAnnouncement('${announcement.id}')">Deactivate</button>` : 
+                                        ''
+                                    }
+                                </div>
+                            `;
+                        });
+                    }
+
+                    document.getElementById('announcementsTable').innerHTML = tableHTML;
+                } else {
+                    showAlert(result.error, 'error');
+                }
+            } catch (error) {
+                showAlert('Failed to load announcements: ' + error.message, 'error');
+            }
+        }
+
+        function deactivateAnnouncement(announcementId) {
+            if (confirm('Are you sure you want to deactivate this announcement?')) {
+                fetch(`/api/admin/announcements/${announcementId}/deactivate`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.message) {
+                        showAlert('Announcement deactivated successfully!', 'success');
+                        loadAnnouncements();
+                    } else {
+                        showAlert(result.error, 'error');
+                    }
+                })
+                .catch(error => showAlert('Deactivate failed: ' + error.message, 'error'));
+            }
         }
 
         // Close modals when clicking outside

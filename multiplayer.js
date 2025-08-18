@@ -154,6 +154,21 @@ class MultiplayerManager {
         this.socket.on('friend_response_result', (data) => {
             this.handleFriendResponseResult(data);
         });
+
+        // Handle admin actions (force logout, etc.)
+        this.socket.on('admin_action', (data) => {
+            if (data.type === 'force_logout') {
+                alert(`🔒 ${data.message}`);
+                // Clear token and redirect to login
+                localStorage.removeItem('garden_game_token');
+                window.location.href = '/login';
+            }
+        });
+
+        // Handle admin announcements
+        this.socket.on('admin_announcement', (data) => {
+            this.showAnnouncement(data);
+        });
     }
 
     // Setup custom event listeners
@@ -422,6 +437,75 @@ class MultiplayerManager {
     // Check if connected
     isConnectedToServer() {
         return this.isConnected && this.socket && this.socket.connected;
+    }
+
+    // Show announcement popup
+    showAnnouncement(data) {
+        // Create announcement popup
+        const popup = document.createElement('div');
+        popup.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            z-index: 10000;
+            max-width: 500px;
+            text-align: center;
+            animation: announcementSlideIn 0.5s ease-out;
+        `;
+        
+        popup.innerHTML = `
+            <div style="font-size: 3rem; margin-bottom: 15px;">📢</div>
+            <h3 style="margin-bottom: 10px; font-size: 1.5rem;">Server Announcement</h3>
+            <p style="margin-bottom: 15px; line-height: 1.5; font-size: 1.1rem;">${data.message}</p>
+            <div style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 20px;">
+                From: ${data.adminUsername}<br>
+                ${new Date(data.timestamp).toLocaleString()}
+            </div>
+            <button onclick="this.parentElement.remove()" style="
+                background: rgba(255,255,255,0.2);
+                color: white;
+                border: 2px solid rgba(255,255,255,0.3);
+                padding: 10px 25px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 1rem;
+                transition: all 0.3s;
+            " onmouseover="this.style.background='rgba(255,255,255,0.3)'" 
+               onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                Got it!
+            </button>
+        `;
+        
+        // Add CSS animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes announcementSlideIn {
+                from {
+                    opacity: 0;
+                    transform: translate(-50%, -60%);
+                }
+                to {
+                    opacity: 1;
+                    transform: translate(-50%, -50%);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        document.body.appendChild(popup);
+        
+        // Auto-remove after 10 seconds
+        setTimeout(() => {
+            if (popup.parentElement) {
+                popup.remove();
+            }
+        }, 10000);
     }
 }
 
