@@ -1190,11 +1190,22 @@ class GardenGame {
                         const friendId = e.target.getAttribute('data-friend-id');
                         console.log('🔍 Accept button clicked for friend ID:', friendId);
                         console.log('🔍 window.game exists:', !!window.game);
-                        if (window.game && friendId) {
+                        
+                        // Try to find the game object if window.game doesn't exist
+                        let gameObj = window.game;
+                        if (!gameObj) {
+                            // Look for the game object in different places
+                            gameObj = window.currentGame || window.gardenGame;
+                            console.log('🔍 Trying alternative game object:', !!gameObj);
+                        }
+                        
+                        if (gameObj && friendId) {
                             console.log('🔍 Calling respondToFriendRequest...');
-                            window.game.respondToFriendRequest(friendId, true);
+                            gameObj.respondToFriendRequest(friendId, true);
                         } else {
-                            console.error('❌ Cannot call respondToFriendRequest - window.game or friendId missing');
+                            console.error('❌ Cannot call respondToFriendRequest - game object or friendId missing');
+                            // Show user-friendly error
+                            alert('Game not ready. Please wait a moment and try again.');
                         }
                     });
                 });
@@ -1204,11 +1215,22 @@ class GardenGame {
                         const friendId = e.target.getAttribute('data-friend-id');
                         console.log('🔍 Reject button clicked for friend ID:', friendId);
                         console.log('🔍 window.game exists:', !!window.game);
-                        if (window.game && friendId) {
+                        
+                        // Try to find the game object if window.game doesn't exist
+                        let gameObj = window.game;
+                        if (!gameObj) {
+                            // Look for the game object in different places
+                            gameObj = window.currentGame || window.gardenGame;
+                            console.log('🔍 Trying alternative game object:', !!gameObj);
+                        }
+                        
+                        if (gameObj && friendId) {
                             console.log('🔍 Calling respondToFriendRequest...');
-                            window.game.respondToFriendRequest(friendId, false);
+                            gameObj.respondToFriendRequest(friendId, false);
                         } else {
-                            console.error('❌ Cannot call respondToFriendRequest - window.game or friendId missing');
+                            console.error('❌ Cannot call respondToFriendRequest - game object or friendId missing');
+                            // Show user-friendly error
+                            alert('Game not ready. Please wait a moment and try again.');
                         }
                     });
                 });
