@@ -229,16 +229,16 @@ router.post('/users/:userId/ban', authenticateAdmin, (req, res) => {
                     return res.status(404).json({ error: 'User not found' });
                 }
                 
-                // Log the action
-                logAdminAction(
-                    req.user.userId,
-                    req.user.username,
-                    'banned user',
-                    userId,
-                    targetUser.username,
-                    `Reason: ${reason}`,
-                    req.ip
-                );
+                            // Log the action
+            logAdminAction(
+                req.user.id,
+                req.user.username,
+                'banned user',
+                userId,
+                targetUser.username,
+                `Reason: ${reason}`,
+                req.ip
+            );
                 
                 // Disconnect user if online
                 disconnectUser(userId);
@@ -281,7 +281,7 @@ router.post('/users/:userId/unban', authenticateAdmin, (req, res) => {
                 
                 // Log the action
                 logAdminAction(
-                    req.user.userId,
+                    req.user.id,
                     req.user.username,
                     'unbanned user',
                     userId,
@@ -357,7 +357,7 @@ router.delete('/users/:userId', authenticateAdmin, (req, res) => {
                 
                 // Log the action
                 logAdminAction(
-                    req.user.userId,
+                    req.user.id,
                     req.user.username,
                     'deleted user account',
                     userId,
@@ -414,7 +414,7 @@ router.post('/users/:userId/reset-password', authenticateAdmin, async (req, res)
                     
                     // Log the action
                     logAdminAction(
-                        req.user.userId,
+                        req.user.id,
                         req.user.username,
                         'reset user password',
                         userId,
@@ -466,7 +466,7 @@ router.post('/users/:userId/make-admin', authenticateAdmin, (req, res) => {
                 
                 // Log the action
                 logAdminAction(
-                    req.user.userId,
+                    req.user.id,
                     req.user.username,
                     'made user admin',
                     userId,
@@ -489,7 +489,7 @@ router.post('/users/:userId/remove-admin', authenticateAdmin, (req, res) => {
     const { userId } = req.params;
     
     // Prevent removing admin from self
-    if (userId === req.user.userId) {
+    if (userId === req.user.id) {
         return res.status(400).json({ error: 'Cannot remove admin privileges from yourself' });
     }
     
@@ -517,7 +517,7 @@ router.post('/users/:userId/remove-admin', authenticateAdmin, (req, res) => {
                 
                 // Log the action
                 logAdminAction(
-                    req.user.userId,
+                    req.user.id,
                     req.user.username,
                     'removed admin privileges',
                     userId,
@@ -712,7 +712,7 @@ router.post('/announce', authenticateAdmin, (req, res) => {
     // Save announcement to database
     db.run(
         'INSERT INTO announcements (admin_id, admin_username, message) VALUES (?, ?, ?)',
-        [req.user.userId, req.user.username, message],
+        [req.user.id, req.user.username, message],
         function(err) {
             if (err) {
                 return res.status(500).json({ error: 'Database error' });
@@ -727,7 +727,7 @@ router.post('/announce', authenticateAdmin, (req, res) => {
             
             // Log the action
             logAdminAction(
-                req.user.userId,
+                req.user.id,
                 req.user.username,
                 'sent announcement',
                 null,
@@ -795,7 +795,7 @@ router.post('/announcements/:id/deactivate', authenticateAdmin, (req, res) => {
                 
                 // Log the action
                 logAdminAction(
-                    req.user.userId,
+                    req.user.id,
                     req.user.username,
                     'deactivated announcement',
                     null,
@@ -871,7 +871,7 @@ router.post('/mute', authenticateAdmin, (req, res) => {
             // Add new mute
             db.run(
                 'INSERT INTO user_mutes (user_id, muted_until, mute_reason, muted_by_admin_id, muted_by_admin_username) VALUES (?, ?, ?, ?, ?)',
-                [userId, mutedUntil, reason || null, req.user.userId, req.user.username],
+                [userId, mutedUntil, reason || null, req.user.id, req.user.username],
                 function(err) {
                     if (err) {
                         return res.status(500).json({ error: 'Database error' });
@@ -882,7 +882,7 @@ router.post('/mute', authenticateAdmin, (req, res) => {
                         'Permanent mute' : 
                         `Muted for ${duration} minutes`;
                     logAdminAction(
-                        req.user.userId,
+                        req.user.id,
                         req.user.username,
                         'muted user',
                         userId,
@@ -938,7 +938,7 @@ router.post('/unmute', authenticateAdmin, (req, res) => {
                 
                 // Log the action
                 logAdminAction(
-                    req.user.userId,
+                    req.user.id,
                     req.user.username,
                     'unmuted user',
                     userId,
@@ -995,7 +995,7 @@ router.post('/chat-filter/add', authenticateAdmin, (req, res) => {
     
     db.run(
         'INSERT INTO chat_filter_words (word, added_by_admin_id, added_by_admin_username) VALUES (?, ?, ?)',
-        [cleanWord, req.user.userId, req.user.username],
+        [cleanWord, req.user.id, req.user.username],
         function(err) {
             if (err) {
                 if (err.code === 'SQLITE_CONSTRAINT') {
@@ -1006,7 +1006,7 @@ router.post('/chat-filter/add', authenticateAdmin, (req, res) => {
             
             // Log the action
             logAdminAction(
-                req.user.userId,
+                req.user.id,
                 req.user.username,
                 'added word to chat filter',
                 null,
@@ -1047,7 +1047,7 @@ router.post('/chat-filter/remove', authenticateAdmin, (req, res) => {
             
             // Log the action
             logAdminAction(
-                req.user.userId,
+                req.user.id,
                 req.user.username,
                 'removed word from chat filter',
                 null,
