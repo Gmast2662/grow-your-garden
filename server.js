@@ -78,7 +78,13 @@ db.serialize(() => {
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (sender_id) REFERENCES users (id),
         FOREIGN KEY (receiver_id) REFERENCES users (id)
-    )`);
+    )`, function(err) {
+        if (err) {
+            console.error('❌ Error creating chat_messages table:', err);
+        } else {
+            console.log('✅ Chat messages table ready');
+        }
+    });
 });
 
 // JWT secret (in production, use environment variable)
@@ -212,12 +218,23 @@ io.on('connection', (socket) => {
             };
 
             // Save to database with error handling (let SQLite auto-generate the id)
+            console.log('📝 Attempting to save message:', {
+                senderId: socket.userId,
+                receiverId: data.receiverId || 'global',
+                message: data.message
+            });
+            
             db.run(
                 'INSERT INTO chat_messages (sender_id, receiver_id, message) VALUES (?, ?, ?)',
                 [socket.userId, data.receiverId || 'global', data.message],
                 function(err) {
                     if (err) {
-                        console.error('Database error saving message:', err);
+                        console.error('❌ Database error saving message:', err);
+                        console.error('Error details:', {
+                            code: err.code,
+                            errno: err.errno,
+                            message: err.message
+                        });
                         socket.emit('message_sent', { 
                             success: false, 
                             error: 'Failed to save message' 
@@ -484,6 +501,15 @@ server.listen(PORT, () => {
     console.log(`🌱 Garden Game Server running on port ${PORT}`);
     console.log(`📡 WebSocket server ready for multiplayer connections`);
     console.log(`🌐 Game available at: http://localhost:${PORT}`);
+    
+    // Test database connection
+    db.get('SELECT COUNT(*) as count FROM chat_messages', (err, row) => {
+        if (err) {
+            console.error('❌ Database test failed:', err);
+        } else {
+            console.log(`✅ Database test passed - ${row.count} chat messages in database`);
+        }
+    });
     
     // Basic keep-alive for Replit
     if (process.env.REPL_ID) {
