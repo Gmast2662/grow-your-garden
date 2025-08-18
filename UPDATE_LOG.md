@@ -2,7 +2,23 @@
 
 This document tracks all updates, bug fixes, and new features added to the Grow Your Garden.
 
-## 🆕 Latest Update - GitHub Link & Multiplayer UI! 🌐 (v1.6.1)
+## 🆕 Latest Update - Server Stability & Friend System Fixes! 🔧 (v1.6.2)
+
+### 🔧 FIXED: Server Stability & Friend System Improvements
+- **Server Crash Prevention**: Fixed critical server crashes when accepting friend requests
+- **Database Constraint Fix**: Resolved SQLITE_CONSTRAINT errors with INSERT OR REPLACE
+- **Friend Request Rejection**: Now properly deletes rejected requests from database
+- **Enhanced Error Handling**: Added comprehensive error handling to prevent future crashes
+- **Debugging Improvements**: Added detailed logging for friend system operations
+- **Technical Details**:
+  - Fixed `respond_friend_request` handler to use INSERT OR REPLACE for reverse friendships
+  - Added proper error handling and logging throughout friend system
+  - Friend request rejection now completely removes records from database
+  - Added console logging to track friend request operations
+  - Improved database query efficiency and reliability
+- **Result**: Friend system now works reliably without server crashes or database errors
+
+## 🆕 Previous Updates - GitHub Link & Multiplayer UI! 🌐 (v1.6.1)
 
 ### 🌱 NEW: Unified Game Experience
 - **Unified Architecture**: Combined single-player and multiplayer into one game
