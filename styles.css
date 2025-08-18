@@ -1582,6 +1582,21 @@ body {
     background: #da190b;
 }
 
+.unfriend-btn-small {
+    background: #ff8800;
+    color: white;
+    border: none;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    cursor: pointer;
+    margin-left: 5px;
+}
+
+.unfriend-btn-small:hover {
+    background: #cc6600;
+}
+
 .friends-list h4 {
     margin: 15px 0 8px 0;
     color: #FFD700;

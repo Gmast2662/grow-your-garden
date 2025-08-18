@@ -364,6 +364,50 @@ io.on('connection', (socket) => {
         });
     });
 
+    // Handle unfriend requests
+    socket.on('unfriend_user', (data) => {
+        try {
+            const { friendId } = data;
+            console.log(`Unfriend request: userId=${socket.userId}, friendId=${friendId}`);
+            
+            // Remove friendship from both sides
+            db.run(
+                'DELETE FROM friends WHERE (user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)',
+                [socket.userId, friendId, friendId, socket.userId],
+                function(err) {
+                    if (err) {
+                        console.error('Database error unfriending user:', err);
+                        socket.emit('unfriend_result', { success: false, message: 'Failed to unfriend user' });
+                        return;
+                    }
+                    
+                    if (this.changes > 0) {
+                        console.log(`User unfriended successfully`);
+                        
+                        // Notify the other user
+                        const targetSocket = userSockets.get(friendId);
+                        if (targetSocket) {
+                            targetSocket.emit('user_unfriended', {
+                                byId: socket.userId,
+                                byName: socket.username
+                            });
+                        }
+                        
+                        socket.emit('unfriend_result', { 
+                            success: true, 
+                            message: 'User unfriended successfully' 
+                        });
+                    } else {
+                        socket.emit('unfriend_result', { success: false, message: 'Friendship not found' });
+                    }
+                }
+            );
+        } catch (error) {
+            console.error('Error handling unfriend request:', error);
+            socket.emit('unfriend_result', { success: false, message: 'Server error' });
+        }
+    });
+
     // Handle disconnection
     socket.on('disconnect', () => {
         console.log(`User disconnected: ${socket.username}`);

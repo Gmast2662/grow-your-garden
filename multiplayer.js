@@ -240,6 +240,15 @@ class MultiplayerManager {
             });
         }
     }
+    
+    // Unfriend a user
+    unfriendUser(friendId) {
+        if (this.isConnected && this.socket) {
+            this.socket.emit('unfriend_user', {
+                friendId: friendId
+            });
+        }
+    }
 
     // Handle garden visit request
     handleGardenVisitRequest(data) {

@@ -1132,10 +1132,15 @@ class GardenGame {
                             this.multiplayer.isConnected : (friend.online || friend.isOnline);
                         
                         return `<div class="friend-item">
-                            <span class="friend-name">${friend.username}</span>
-                            <span class="friend-status ${isOnline ? 'online' : 'offline'}">
-                                ${isOnline ? '🟢' : '🔴'}
-                            </span>
+                            <div class="friend-info">
+                                <span class="friend-name">${friend.username}</span>
+                                <span class="friend-status ${isOnline ? 'online' : 'offline'}">
+                                    ${isOnline ? '🟢' : '🔴'}
+                                </span>
+                            </div>
+                            <div class="friend-actions">
+                                <button class="unfriend-btn-small" data-friend-id="${friend.id || friend.user_id}" data-action="unfriend">Unfriend</button>
+                            </div>
                         </div>`;
                     }).join('');
                 }
@@ -1239,6 +1244,33 @@ class GardenGame {
                             gameObj.respondToFriendRequest(friendId, false);
                         } else {
                             console.error('❌ Cannot call respondToFriendRequest - game object or friendId missing');
+                            // Show user-friendly error
+                            alert('Game not ready. Please wait a moment and try again.');
+                        }
+                    });
+                });
+                
+                // Add event listeners for unfriend buttons
+                const unfriendButtons = document.querySelectorAll('.unfriend-btn-small');
+                unfriendButtons.forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const friendId = e.target.getAttribute('data-friend-id');
+                        console.log('🔍 Unfriend button clicked for friend ID:', friendId);
+                        console.log('🔍 window.game exists:', !!window.game);
+                        
+                        // Try to find the game object if window.game doesn't exist
+                        let gameObj = window.game;
+                        if (!gameObj) {
+                            // Look for the game object in different places
+                            gameObj = window.currentGame || window.gardenGame;
+                            console.log('🔍 Trying alternative game object:', !!gameObj);
+                        }
+                        
+                        if (gameObj && friendId) {
+                            console.log('🔍 Calling unfriendUser...');
+                            gameObj.unfriendUser(friendId);
+                        } else {
+                            console.error('❌ Cannot call unfriendUser - game object or friendId missing');
                             // Show user-friendly error
                             alert('Game not ready. Please wait a moment and try again.');
                         }
@@ -1396,6 +1428,43 @@ class GardenGame {
         
         const status = accepted ? 'accepted' : 'rejected';
         this.showMessage(`Friend request ${status}!`, 'success');
+        
+        // Refresh the friends list to show updated status
+        setTimeout(() => {
+            this.loadFriendsList();
+        }, 500);
+        
+        // Also refresh after a longer delay to ensure server updates are processed
+        setTimeout(() => {
+            this.loadFriendsList();
+        }, 2000);
+    }
+    
+    unfriendUser(friendId) {
+        console.log('🔍 unfriendUser called with:', { friendId });
+        console.log('🔍 this.multiplayer exists:', !!this.multiplayer);
+        console.log('🔍 this.multiplayer.isConnected:', this.multiplayer?.isConnected);
+        
+        if (!this.multiplayer) {
+            console.error('❌ Multiplayer not initialized');
+            return;
+        }
+        
+        if (!this.multiplayer.isConnected) {
+            console.error('❌ Multiplayer not connected');
+            this.showMessage('Multiplayer not connected. Please wait...', 'error');
+            return;
+        }
+        
+        // Confirm the action
+        if (!confirm('Are you sure you want to unfriend this user?')) {
+            return;
+        }
+        
+        console.log(`📤 Sending unfriend request: friendId=${friendId}`);
+        this.multiplayer.unfriendUser(friendId);
+        
+        this.showMessage('User unfriended!', 'success');
         
         // Refresh the friends list to show updated status
         setTimeout(() => {
