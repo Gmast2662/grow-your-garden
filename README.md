@@ -13,11 +13,10 @@ A feature-rich, browser-based gardening simulation game built with vanilla JavaS
 
 ## 🎮 Play Now
 
-### **🌐 Multiplayer Version (Live)**
-**[Play Multiplayer Version](https://jxy2ww-3000.csb.app/login)** - Full multiplayer with friends, chat, and garden visits!
+### **🌱 Unified Game Version**
+**[Play the Game](https://jxy2wv-3000.csb.app/login)** - Single-player and multiplayer in one game!
 
-### **🏠 Single Player Version**
-**[Play Single Player](https://Gmast2662.github.io/grow-your-garden/)** - Classic single-player experience
+*The game automatically detects if a multiplayer server is available and enables multiplayer features when connected.*
 
 ## ✨ Features
 
@@ -47,13 +46,16 @@ A feature-rich, browser-based gardening simulation game built with vanilla JavaS
 - **Sound Effects**: Immersive audio feedback
 
 ### 🌐 **Multiplayer Features** (v1.6.1)
-- **Real-time Multiplayer**: Connect with friends in real-time
+- **Unified Experience**: Single game works both offline and online
+- **Auto-Detection**: Automatically detects server availability
+- **Real-time Multiplayer**: Connect with friends in real-time when server is available
 - **Friend System**: Add friends and see their online status
 - **Live Chat**: Chat with other players in the garden
 - **Garden Visits**: Request to visit other players' gardens
 - **User Authentication**: Secure login and registration system
-- **Cloud Saves**: Your garden data is saved on the server
+- **Cloud Saves**: Your garden data is saved on the server when connected
 - **Cross-Device Play**: Access your garden from any device
+- **Graceful Fallback**: Works perfectly offline with local saves
 
 ## 💻 System Requirements
 
@@ -69,7 +71,7 @@ A feature-rich, browser-based gardening simulation game built with vanilla JavaS
 1. Visit the [live demo](https://Gmast2662.github.io/grow-your-garden/)
 2. Start playing immediately - no downloads required!
 
-### **Run Locally**
+### **Run Locally (Single Player)**
 1. **Clone the repository**
    ```bash
    git clone https://github.com/Gmast2662/grow-your-garden.git
@@ -89,8 +91,23 @@ A feature-rich, browser-based gardening simulation game built with vanilla JavaS
    ```
 
 3. **Open your browser**
-   - Navigate to `http://localhost:8000` (this opens the game on your local computer)
+   - Navigate to `http://localhost:8000`
    - Start gardening!
+
+### **Run with Multiplayer (Optional)**
+1. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+2. **Start the multiplayer server**
+   ```bash
+   npm start
+   ```
+
+3. **Open your browser**
+   - Navigate to `http://localhost:3000`
+   - Create an account and enjoy multiplayer features!
 
 ## 🎮 How to Play
 
@@ -277,6 +294,8 @@ Contributions are welcome! Here's how you can help:
 ## 🆕 Recent Updates
 
 ### **Latest Version (v1.6.1)**
+- 🌱 **NEW**: Unified game experience - single-player and multiplayer in one
+- 🔄 **NEW**: Auto-detection of server availability
 - 🌐 **NEW**: Complete multiplayer system with real-time features
 - 👥 **NEW**: Friend system - add friends and see online status
 - 💬 **NEW**: Live chat system for garden communication
@@ -289,6 +308,7 @@ Contributions are welcome! Here's how you can help:
 - ⚡ **IMPROVED**: Real-time WebSocket connections for instant updates
 - 🛡️ **SECURITY**: JWT token authentication for secure multiplayer
 - 📱 **ENHANCED**: Cross-device compatibility for multiplayer features
+- 🔄 **ENHANCED**: Graceful fallback to single-player when offline
 
 ### **Previous Version (v1.6.0)**
 - 🌸 **NEW**: Garden decorations system with 12 decorative items (paths, statues, fences, seasonal)

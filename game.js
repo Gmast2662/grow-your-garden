@@ -952,13 +952,25 @@ class GardenGame {
         this.multiplayer = new MultiplayerManager();
         
         // Get JWT token from localStorage (set during login)
-        const token = localStorage.getItem('jwt_token');
+        const token = localStorage.getItem('garden_game_token');
         
         if (token) {
             // Initialize multiplayer connection
             this.multiplayer.initialize(token).then(success => {
                 if (success) {
                     console.log('✅ Multiplayer initialized successfully');
+                    
+                    // Set current user from token
+                    try {
+                        const tokenData = JSON.parse(atob(token.split('.')[1]));
+                        this.multiplayer.setCurrentUser({
+                            id: tokenData.id,
+                            username: tokenData.username
+                        });
+                    } catch (error) {
+                        console.error('Error parsing token:', error);
+                    }
+                    
                     this.updateMultiplayerUI();
                 } else {
                     console.log('❌ Failed to initialize multiplayer');
@@ -970,6 +982,14 @@ class GardenGame {
         
         // Add multiplayer button event listeners
         this.addMultiplayerEventListeners();
+        
+        // Add logout button
+        this.addLogoutButton();
+        
+        // Periodically update multiplayer UI to ensure status is current
+        setInterval(() => {
+            this.updateMultiplayerUI();
+        }, 5000); // Update every 5 seconds
     }
     
     addMultiplayerEventListeners() {
@@ -1007,6 +1027,36 @@ class GardenGame {
                 this.sendChatMessage();
             }
         });
+    }
+    
+    // Add logout button
+    addLogoutButton() {
+        // Create logout button
+        const logoutBtn = document.createElement('button');
+        logoutBtn.textContent = 'Logout';
+        logoutBtn.className = 'logout-btn';
+        logoutBtn.style.cssText = `
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 8px 16px;
+            background: #ff4444;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            z-index: 1000;
+        `;
+        
+        logoutBtn.addEventListener('click', () => {
+            // Clear token
+            localStorage.removeItem('garden_game_token');
+            // Redirect to login
+            window.location.href = '/login';
+        });
+        
+        document.body.appendChild(logoutBtn);
     }
     
     updateMultiplayerUI() {
@@ -1086,7 +1136,7 @@ class GardenGame {
             if (messages.length > 0) {
                 const messagesHtml = messages.map(msg => 
                     `<div class="chat-message">
-                        <span class="chat-username">${msg.username}:</span>
+                        <span class="chat-username">${msg.senderName || msg.username}:</span>
                         <span class="chat-text">${msg.message}</span>
                     </div>`
                 ).join('');
@@ -1105,9 +1155,14 @@ class GardenGame {
         const message = chatInput.value.trim();
         
         if (message) {
+            // Send as global message (no specific receiver)
             this.multiplayer.sendMessage(message);
             chatInput.value = '';
-            this.loadChatMessages();
+            
+            // Update chat display after a short delay to allow server response
+            setTimeout(() => {
+                this.loadChatMessages();
+            }, 100);
         }
     }
     
@@ -3995,7 +4050,7 @@ class GardenGame {
         }
         
         // Check for memory leaks - if we have too many event listeners
-        if (this.eventListeners && this.eventListeners.length > 100) {
+        if (this.eventListeners && this.eventListeners.length > 200) {
             console.warn(`Too many event listeners (${this.eventListeners.length}) in slot ${this.saveSlot}. Cleaning up...`);
             this.cleanupEventListeners();
         }
@@ -4069,6 +4124,9 @@ class GardenGame {
             
             this.eventListeners = recentListeners;
         }
+        
+        // Re-initialize critical event listeners that might have been removed
+        this.initializeEventListeners();
     }
     
     removeEventListeners() {

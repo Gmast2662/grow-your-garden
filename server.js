@@ -90,35 +90,41 @@ const userSockets = new Map();
 
 // Authentication middleware for Socket.IO
 const authenticateSocketToken = (socket, next) => {
-    const token = socket.handshake.auth.token;
-    if (!token) {
-        return next(new Error('Authentication error'));
-    }
-
-    jwt.verify(token, JWT_SECRET, (err, user) => {
-        if (err) {
-            return next(new Error('Invalid token'));
+    try {
+        const token = socket.handshake.auth.token;
+        if (!token) {
+            return next(new Error('Authentication error'));
         }
-        socket.userId = user.id;
-        socket.username = user.username;
-        next();
-    });
+
+        jwt.verify(token, JWT_SECRET, (err, user) => {
+            if (err) {
+                return next(new Error('Invalid token'));
+            }
+            socket.userId = user.id;
+            socket.username = user.username;
+            next();
+        });
+    } catch (error) {
+        console.error('Socket authentication error:', error);
+        return next(new Error('Authentication failed'));
+    }
 };
 
 // Socket.IO connection handling
 io.use(authenticateSocketToken);
 
 io.on('connection', (socket) => {
-    console.log(`User connected: ${socket.username} (${socket.userId})`);
-    
-    // Add user to online list
-    onlineUsers.set(socket.userId, {
-        id: socket.userId,
-        username: socket.username,
-        socketId: socket.id,
-        lastSeen: Date.now()
-    });
-    userSockets.set(socket.userId, socket);
+    try {
+        console.log(`User connected: ${socket.username} (${socket.userId})`);
+        
+        // Add user to online list
+        onlineUsers.set(socket.userId, {
+            id: socket.userId,
+            username: socket.username,
+            socketId: socket.id,
+            lastSeen: Date.now()
+        });
+        userSockets.set(socket.userId, socket);
 
     // Update user online status in database
     db.run('UPDATE users SET is_online = 1, last_login = CURRENT_TIMESTAMP WHERE id = ?', [socket.userId]);
@@ -187,30 +193,69 @@ io.on('connection', (socket) => {
 
     // Handle chat messages
     socket.on('send_message', (data) => {
-        const messageId = uuidv4();
-        const messageData = {
-            id: messageId,
-            senderId: socket.userId,
-            senderName: socket.username,
-            receiverId: data.receiverId,
-            message: data.message,
-            timestamp: Date.now()
-        };
+        try {
+            // Validate input
+            if (!data || !data.message) {
+                socket.emit('message_sent', { 
+                    success: false, 
+                    error: 'Invalid message data' 
+                });
+                return;
+            }
 
-        // Save to database
-        db.run(
-            'INSERT INTO chat_messages (id, sender_id, receiver_id, message) VALUES (?, ?, ?, ?)',
-            [messageId, socket.userId, data.receiverId, data.message]
-        );
+            const messageId = uuidv4();
+            const messageData = {
+                id: messageId,
+                senderId: socket.userId,
+                senderName: socket.username,
+                receiverId: data.receiverId || 'global',
+                message: data.message,
+                timestamp: Date.now()
+            };
 
-        // Send to receiver if online
-        const receiverSocket = userSockets.get(data.receiverId);
-        if (receiverSocket) {
-            receiverSocket.emit('new_message', messageData);
+            // Save to database with error handling
+            db.run(
+                'INSERT INTO chat_messages (id, sender_id, receiver_id, message) VALUES (?, ?, ?, ?)',
+                [messageId, socket.userId, data.receiverId || 'global', data.message],
+                function(err) {
+                    if (err) {
+                        console.error('Database error saving message:', err);
+                        socket.emit('message_sent', { 
+                            success: false, 
+                            error: 'Failed to save message' 
+                        });
+                        return;
+                    }
+
+                    // Send to receiver if online (for private messages)
+                    if (data.receiverId) {
+                        const receiverSocket = userSockets.get(data.receiverId);
+                        if (receiverSocket) {
+                            receiverSocket.emit('new_message', messageData);
+                        }
+                    } else {
+                        // Broadcast to all online users for global chat
+                        userSockets.forEach((userSocket) => {
+                            if (userSocket.id !== socket.id) {
+                                userSocket.emit('new_message', messageData);
+                            }
+                        });
+                    }
+
+                    // Send confirmation to sender
+                    socket.emit('message_sent', { 
+                        success: true, 
+                        message: messageData 
+                    });
+                }
+            );
+        } catch (error) {
+            console.error('Error handling chat message:', error);
+            socket.emit('message_sent', { 
+                success: false, 
+                error: 'Server error processing message' 
+            });
         }
-
-        // Send confirmation to sender
-        socket.emit('message_sent', messageData);
     });
 
     // Handle friend requests
@@ -320,6 +365,10 @@ io.on('connection', (socket) => {
             }
         });
     });
+    } catch (error) {
+        console.error('Socket connection error:', error);
+        socket.disconnect();
+    }
 });
 
 // REST API endpoints
@@ -390,6 +439,16 @@ app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, 'login.html'));
 });
 
+// Health check endpoint for keep-alive
+app.get('/health', (req, res) => {
+    res.json({ 
+        status: 'ok', 
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+        onlineUsers: onlineUsers.size
+    });
+});
+
 // Serve the main game page (protected) or redirect to login
 app.get('/', (req, res) => {
     const token = req.headers.authorization?.split(' ')[1];
@@ -417,6 +476,15 @@ server.listen(PORT, () => {
     console.log(`🌱 Garden Game Server running on port ${PORT}`);
     console.log(`📡 WebSocket server ready for multiplayer connections`);
     console.log(`🌐 Game available at: http://localhost:${PORT}`);
+    
+    // Basic keep-alive for Replit
+    if (process.env.REPL_ID) {
+        console.log('🔄 Basic keep-alive enabled for Replit');
+        // Simple ping every 10 minutes
+        setInterval(() => {
+            console.log('🔄 Server alive - uptime:', Math.round(process.uptime()), 'seconds');
+        }, 10 * 60 * 1000);
+    }
 });
 
 // Graceful shutdown
