@@ -1109,6 +1109,7 @@ class GardenGame {
             
             // Get friends from multiplayer manager
             this.multiplayer.getFriends().then(friends => {
+                console.log('🔍 Friends data received:', friends);
                 let friendsHtml = '';
                 
                 // Show accepted friends
@@ -1134,6 +1135,9 @@ class GardenGame {
                 if (pendingRequests.length > 0) {
                     friendsHtml += '<h4>⏳ Pending Requests</h4>';
                     pendingRequests.forEach(friend => {
+                        console.log('🔍 Creating button for friend:', friend);
+                        const friendId = friend.id || friend.user_id || friend.from_id;
+                        console.log('🔍 Using friend ID:', friendId);
                         friendsHtml += `
                             <div class="friend-item pending">
                                 <div class="friend-info">
@@ -1141,8 +1145,8 @@ class GardenGame {
                                     <span class="friend-status">⏳ Pending</span>
                                 </div>
                                 <div class="friend-actions">
-                                    <button onclick="window.game.respondToFriendRequest('${friend.id || friend.user_id}', true)" class="accept-btn-small">Accept</button>
-                                    <button onclick="window.game.respondToFriendRequest('${friend.id || friend.user_id}', false)" class="reject-btn-small">Reject</button>
+                                    <button onclick="window.game.respondToFriendRequest('${friendId}', true)" class="accept-btn-small">Accept</button>
+                                    <button onclick="window.game.respondToFriendRequest('${friendId}', false)" class="reject-btn-small">Reject</button>
                                 </div>
                             </div>
                         `;
