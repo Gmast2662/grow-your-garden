@@ -162,6 +162,24 @@ db.serialize(() => {
             console.error('❌ Error creating chat_filter_words table:', err);
         } else {
             console.log('✅ Chat filter words table ready');
+            
+            // Add default filter words if table is empty
+            db.get('SELECT COUNT(*) as count FROM chat_filter_words', (err, result) => {
+                if (!err && result.count === 0) {
+                    console.log('📝 Adding default chat filter words...');
+                    const defaultWords = ['hack', 'cheat', 'exploit', 'scam', 'spam'];
+                    defaultWords.forEach(word => {
+                        db.run('INSERT OR IGNORE INTO chat_filter_words (word, added_by_admin_username) VALUES (?, ?)', 
+                            [word, 'System'], function(err) {
+                            if (err) {
+                                console.error('❌ Error adding default word:', word, err);
+                            } else {
+                                console.log('✅ Added default filter word:', word);
+                            }
+                        });
+                    });
+                }
+            });
         }
     });
 });
@@ -370,6 +388,12 @@ io.on('connection', (socket) => {
                         // Continue without filter if there's an error
                     }
 
+                    console.log('🔍 Chat filter check:', {
+                        message: data.message,
+                        filterWords: filterWords,
+                        isAdmin: socket.isAdmin
+                    });
+
                     let filteredMessage = data.message;
                     let messageBlocked = false;
                     let blockedWords = [];
@@ -377,18 +401,23 @@ io.on('connection', (socket) => {
                     if (filterWords && filterWords.length > 0) {
                         const messageLower = data.message.toLowerCase();
                         filterWords.forEach(filterWord => {
+                            console.log('🔍 Checking word:', filterWord.word, 'against message:', messageLower);
                             if (messageLower.includes(filterWord.word.toLowerCase())) {
                                 messageBlocked = true;
                                 blockedWords.push(filterWord.word);
+                                console.log('🚫 Word blocked:', filterWord.word);
                             }
                         });
 
                         if (messageBlocked && !socket.isAdmin) {
+                            console.log('🚫 Message blocked for non-admin user:', blockedWords);
                             socket.emit('message_sent', { 
                                 success: false, 
                                 error: `Message blocked due to inappropriate content: ${blockedWords.join(', ')}` 
                             });
                             return;
+                        } else if (messageBlocked && socket.isAdmin) {
+                            console.log('✅ Admin bypassed filter for words:', blockedWords);
                         }
                     }
 
