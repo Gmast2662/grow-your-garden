@@ -4,6 +4,9 @@ class GardenGame {
         this.saveSlot = saveSlot;
         this.eventListeners = [];
         
+        // Make this game instance globally available
+        window.game = this;
+        
         // Core game properties
         this.money = 100;
         this.water = 50;
@@ -6358,6 +6361,7 @@ class MenuSystem {
         document.getElementById('gameContainer').style.display = 'none';
         document.getElementById('mainMenu').style.display = 'flex';
         this.currentGame = null;
+        window.game = null; // Clear global game reference
         this.updateSaveSlots();
     }
     
