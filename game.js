@@ -1125,25 +1125,52 @@ class GardenGame {
                 // Show accepted friends
                 const acceptedFriends = uniqueFriends.filter(friend => friend.status === 'accepted');
                 if (acceptedFriends.length > 0) {
-                    friendsHtml += '<h4>👥 Friends</h4>';
-                    friendsHtml += acceptedFriends.map(friend => {
-                        // Check online status - prioritize real-time status over database status
+                    // Separate online and offline friends
+                    const onlineFriends = acceptedFriends.filter(friend => {
                         const isOnline = friend.id === this.multiplayer?.currentUser?.id ? 
                             this.multiplayer.isConnected : 
                             (friend.online !== undefined ? friend.online : friend.isOnline);
-                        
-                        return `<div class="friend-item">
-                            <div class="friend-info">
-                                <span class="friend-name">${friend.username}</span>
-                                <span class="friend-status ${isOnline ? 'online' : 'offline'}">
-                                    ${isOnline ? '🟢' : '🔴'}
-                                </span>
-                            </div>
-                            <div class="friend-actions">
-                                <button class="unfriend-btn-small" data-friend-id="${friend.id || friend.user_id}" data-action="unfriend">Unfriend</button>
-                            </div>
-                        </div>`;
-                    }).join('');
+                        return isOnline;
+                    });
+                    
+                    const offlineFriends = acceptedFriends.filter(friend => {
+                        const isOnline = friend.id === this.multiplayer?.currentUser?.id ? 
+                            this.multiplayer.isConnected : 
+                            (friend.online !== undefined ? friend.online : friend.isOnline);
+                        return !isOnline;
+                    });
+                    
+                    // Show online friends first
+                    if (onlineFriends.length > 0) {
+                        friendsHtml += '<h4>🟢 Online Friends</h4>';
+                        friendsHtml += onlineFriends.map(friend => {
+                            return `<div class="friend-item">
+                                <div class="friend-info">
+                                    <span class="friend-name">${friend.username}</span>
+                                    <span class="friend-status online">🟢</span>
+                                </div>
+                                <div class="friend-actions">
+                                    <button class="unfriend-btn-small" data-friend-id="${friend.id || friend.user_id}" data-action="unfriend">Unfriend</button>
+                                </div>
+                            </div>`;
+                        }).join('');
+                    }
+                    
+                    // Show offline friends
+                    if (offlineFriends.length > 0) {
+                        friendsHtml += '<h4>🔴 Offline Friends</h4>';
+                        friendsHtml += offlineFriends.map(friend => {
+                            return `<div class="friend-item">
+                                <div class="friend-info">
+                                    <span class="friend-name">${friend.username}</span>
+                                    <span class="friend-status offline">🔴</span>
+                                </div>
+                                <div class="friend-actions">
+                                    <button class="unfriend-btn-small" data-friend-id="${friend.id || friend.user_id}" data-action="unfriend">Unfriend</button>
+                                </div>
+                            </div>`;
+                        }).join('');
+                    }
                 }
                 
                 // Show pending friend requests

@@ -293,7 +293,6 @@
             <div class="tabs">
                 <div class="tab active" onclick="showTab('stats')">📊 Statistics</div>
                 <div class="tab" onclick="showTab('users')">👥 Users</div>
-                <div class="tab" onclick="showTab('setup')">⚙️ Setup</div>
             </div>
 
             <!-- Statistics Tab -->
@@ -312,26 +311,7 @@
                 <div id="usersTable"></div>
             </div>
 
-            <!-- Setup Tab -->
-            <div id="setupTab" class="tab-content">
-                <h2>Admin Setup</h2>
-                <p>Create the first admin account (only works if no admin exists):</p>
-                <form id="setupForm">
-                    <div class="form-group">
-                        <label for="setupUsername">Username:</label>
-                        <input type="text" id="setupUsername" name="username" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="setupPassword">Password:</label>
-                        <input type="password" id="setupPassword" name="password" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="setupEmail">Email (optional):</label>
-                        <input type="email" id="setupEmail" name="email">
-                    </div>
-                    <button type="submit" class="btn">Create Admin Account</button>
-                </form>
-            </div>
+
         </div>
     </div>
 
@@ -401,38 +381,7 @@
             }
         });
 
-        // Setup form handler
-        document.getElementById('setupForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const data = {
-                username: formData.get('username'),
-                password: formData.get('password'),
-                email: formData.get('email') || null
-            };
 
-            try {
-                const response = await fetch('/api/admin/setup-admin', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-
-                const result = await response.json();
-
-                if (response.ok) {
-                    adminToken = result.token;
-                    showAlert('Admin account created successfully!', 'success');
-                    showAdminSection();
-                    loadStats();
-                    loadUsers();
-                } else {
-                    showAlert(result.error, 'error');
-                }
-            } catch (error) {
-                showAlert('Setup failed: ' + error.message, 'error');
-            }
-        });
 
         // Ban form handler
         document.getElementById('banForm').addEventListener('submit', async (e) => {
