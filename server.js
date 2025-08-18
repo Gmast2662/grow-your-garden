@@ -583,6 +583,11 @@ app.get('/admin-panel', (req, res) => {
     res.sendFile(path.join(__dirname, 'admin-panel.html'));
 });
 
+// Serve admin setup page
+app.get('/setup-admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'setup-admin.html'));
+});
+
 // Health check endpoint for keep-alive
 app.get('/health', (req, res) => {
     res.json({ 
