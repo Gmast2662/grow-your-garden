@@ -186,6 +186,28 @@ db.serialize(() => {
             console.log('✅ Gardens migration completed');
         }
     });
+
+    // Migration: Add slot_number column if it doesn't exist
+    db.run(`PRAGMA table_info(gardens)`, (err, columns) => {
+        if (err) {
+            console.error('❌ Error checking gardens table schema:', err);
+            return;
+        }
+        
+        const hasSlotNumber = columns.some(col => col.name === 'slot_number');
+        if (!hasSlotNumber) {
+            console.log('🔄 Adding slot_number column to gardens table...');
+            db.run(`ALTER TABLE gardens ADD COLUMN slot_number INTEGER DEFAULT 1`, (err) => {
+                if (err) {
+                    console.error('❌ Error adding slot_number column:', err);
+                } else {
+                    console.log('✅ slot_number column added to gardens table');
+                }
+            });
+        } else {
+            console.log('✅ slot_number column already exists in gardens table');
+        }
+    });
 });
 
 // JWT secret (in production, use environment variable)
@@ -294,17 +316,48 @@ io.on('connection', (socket) => {
             const slot = gardenData.saveSlot || 1;
             const gardenId = `garden_${socket.userId}_slot_${slot}`;
             
+            // Try to save with slot_number first, fallback to old format if needed
             db.run(
                 'INSERT OR REPLACE INTO gardens (id, user_id, slot_number, garden_data, last_updated) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)',
-                [gardenId, socket.userId, slot, gardenJson]
+                [gardenId, socket.userId, slot, gardenJson],
+                function(err) {
+                    if (err) {
+                        console.error('❌ Error saving garden update with slot_number:', err);
+                        // Fallback to old format without slot_number
+                        console.log('🔄 Trying fallback save without slot_number...');
+                        db.run(
+                            'INSERT OR REPLACE INTO gardens (id, user_id, garden_data, last_updated) VALUES (?, ?, ?, CURRENT_TIMESTAMP)',
+                            [gardenId, socket.userId, gardenJson],
+                            function(fallbackErr) {
+                                if (fallbackErr) {
+                                    console.error('❌ Fallback save also failed:', fallbackErr);
+                                } else {
+                                    console.log(`✅ Garden saved with fallback for ${socket.username}`);
+                                }
+                            }
+                        );
+                        return;
+                    }
+                    console.log(`✅ Garden saved for ${socket.username} slot ${slot}`);
+                }
             );
 
-            // Broadcast to friends if garden is public
-            db.get('SELECT is_public FROM gardens WHERE user_id = ? AND slot_number = ?', [socket.userId, slot], (err, row) => {
-                if (!err && row && row.is_public) {
+            // Broadcast to friends if garden is public (simplified query)
+            db.get('SELECT is_public FROM gardens WHERE user_id = ?', [socket.userId], (err, row) => {
+                if (err) {
+                    console.error('❌ Error checking garden public status:', err);
+                    return;
+                }
+                
+                if (row && row.is_public) {
                     // Get friends list
                     db.all('SELECT friend_id FROM friends WHERE user_id = ? AND status = "accepted"', [socket.userId], (err, friends) => {
-                        if (!err && friends) {
+                        if (err) {
+                            console.error('❌ Error getting friends list:', err);
+                            return;
+                        }
+                        
+                        if (friends) {
                             friends.forEach(friend => {
                                 const friendSocket = userSockets.get(friend.friend_id);
                                 if (friendSocket) {
@@ -321,7 +374,7 @@ io.on('connection', (socket) => {
                 }
             });
         } catch (error) {
-            console.error('Error handling garden update:', error);
+            console.error('❌ Error handling garden update:', error);
         }
     });
 
