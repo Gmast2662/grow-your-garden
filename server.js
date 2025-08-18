@@ -112,7 +112,7 @@ const authenticateSocketToken = (socket, next) => {
         const decoded = jwt.verify(token, JWT_SECRET);
         
         // Check if user is banned
-        db.get('SELECT is_banned, ban_reason FROM users WHERE id = ?', [decoded.userId], (err, user) => {
+        db.get('SELECT is_banned, ban_reason FROM users WHERE id = ?', [decoded.id], (err, user) => {
             if (err) {
                 return next(new Error('Database error'));
             }
@@ -125,7 +125,7 @@ const authenticateSocketToken = (socket, next) => {
                 return next(new Error(`Account banned: ${user.ban_reason || 'No reason provided'}`));
             }
             
-            socket.userId = decoded.userId;
+            socket.userId = decoded.id;
             socket.username = decoded.username;
             next();
         });
