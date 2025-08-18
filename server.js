@@ -34,9 +34,6 @@ app.use('/api/auth', authRoutes);
 const adminModule = require('./admin');
 app.use('/api/admin', adminModule.router);
 
-// Set WebSocket maps in admin module
-adminModule.setWebSocketMaps(userSockets, onlineUsers);
-
 // Database setup
 const db = new sqlite3.Database('./garden_game.db');
 
@@ -175,6 +172,9 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this';
 // Store online users
 const onlineUsers = new Map();
 const userSockets = new Map();
+
+// Set WebSocket maps in admin module
+adminModule.setWebSocketMaps(userSockets, onlineUsers);
 
 // Authentication middleware for Socket.IO
 const authenticateSocketToken = (socket, next) => {
