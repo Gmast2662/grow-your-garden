@@ -20,15 +20,20 @@ const setWebSocketMaps = (sockets, users) => {
 };
 
 // Function to disconnect user via WebSocket
-const disconnectUser = (userId) => {
+const disconnectUser = (userId, reason = null) => {
     const socket = userSockets.get(userId);
     if (socket) {
+        let message = 'Your account has been modified by an administrator. Please log in again.';
+        if (reason) {
+            message = reason;
+        }
+        
         socket.emit('admin_action', {
             type: 'force_logout',
-            message: 'Your account has been modified by an administrator. Please log in again.'
+            message: message
         });
         socket.disconnect();
-        console.log(`🔌 Admin forced logout for user: ${userId}`);
+        console.log(`🔌 Admin forced logout for user: ${userId}${reason ? ` - ${reason}` : ''}`);
     }
 };
 
@@ -890,6 +895,12 @@ router.post('/mute', authenticateAdmin, (req, res) => {
                         `${muteDetails}${reason ? ` - Reason: ${reason}` : ''}`,
                         req.ip
                     );
+                    
+                    // Disconnect user if permanently muted
+                    if (duration === 'permanent') {
+                        const disconnectMessage = `You have been permanently muted: ${reason || 'No reason provided'}. You have been disconnected from the server.`;
+                        disconnectUser(userId, disconnectMessage);
+                    }
                     
                     res.json({
                         message: 'User muted successfully',
