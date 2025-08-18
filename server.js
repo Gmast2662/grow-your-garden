@@ -62,7 +62,48 @@ db.serialize(() => {
         last_updated DATETIME DEFAULT CURRENT_TIMESTAMP,
         is_public BOOLEAN DEFAULT 0,
         FOREIGN KEY (user_id) REFERENCES users (id)
-    )`);
+    )`, function(err) {
+        if (err) {
+            console.error('❌ Error creating gardens table:', err);
+        } else {
+            console.log('✅ Gardens table ready');
+            
+            // Migration: Add slot_number column if it doesn't exist (only after table is created)
+            db.run(`PRAGMA table_info(gardens)`, (err, columns) => {
+                if (err) {
+                    console.error('❌ Error checking gardens table schema:', err);
+                    return;
+                }
+                
+                if (columns && columns.length > 0) {
+                    const hasSlotNumber = columns.some(col => col.name === 'slot_number');
+                    if (!hasSlotNumber) {
+                        console.log('🔄 Adding slot_number column to gardens table...');
+                        db.run(`ALTER TABLE gardens ADD COLUMN slot_number INTEGER DEFAULT 1`, (err) => {
+                            if (err) {
+                                console.error('❌ Error adding slot_number column:', err);
+                            } else {
+                                console.log('✅ slot_number column added to gardens table');
+                            }
+                        });
+                    } else {
+                        console.log('✅ slot_number column already exists in gardens table');
+                    }
+                } else {
+                    console.log('⚠️ No columns found in gardens table');
+                }
+            });
+            
+            // Migration: Handle existing gardens without slot information
+            db.run(`UPDATE gardens SET slot_number = 1 WHERE slot_number IS NULL`, function(err) {
+                if (err) {
+                    console.error('❌ Error migrating gardens:', err);
+                } else {
+                    console.log('✅ Gardens migration completed');
+                }
+            });
+        }
+    });
 
     // Friends table
     db.run(`CREATE TABLE IF NOT EXISTS friends (
@@ -175,37 +216,6 @@ db.serialize(() => {
                     console.log('✅ Default chat filter words added');
                 }
             });
-        }
-    });
-
-    // Migration: Handle existing gardens without slot information
-    db.run(`UPDATE gardens SET slot_number = 1 WHERE slot_number IS NULL`, function(err) {
-        if (err) {
-            console.error('❌ Error migrating gardens:', err);
-        } else {
-            console.log('✅ Gardens migration completed');
-        }
-    });
-
-    // Migration: Add slot_number column if it doesn't exist
-    db.run(`PRAGMA table_info(gardens)`, (err, columns) => {
-        if (err) {
-            console.error('❌ Error checking gardens table schema:', err);
-            return;
-        }
-        
-        const hasSlotNumber = columns.some(col => col.name === 'slot_number');
-        if (!hasSlotNumber) {
-            console.log('🔄 Adding slot_number column to gardens table...');
-            db.run(`ALTER TABLE gardens ADD COLUMN slot_number INTEGER DEFAULT 1`, (err) => {
-                if (err) {
-                    console.error('❌ Error adding slot_number column:', err);
-                } else {
-                    console.log('✅ slot_number column added to gardens table');
-                }
-            });
-        } else {
-            console.log('✅ slot_number column already exists in gardens table');
         }
     });
 });
