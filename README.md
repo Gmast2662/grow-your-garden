@@ -2,10 +2,10 @@
 
 A feature-rich, browser-based gardening simulation game built with vanilla JavaScript, HTML5 Canvas, and CSS3. Plant seeds, manage resources, upgrade tools, and grow your perfect garden!
 
-- **This game is fully working and released as v1.6.2 with stable multiplayer features. I am actively working on more updates to make this game even better. Contact me or tell me in the Github.**
+- **This game is fully working and released as v1.6.3 with stable multiplayer features and admin controls. I am actively working on more updates to make this game even better. Contact me or tell me in the Github.**
 - **I have fixed every bug, but there still may be some bugs I don't know about. So if you find any go to the issues page in the Github.**
 
-![Grow Your Garden](https://img.shields.io/badge/Status-v1.6.2%20Released-brightgreen)
+![Grow Your Garden](https://img.shields.io/badge/Status-v1.6.3%20Released-brightgreen)
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-yellow)
 ![HTML5](https://img.shields.io/badge/HTML5-Canvas-orange)
 ![CSS3](https://img.shields.io/badge/CSS3-Responsive-blue)
@@ -294,7 +294,15 @@ Contributions are welcome! Here's how you can help:
 
 ## 🆕 Recent Updates
 
-### **Latest Version (v1.6.2)**
+### **Latest Version (v1.6.3)**
+- 🔓 **NEW**: Admin bypass for chat filter - admins can now send messages containing filtered words
+- 🧹 **CLEANED**: Chat filter now contains only 5 essential words: hack, cheat, exploit, scam, spam
+- 🛡️ **ENHANCED**: Better admin controls with chat filter bypass functionality
+- 🔧 **FIXED**: Server stability improvements and error handling
+- 📊 **ENHANCED**: Comprehensive admin logging for all admin actions
+- ⚡ **IMPROVED**: More efficient chat filtering system
+
+### **Previous Version (v1.6.2)**
 - 🔧 **FIXED**: Server crashes when accepting friend requests (SQLITE_CONSTRAINT error)
 - 🔧 **FIXED**: Friend request rejection now properly deletes requests for re-sending
 - 🔧 **FIXED**: Database constraint violations resolved with INSERT OR REPLACE

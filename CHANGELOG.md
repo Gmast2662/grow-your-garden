@@ -2,7 +2,33 @@
 
 This document contains every single update, bug fix, and change made to Grow Your Garden, including detailed technical information.
 
-## 🆕 Latest Updates (v1.6.2)
+## 🆕 Latest Updates (v1.6.3)
+
+### 🔓 NEW: Admin Bypass for Chat Filter
+- **Admin Chat Filter Bypass**: Admins can now send messages containing filtered words without being blocked
+- **Chat Filter Cleanup**: Removed placeholder and unnecessary words, keeping only essential filter words
+- **Filtered Words**: Chat filter now contains only 5 essential words: hack, cheat, exploit, scam, spam
+- **Technical Implementation**:
+  - Added `socket.isAdmin` property during authentication to track admin status
+  - Modified chat filter logic to check `socket.isAdmin` before applying filter
+  - Admin messages bypass the filter check entirely and proceed directly to save
+  - Added console logging when admins bypass the filter for transparency
+  - Enhanced error handling and server stability
+- **Admin Controls**: Admins have full control over chat filter management through admin panel
+- **Result**: Admins can now communicate freely while maintaining chat filter for regular users
+
+### 🔧 ENHANCED: Server Stability & Error Handling
+- **Improved Error Handling**: Better error handling throughout the chat system
+- **Server Stability**: Enhanced server stability with better error recovery
+- **Admin Logging**: Comprehensive logging of all admin actions for transparency
+- **Technical Details**:
+  - Added proper error handling in chat message processing
+  - Enhanced database query error handling
+  - Improved WebSocket connection stability
+  - Better admin action logging and tracking
+- **Result**: More stable server with better error recovery and admin transparency
+
+## 🆕 Previous Updates (v1.6.2)
 
 ### 🔧 FIXED: Server Stability & Friend System Improvements
 - **Server Crash Prevention**: Fixed critical server crashes when accepting friend requests
@@ -711,7 +737,9 @@ This document contains every single update, bug fix, and change made to Grow You
 
 ## 📊 Version History
 
-### 🆕 v1.6.0 - Garden Decorations & Storm Damage System (Latest)
+### 🆕 v1.6.3 - Admin Bypass for Chat Filter (Latest)
+- **🔓 NEW**: Admin Bypass for Chat Filter - Admins can now send messages containing filtered words without being blocked
+- **🔧 ENHANCED**: Server Stability & Error Handling - Improved error handling throughout the chat system
 - **🌸 NEW**: Garden decorations system with 12 decorative items (paths, statues, fences, seasonal)
 - **⛈️ NEW**: Storm damage system - stormy weather can damage unprotected plants
 - **🛡️ NEW**: Plant protection system - fences provide protection against storm damage
@@ -719,6 +747,34 @@ This document contains every single update, bug fix, and change made to Grow You
 - **🌱 NEW**: Continuous growth system - plants grow continuously while watered/fertilized
 - **✨ NEW**: Visual rarity display system with automatic section organization
 - **🔧 FIXED**: Shop restock system and inventory structure issues
+- **🧹 CLEANUP**: Comprehensive console logging removal for cleaner experience
+- **🎨 VISUAL**: Seeds automatically move to correct sections with proper styling
+
+### 🌱 v1.6.2 - Garden Decorations & Storm Damage System
+- **🌸 NEW**: Garden decorations system with 12 decorative items (paths, statues, fences, seasonal)
+- **⛈️ NEW**: Storm damage system - stormy weather can damage unprotected plants
+- **🛡️ NEW**: Plant protection system - fences provide protection against storm damage
+- **🏡 ENHANCED**: Garden expansion increased to 16x16 maximum size
+- **🌱 NEW**: Continuous growth system - plants grow continuously while watered/fertilized
+- **✨ NEW**: Visual rarity display system with automatic section organization
+- **🔧 FIXED**: Shop restock system and inventory structure issues
+- **🧹 CLEANUP**: Comprehensive console logging removal for cleaner experience
+- **🎨 VISUAL**: Seeds automatically move to correct sections with proper styling
+
+### 🌱 v1.6.1 - GitHub Link & Multiplayer UI
+- **🔗 NEW**: GitHub Link in Main Menu
+- **✨ NEW**: Multiplayer UI Integration
+- **🌸 NEW**: Garden decorations system with 12 decorative items (paths, statues, fences, seasonal)
+- **🏡 ENHANCED**: Garden expansion increased to 16x16 maximum size
+- **🌱 NEW**: Continuous growth system - plants grow continuously while watered/fertilized
+- **✨ NEW**: Visual rarity display system with automatic section organization
+- **🔧 FIXED**: Shop restock system and inventory structure issues
+- **🧹 CLEANUP**: Comprehensive console logging removal for cleaner experience
+- **🎨 VISUAL**: Seeds automatically move to correct sections with proper styling
+
+### 🌱 v1.6.0 - Visual Rarity Display System
+- **✨ NEW**: Visual Rarity Display System
+- **🔧 FIXED**: Shop Restock System & Console Cleanup
 - **🧹 CLEANUP**: Comprehensive console logging removal for cleaner experience
 - **🎨 VISUAL**: Seeds automatically move to correct sections with proper styling
 

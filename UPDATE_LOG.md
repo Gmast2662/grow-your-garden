@@ -2,7 +2,33 @@
 
 This document tracks all updates, bug fixes, and new features added to the Grow Your Garden.
 
-## 🆕 Latest Update - Server Stability & Friend System Fixes! 🔧 (v1.6.2)
+## 🆕 Latest Update - Admin Bypass for Chat Filter! 🔓 (v1.6.3)
+
+### 🔓 NEW: Admin Bypass for Chat Filter
+- **Admin Chat Filter Bypass**: Admins can now send messages containing filtered words without being blocked
+- **Chat Filter Cleanup**: Removed placeholder and unnecessary words, keeping only essential filter words
+- **Filtered Words**: Chat filter now contains only 5 essential words: hack, cheat, exploit, scam, spam
+- **Technical Implementation**:
+  - Added `socket.isAdmin` property during authentication to track admin status
+  - Modified chat filter logic to check `socket.isAdmin` before applying filter
+  - Admin messages bypass the filter check entirely and proceed directly to save
+  - Added console logging when admins bypass the filter for transparency
+  - Enhanced error handling and server stability
+- **Admin Controls**: Admins have full control over chat filter management through admin panel
+- **Result**: Admins can now communicate freely while maintaining chat filter for regular users
+
+### 🔧 ENHANCED: Server Stability & Error Handling
+- **Improved Error Handling**: Better error handling throughout the chat system
+- **Server Stability**: Enhanced server stability with better error recovery
+- **Admin Logging**: Comprehensive logging of all admin actions for transparency
+- **Technical Details**:
+  - Added proper error handling in chat message processing
+  - Enhanced database query error handling
+  - Improved WebSocket connection stability
+  - Better admin action logging and tracking
+- **Result**: More stable server with better error recovery and admin transparency
+
+## 🆕 Previous Updates - Server Stability & Friend System Fixes! 🔧 (v1.6.2)
 
 ### 🔧 FIXED: Server Stability & Friend System Improvements
 - **Server Crash Prevention**: Fixed critical server crashes when accepting friend requests
@@ -476,93 +502,24 @@ This document tracks all updates, bug fixes, and new features added to the Grow 
 
 ## 📊 Version History
 
-### 🆕 v1.6.0 - Garden Decorations & Storm Damage System (Latest)
-- **🌸 NEW**: Garden decorations system with 12 decorative items (paths, statues, fences, seasonal)
-- **⛈️ NEW**: Storm damage system - stormy weather can damage unprotected plants
-- **🛡️ NEW**: Plant protection system - fences provide protection against storm damage
-- **🏡 ENHANCED**: Garden expansion increased to 16x16 maximum size
-- **🌱 NEW**: Continuous growth system - plants grow continuously while watered/fertilized
-- **✨ NEW**: Visual rarity display system with automatic section organization
-- **🔧 FIXED**: Shop restock system and inventory structure issues
-- **🧹 CLEANUP**: Comprehensive console logging removal for cleaner experience
-- **🎨 VISUAL**: Seeds automatically move to correct sections with proper styling
-
-### 🌱 v1.5.9 - Admin Panel Fixes & Console Cleanup
-- **🔧 FIXED**: Rarity command and restock interval functionality
-- **🧹 CLEANUP**: Removed debug console messages for cleaner experience
-- **⚙️ ADMIN**: Improved admin panel error handling and persistence
-
-### 🌱 v1.5.8 - Restock Interval Fixes
-- **🔧 FIXED**: Restock interval calculation issues and timing problems
-- **⚙️ ADMIN**: Enhanced debugging for restock system troubleshooting
-
-### 🌱 v1.5.7 - Stock & Rarity Command Fixes
-- **🔧 FIXED**: Shop inventory structure corruption and stock decrease issues
-- **⚙️ ADMIN**: Enhanced rarity command error handling and debugging
-
-### 🌱 v1.5.6 - Shop System Improvements
-- **🔧 FIXED**: Removed planting cooldown system as requested
-- **⚖️ BALANCED**: Improved rare/legendary seed restock chances and quantities
-- **🎯 STRATEGIC**: Better shop reliability and rare seed availability
-
-### 🌱 v1.5.5 - Set Rarity Command Fix
-- **🔧 FIXED**: Removed duplicate HTML causing ID conflicts
-- **⚙️ ADMIN**: Enhanced error handling for rarity setting
-- **🎯 BALANCE**: Increased restock interval to prevent excessive restocking
-
-### 🌱 v1.5.4 - Garden Decorations & Expansion
-- **🌸 NEW**: Garden decorations system with 12 decorative items
-- **🏡 ENHANCED**: Garden expansion increased to 16x16 maximum size
-- **🌱 NEW**: Continuous growth system implementation
-- **✅ MAJOR FIX**: Garden state bleeding completely eliminated
-- **⛈️ NEW**: Storm damage system & plant protection
-- **🎯 ADDED**: Enhanced rare & legendary seed stock system
-- **🎯 ADDED**: Sprinkler range indicators & fixed garden expansion
-- **🔧 FIXED**: UI & interaction issues, admin commands, storm damage feedback
-
-### 🌱 v1.5.0 - Continuous Growth Update
-- **🌱 NEW**: Continuous growth system - plants grow continuously while watered/fertilized
-- **💧 ENHANCED**: Sprinkler system now actively grows plants automatically
-- **⚡ IMPROVED**: Water growth (1 stage/2s for 8s), Fertilizer growth (1 stage/1.5s for 12s)
-- **🎯 STRATEGIC**: Sprinkler growth (1 stage/30s while in range) for automated growing zones
-- **🎮 ENGAGING**: Much more rewarding and hands-on gardening experience
-
-### 📱 v1.4.0 - Mobile & Visual Update
-- **🔧 MAJOR FIX**: Completely resolved garden state bleeding between save slots
-- **🎨 ENHANCED**: Visual effects and particle system with comprehensive feedback
-- **📱 MOBILE**: Fixed touch controls for garden interaction
-- **⚙️ ADMIN**: Improved admin panel garden management commands
-- **🔄 SYSTEM**: Added performance monitoring and emergency recovery
-- **🎵 UI**: Moved sound toggle to main game header for easier access
-- **🏆 DESIGN**: Removed win condition system for endless seasonal gardening
-- **📊 TRACKING**: Added transparent admin panel usage tracking
-
-### 🎯 v1.3.0 - Bug Fixes & Improvements
-- **🛠️ FIXED**: Shop interface and seed selection issues
-- **🌱 RESOLVED**: Plant growth and visual stage problems
-- **📱 IMPROVED**: Mobile responsiveness and touch controls
-- **⚙️ ADMIN**: Fixed admin panel commands and interface
-- **🌤️ SEASONAL**: Enhanced seasonal system and seed availability
-- **🚨 SAFETY**: Added emergency reset functionality
-
-### 🎮 v1.2.0 - Challenge & Stats Update
-- **🎯 NEW**: Garden challenges system with daily and weekly goals
-- **📊 STATS**: Comprehensive statistics tracking
-- **⚙️ ADMIN**: Advanced admin commands for testing
-- **📱 MOBILE**: Mobile optimizations and responsive design
-
-### 🌱 v1.1.0 - Seasonal Update
-- **🌤️ SEASONS**: Added seasonal system with 4 seasons
-- **🌿 GROWTH**: Plant growth stages implementation
-- **🏡 EXPANSION**: Garden expansion system
-- **⚙️ ADMIN**: Enhanced admin panel functionality
-
-### 🚀 v1.0.0 - Initial Release
-- **🌱 BASICS**: Basic gardening mechanics
-- **🌿 SEEDS**: 15 seed types available
-- **🌤️ WEATHER**: Simple weather system
-- **🏆 ACHIEVEMENTS**: Achievement system
-- **💾 SAVES**: Multi-slot save system
+### 🆕 v1.6.3 - Admin Bypass for Chat Filter (Latest)
+- **🔓 NEW**: Admin chat filter bypass - Admins can now send filtered messages
+- **🔧 ENHANCED**: Server stability and error handling improvements
+- **🌱 v1.6.2**: Server Stability & Friend System Fixes! 🔧
+- **🌱 v1.6.1**: GitHub Link & Multiplayer UI! 🌐
+- **�� v1.6.0**: Visual Rarity Display System, Shop Restock System, Console Cleanup
+- **🌱 v1.5.9**: Admin Panel Fixes & Console Cleanup
+- **🌱 v1.5.8**: Restock Interval Fixes
+- **🌱 v1.5.7**: Stock & Rarity Command Fixes
+- **🌱 v1.5.6**: Shop System Improvements
+- **🌱 v1.5.5**: Set Rarity Command Fix
+- **🌱 v1.5.4**: Garden Decorations & Expansion
+- **🌱 v1.5.0**: Continuous Growth Update
+- **🌱 v1.4.0**: Mobile & Visual Update
+- **🎯 v1.3.0**: Bug Fixes & Improvements
+- **🌱 v1.2.0**: Challenge & Stats Update
+- **🌱 v1.1.0**: Seasonal Update
+- **🚀 v1.0.0**: Initial Release
 
 ---
 
