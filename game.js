@@ -1093,6 +1093,12 @@ class GardenGame {
                 statusElement.style.color = '#f44336';
             }
         }
+        
+        // Refresh friends list if it's currently visible
+        const friendsList = document.getElementById('friendsList');
+        if (friendsList && friendsList.style.display !== 'none') {
+            this.loadFriendsList();
+        }
     }
     
     toggleFriendsList() {

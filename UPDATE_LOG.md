@@ -2,7 +2,7 @@
 
 This document tracks all updates, bug fixes, and new features added to the Grow Your Garden.
 
-## 🆕 Latest Update - Admin Panel Fixes & GitHub Preparation! 🔧 (v1.6.4)
+## 🆕 Latest Update - Admin Panel Fixes & Friend Status Updates! 🔧 (v1.6.4)
 
 ### 🔧 FIXED: Admin Panel Issues
 - **Total Gardens Stats**: Fixed total gardens statistics not displaying correctly in admin panel
@@ -15,6 +15,17 @@ This document tracks all updates, bug fixes, and new features added to the Grow 
   - Better error handling for database queries in admin panel
   - Added fallback values for stats to prevent display issues
 - **Result**: Admin panel now displays all statistics correctly with better error handling
+
+### 👥 FIXED: Friend Status Updates
+- **Real-time Friend Status**: Fixed issue where friends weren't being moved to correct online/offline sections
+- **Online Notifications**: Added missing server-side code to notify friends when users come online
+- **UI Refresh**: Friends list now automatically refreshes when friend status changes
+- **Technical Details**:
+  - Added `friend_online` event emission when users connect to server
+  - Enhanced `updateMultiplayerUI()` to refresh friends list when visible
+  - Added UI refresh triggers for both `friend_online` and `friend_offline` events
+  - Fixed real-time status updates in friends list display
+- **Result**: Friends now properly appear in "Online Friends" section when they come online and move to "Offline Friends" when they go offline
 
 ### 📝 PREPARED: GitHub Upload Ready
 - **File Organization**: All files properly organized for GitHub upload

@@ -247,6 +247,21 @@ io.on('connection', (socket) => {
         // Join user to their personal room
         socket.join(`user_${socket.userId}`);
 
+        // Notify friends that user is online
+        db.all('SELECT friend_id FROM friends WHERE user_id = ? AND status = "accepted"', [socket.userId], (err, friends) => {
+            if (!err && friends) {
+                friends.forEach(friend => {
+                    const friendSocket = userSockets.get(friend.friend_id);
+                    if (friendSocket) {
+                        friendSocket.emit('friend_online', {
+                            userId: socket.userId,
+                            username: socket.username
+                        });
+                    }
+                });
+            }
+        });
+
     // Handle garden updates
     socket.on('garden_update', (gardenData) => {
         try {

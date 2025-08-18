@@ -85,12 +85,22 @@ class MultiplayerManager {
             console.log(`👋 ${data.username} is now online`);
             this.addOnlineUser(data);
             this.emit('friend_online', data);
+            
+            // Update UI if game is available
+            if (window.game && window.game.updateMultiplayerUI) {
+                window.game.updateMultiplayerUI();
+            }
         });
 
         this.socket.on('friend_offline', (data) => {
             console.log(`👋 ${data.username} went offline`);
             this.removeOnlineUser(data.userId);
             this.emit('friend_offline', data);
+            
+            // Update UI if game is available
+            if (window.game && window.game.updateMultiplayerUI) {
+                window.game.updateMultiplayerUI();
+            }
         });
 
         // Garden events
