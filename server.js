@@ -107,7 +107,7 @@ db.serialize(() => {
             console.log('✅ Gardens table ready');
             
             // Migration: Add slot_number column if it doesn't exist (only after table is created)
-            db.run(`PRAGMA table_info(gardens)`, (err, columns) => {
+            db.all(`PRAGMA table_info(gardens)`, (err, columns) => {
                 if (err) {
                     console.error('❌ Error checking gardens table schema:', err);
                     return;
