@@ -1141,8 +1141,8 @@ class GardenGame {
                                     <span class="friend-status">⏳ Pending</span>
                                 </div>
                                 <div class="friend-actions">
-                                    <button onclick="window.game.respondToFriendRequest('${friend.id}', true)" class="accept-btn-small">Accept</button>
-                                    <button onclick="window.game.respondToFriendRequest('${friend.id}', false)" class="reject-btn-small">Reject</button>
+                                    <button onclick="window.game.respondToFriendRequest('${friend.id || friend.user_id}', true)" class="accept-btn-small">Accept</button>
+                                    <button onclick="window.game.respondToFriendRequest('${friend.id || friend.user_id}', false)" class="reject-btn-small">Reject</button>
                                 </div>
                             </div>
                         `;
@@ -1302,9 +1302,20 @@ class GardenGame {
     }
     
     respondToFriendRequest(fromId, accepted) {
-        if (!this.multiplayer) return;
+        console.log('🔍 respondToFriendRequest called with:', { fromId, accepted });
         
-        console.log(`Responding to friend request from ${fromId}, accepted: ${accepted}`);
+        if (!this.multiplayer) {
+            console.error('❌ Multiplayer not initialized');
+            return;
+        }
+        
+        if (!this.multiplayer.isConnected) {
+            console.error('❌ Multiplayer not connected');
+            this.showMessage('Multiplayer not connected. Please wait...', 'error');
+            return;
+        }
+        
+        console.log(`📤 Sending friend request response: fromId=${fromId}, accepted=${accepted}`);
         this.multiplayer.respondToFriendRequest(fromId, accepted);
         
         // Remove the notification

@@ -123,7 +123,7 @@ class MultiplayerManager {
             if (data.success) {
                 console.log('✅ Message sent successfully');
                 // Add message to local chat if it's a global message
-                if (data.message && !data.message.receiverId) {
+                if (data.message) {
                     this.chatMessages.push(data.message);
                     this.emit('chat_message', data.message);
                     
