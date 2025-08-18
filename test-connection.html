@@ -21,31 +21,48 @@
         log('Starting connection test...');
         log('Current URL: ' + window.location.origin);
 
-        try {
-            const socket = io(window.location.origin);
+        // Try to get token from localStorage (if user is logged in)
+        const token = localStorage.getItem('garden_game_token');
+        
+        if (token) {
+            log('Found authentication token, connecting with auth...');
+            log('Token: ' + token.substring(0, 20) + '...');
             
-            socket.on('connect', () => {
-                log('✅ Connected successfully!');
-                statusDiv.innerHTML = '✅ Connected!';
-                statusDiv.style.color = 'green';
-            });
+            try {
+                const socket = io(window.location.origin, {
+                    auth: { token: token }
+                });
+                
+                socket.on('connect', () => {
+                    log('✅ Connected successfully with authentication!');
+                    statusDiv.innerHTML = '✅ Connected with auth!';
+                    statusDiv.style.color = 'green';
+                });
 
-            socket.on('connect_error', (error) => {
-                log('❌ Connection error: ' + error.message);
-                statusDiv.innerHTML = '❌ Connection failed: ' + error.message;
+                socket.on('connect_error', (error) => {
+                    log('❌ Connection error: ' + error.message);
+                    statusDiv.innerHTML = '❌ Connection failed: ' + error.message;
+                    statusDiv.style.color = 'red';
+                });
+
+                socket.on('disconnect', (reason) => {
+                    log('❌ Disconnected: ' + reason);
+                    statusDiv.innerHTML = '❌ Disconnected: ' + reason;
+                    statusDiv.style.color = 'red';
+                });
+
+            } catch (error) {
+                log('❌ Error creating socket: ' + error.message);
+                statusDiv.innerHTML = '❌ Error: ' + error.message;
                 statusDiv.style.color = 'red';
-            });
-
-            socket.on('disconnect', (reason) => {
-                log('❌ Disconnected: ' + reason);
-                statusDiv.innerHTML = '❌ Disconnected: ' + reason;
-                statusDiv.style.color = 'red';
-            });
-
-        } catch (error) {
-            log('❌ Error creating socket: ' + error.message);
-            statusDiv.innerHTML = '❌ Error: ' + error.message;
-            statusDiv.style.color = 'red';
+            }
+        } else {
+            log('No authentication token found');
+            log('This is normal if you are not logged in');
+            log('Try logging into the game first, then test this page');
+            
+            statusDiv.innerHTML = 'ℹ️ No auth token - try logging in first';
+            statusDiv.style.color = 'orange';
         }
     </script>
 </body>
