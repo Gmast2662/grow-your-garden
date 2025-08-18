@@ -1082,5 +1082,52 @@ router.get('/chat-filter/words', authenticateAdmin, (req, res) => {
     });
 });
 
+// Clear all gardens for a user (admin only)
+router.post('/users/:userId/clear-gardens', authenticateAdmin, (req, res) => {
+    const { userId } = req.params;
+    
+    // Get target user info for logging
+    db.get('SELECT username FROM users WHERE id = ?', [userId], (err, targetUser) => {
+        if (err) {
+            return res.status(500).json({ error: 'Database error' });
+        }
+        
+        if (!targetUser) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        
+        // Delete all gardens for this user
+        db.run(
+            'DELETE FROM gardens WHERE user_id = ?',
+            [userId],
+            function(err) {
+                if (err) {
+                    return res.status(500).json({ error: 'Database error' });
+                }
+                
+                // Log the action
+                logAdminAction(
+                    req.user.id,
+                    req.user.username,
+                    'cleared all gardens',
+                    userId,
+                    targetUser.username,
+                    `Cleared ${this.changes} garden(s)`,
+                    req.ip
+                );
+                
+                // Disconnect user if online to force them to reload
+                disconnectUser(userId);
+                
+                res.json({
+                    message: 'All gardens cleared successfully',
+                    userId,
+                    gardensCleared: this.changes
+                });
+            }
+        );
+    });
+});
+
 // Export the router and the setWebSocketMaps function
 module.exports = { router, setWebSocketMaps };

@@ -2534,12 +2534,54 @@ class GardenGame {
         // System
         window.clearAllSlots = () => {
             if (confirm('Are you sure you want to clear ALL save slots? This cannot be undone!')) {
-                for (let slot = 1; slot <= 3; slot++) {
-                    localStorage.removeItem(`gardenGameSave_${slot}`);
-                }
-                this.showMessage('All slots cleared!', 'success');
-                if (window.menuSystem) {
-                    window.menuSystem.updateSaveSlots();
+                // Get current user info and token
+                const token = localStorage.getItem('garden_game_token');
+                const currentUser = window.multiplayer?.currentUser;
+                
+                if (token && currentUser) {
+                    // Clear gardens from database first
+                    fetch(`/api/admin/users/${currentUser.id}/clear-gardens`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.message) {
+                            console.log('✅ Gardens cleared from database:', data.gardensCleared);
+                        } else {
+                            console.warn('⚠️ Could not clear gardens from database:', data.error);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('❌ Error clearing gardens from database:', error);
+                    })
+                    .finally(() => {
+                        // Always clear local storage regardless of server response
+                        for (let slot = 1; slot <= 3; slot++) {
+                            localStorage.removeItem(`gardenGameSave_${slot}`);
+                        }
+                        this.showMessage('All slots cleared!', 'success');
+                        if (window.menuSystem) {
+                            window.menuSystem.updateSaveSlots();
+                        }
+                        
+                        // Refresh admin panel stats if we're in admin panel
+                        if (typeof loadStats === 'function') {
+                            loadStats();
+                        }
+                    });
+                } else {
+                    // Fallback: just clear local storage if no token/user info
+                    for (let slot = 1; slot <= 3; slot++) {
+                        localStorage.removeItem(`gardenGameSave_${slot}`);
+                    }
+                    this.showMessage('All slots cleared!', 'success');
+                    if (window.menuSystem) {
+                        window.menuSystem.updateSaveSlots();
+                    }
                 }
             }
         };
