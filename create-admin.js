@@ -10,9 +10,9 @@ const db = new sqlite3.Database('./garden_game.db');
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this';
 
 async function createAdmin() {
-    const username = 'AviAdmin'; // Change this to your desired username
-    const password = 'admin123'; // Change this to your desired password
-    const email = 'avi@example.com'; // Change this to your email
+    const username = 'AviDev'; // Change this to your desired username
+    const password = 'GardenDevAgmast2662'; // Change this to your desired password
+    const email = 'avigmast@icloud.com'; // Change this to your email
     
     console.log('🌱 Creating admin account...');
     console.log(`Username: ${username}`);
