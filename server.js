@@ -189,7 +189,7 @@ const authenticateSocketToken = (socket, next) => {
         
         // Check if user is banned or muted
         db.get(`
-            SELECT u.is_banned, u.ban_reason, 
+            SELECT u.is_banned, u.ban_reason, u.is_admin,
                    um.muted_until, um.mute_reason
             FROM users u
             LEFT JOIN user_mutes um ON u.id = um.user_id 
@@ -217,6 +217,7 @@ const authenticateSocketToken = (socket, next) => {
             
             socket.userId = decoded.id;
             socket.username = decoded.username;
+            socket.isAdmin = !!user.is_admin;
             next();
         });
     } catch (error) {
@@ -367,7 +368,7 @@ io.on('connection', (socket) => {
                             }
                         });
 
-                        if (messageBlocked) {
+                        if (messageBlocked && !socket.isAdmin) {
                             socket.emit('message_sent', { 
                                 success: false, 
                                 error: `Message blocked due to inappropriate content: ${blockedWords.join(', ')}` 
