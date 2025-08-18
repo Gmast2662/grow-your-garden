@@ -234,20 +234,28 @@
             border: 1px solid #f5c6cb;
         }
 
-        .tabs {
+        .tab-nav {
             display: flex;
             margin-bottom: 30px;
             border-bottom: 2px solid #e1e5e9;
         }
 
-        .tab {
+        .tab-btn {
             padding: 15px 30px;
             cursor: pointer;
+            border: none;
+            background: none;
             border-bottom: 3px solid transparent;
             transition: all 0.3s;
+            font-size: 16px;
+            color: #666;
         }
 
-        .tab.active {
+        .tab-btn:hover {
+            color: #667eea;
+        }
+
+        .tab-btn.active {
             border-bottom-color: #667eea;
             color: #667eea;
             font-weight: 600;

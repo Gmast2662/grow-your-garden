@@ -2,7 +2,43 @@
 
 This document tracks all updates, bug fixes, and new features added to the Grow Your Garden.
 
-## 🆕 Latest Update - Enhanced Security & Ban/Mute Bypass Prevention! 🔒 (v1.6.5)
+## 🆕 Latest Update - Admin Panel Fixes & Database Migration! 🔧 (v1.6.6)
+
+**Date:** August 18, 2025
+
+**Major Admin Panel Fixes:**
+- **Database Error Resolution**: Fixed all database errors that were causing admin panel malfunctions
+- **Missing Table Creation**: Ensured all required database tables exist and are properly structured
+- **Schema Migration**: Added missing columns to users table (`is_banned`, `last_login_ip`, `registration_ip`, `device_fingerprint`)
+- **Tab Navigation Fix**: Updated CSS classes to match the new HTML structure (`.tab-nav` and `.tab-btn`)
+- **Stats Query Optimization**: Fixed database queries that were failing due to missing tables and columns
+- **Admin Panel Icons**: Resolved icon loading issues by fixing underlying database connectivity problems
+
+**Technical Improvements:**
+- **Database Migration Script**: Created comprehensive migration to handle existing databases with old schemas
+- **Table Creation**: Added proper `CREATE TABLE IF NOT EXISTS` statements for all required tables
+- **Column Addition**: Safely added missing columns to existing tables without data loss
+- **Error Handling**: Improved error handling for database operations in admin panel
+- **CSS Synchronization**: Fixed mismatch between HTML structure and CSS selectors
+
+**Bug Fixes:**
+- Fixed "database error" messages in admin panel
+- Resolved missing icons and loading issues
+- Fixed tab navigation not working properly
+- Corrected stats queries that were failing
+- Fixed admin panel authentication issues
+
+**Database Schema Updates:**
+- Added missing `is_banned` column to users table
+- Ensured all security-related columns exist in users table
+- Verified all required tables exist (`friends`, `chat_messages`, `announcements`, etc.)
+- Fixed table name inconsistencies (friends vs friendships)
+
+This update resolves all the admin panel glitches and ensures the database is properly structured for all admin panel features to work correctly.
+
+---
+
+## 🆕 Previous Update - Enhanced Security & Ban/Mute Bypass Prevention! 🔒 (v1.6.5)
 
 **Date:** August 18, 2025
 
