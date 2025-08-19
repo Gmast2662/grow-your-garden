@@ -2,10 +2,10 @@
 
 A feature-rich, browser-based gardening simulation game built with vanilla JavaScript, HTML5 Canvas, and CSS3. Plant seeds, manage resources, upgrade tools, and grow your perfect garden!
 
-- **This game is fully working and released as v1.6.9 with stable multiplayer features and admin controls. I am actively working on more updates to make this game even better. Contact me or tell me in the Github.**
+- **This game is fully working and released as v1.6.14 with stable multiplayer features, admin controls, and enhanced chat system. I am actively working on more updates to make this game even better. Contact me or tell me in the Github.**
 - **I have fixed every bug, but there still may be some bugs I don't know about. So if you find any go to the issues page in the Github.**
 
-![Grow Your Garden](https://img.shields.io/badge/Status-v1.6.9%20Released-brightgreen)
+![Grow Your Garden](https://img.shields.io/badge/Status-v1.6.14%20Released-brightgreen)
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-yellow)
 ![HTML5](https://img.shields.io/badge/HTML5-Canvas-orange)
 ![CSS3](https://img.shields.io/badge/CSS3-Responsive-blue)
@@ -46,12 +46,15 @@ It is safe if it asks you.
 - **Admin Panel**: Debug tools and creative mode
 - **Sound Effects**: Immersive audio feedback
 
-### 🌐 **Multiplayer Features** (v1.6.1)
+### 🌐 **Multiplayer Features** (v1.6.14)
 - **Unified Experience**: Single game works both offline and online
 - **Auto-Detection**: Automatically detects server availability
 - **Real-time Multiplayer**: Connect with friends in real-time when server is available
 - **Friend System**: Add friends and see their online status
-- **Live Chat**: Chat with other players in the garden
+- **Enhanced Live Chat**: Chat with other players in the garden
+  - **Auto-Refresh**: Chat automatically updates every 5 seconds
+  - **Smart Refresh**: Won't interrupt you while typing
+  - **Developer Tags**: [DEV] tag for developer identification
 - **Garden Visits**: Request to visit other players' gardens
 - **User Authentication**: Secure login and registration system
 - **Cloud Saves**: Your garden data is saved on the server when connected
@@ -294,7 +297,17 @@ Contributions are welcome! Here's how you can help:
 
 ## 🆕 Recent Updates
 
-### **Latest Version (v1.6.3)**
+### **Latest Version (v1.6.14)**
+- 💬 **NEW**: Auto-refresh chat system - messages update every 5 seconds automatically
+- 🏷️ **NEW**: [DEV] tag for developer identification in chat (AviDev only)
+- 🎨 **ENHANCED**: Special styling for [DEV] usernames with red color and glow effect
+- 🔧 **FIXED**: Timezone display issues - all times now show in user's local timezone
+- 🛡️ **FIXED**: Admin panel security tab content display issues
+- 🔇 **FIXED**: Temporary mute system - no longer disconnects users (only blocks chat)
+- 🚫 **FIXED**: IP ban system functionality and database compatibility
+- ⚡ **IMPROVED**: Smart chat refresh that preserves typing and user interaction
+
+### **Previous Version (v1.6.3)**
 - 🔓 **NEW**: Admin bypass for chat filter - admins can now send messages containing filtered words
 - 🧹 **CLEANED**: Chat filter now contains only 5 essential words: hack, cheat, exploit, scam, spam
 - 🛡️ **ENHANCED**: Better admin controls with chat filter bypass functionality

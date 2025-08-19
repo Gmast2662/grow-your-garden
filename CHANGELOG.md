@@ -71,6 +71,16 @@ This document contains every single update, bug fix, and change made to Grow You
   - **Fix**: Updated fix-all-issues.js to work with existing table structure
   - **Result**: Script now completes successfully without database errors
 
+### 💬 ENHANCED: Chat System Improvements
+- **Auto-Refresh Chat**: Chat now automatically refreshes every 5 seconds to show new messages
+  - **Smart Refresh**: Only refreshes when chat panel is visible and user is not typing
+  - **Preserves Typing**: Won't interrupt users while they're composing messages
+  - **Result**: Real-time chat experience without manual refresh
+- **Developer Tags**: Added [DEV] tag for developer username in chat
+  - **Tagged User**: AviDev now shows as "[DEV] AviDev" in chat
+  - **Visual Styling**: [DEV] username has special red color with glow effect
+  - **Result**: Easy identification of developer messages in chat
+
 ## 🆕 Previous Updates (v1.6.12)
 
 ### 🔧 FIXED: Critical Admin Panel & Mute System Fixes

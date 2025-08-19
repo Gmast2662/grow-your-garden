@@ -2,7 +2,44 @@
 
 This document tracks all updates, bug fixes, and new features added to the Grow Your Garden.
 
-## 🆕 Latest Update - Enhanced Ban System & Admin Panel Fixes! 🔧 (v1.6.10)
+## 🆕 Latest Update - Chat System Improvements & Admin Panel Fixes! 💬 (v1.6.14)
+
+**Date:** August 18, 2025
+
+**New Chat Features:**
+- **Auto-Refresh Chat**: Chat now automatically refreshes every 5 seconds to show new messages
+  - **Smart Refresh**: Only refreshes when chat panel is visible and user is not typing
+  - **Preserves Typing**: Won't interrupt users while they're composing messages
+  - **Real-Time Experience**: No more manual refresh needed for chat updates
+- **Developer Tags**: Added [DEV] tag for developer username in chat
+  - **Exclusive Tag**: Only "AviDev" shows as "[DEV] AviDev" in chat
+  - **Visual Styling**: [DEV] username has special red color with glow effect
+  - **Easy Identification**: Clear visual distinction for developer messages
+
+**Admin Panel Fixes:**
+- **Timezone Display**: Fixed all time displays to use user's local timezone instead of hardcoded PST
+- **Database Schema**: Fixed compatibility issues with existing database structures
+- **Security Tab**: Resolved issues with security tab not displaying content
+- **Mute System**: Fixed temporary mutes disconnecting users (should only block chat)
+- **IP Ban System**: Resolved issues with IP banning functionality
+
+**Technical Improvements:**
+- **Smart Auto-Refresh**: Chat refresh system that respects user interaction
+- **Database Compatibility**: Updated scripts to work with existing database structures
+- **Timezone Handling**: Removed hardcoded timezone settings for better user experience
+- **Error Handling**: Improved error handling for database operations
+
+**User Experience:**
+- **Real-Time Chat**: Messages appear automatically without manual refresh
+- **Non-Intrusive**: Chat refresh doesn't interrupt typing or user interaction
+- **Visual Clarity**: [DEV] tag makes developer messages easily identifiable
+- **Better Time Display**: All times now show in user's local timezone
+
+This update significantly improves the chat experience with automatic refresh and adds developer identification features.
+
+---
+
+## 🆕 Previous Update - Enhanced Ban System & Admin Panel Fixes! 🔧 (v1.6.10)
 
 **Date:** August 18, 2025
 

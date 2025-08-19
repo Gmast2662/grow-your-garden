@@ -1122,8 +1122,41 @@ class GardenGame {
             chatPanel.style.display = 'block';
             friendsList.style.display = 'none';
             this.loadChatMessages();
+            
+            // Start auto-refresh timer for chat (every 5 seconds)
+            this.startChatAutoRefresh();
         } else {
             chatPanel.style.display = 'none';
+            // Stop auto-refresh when chat is closed
+            this.stopChatAutoRefresh();
+        }
+    }
+    
+    startChatAutoRefresh() {
+        // Clear any existing timer
+        this.stopChatAutoRefresh();
+        
+        // Start new timer that refreshes chat every 5 seconds
+        this.chatRefreshTimer = setInterval(() => {
+            // Only refresh if chat panel is visible and user is not typing
+            const chatPanel = document.getElementById('chatPanel');
+            const chatInput = document.getElementById('chatInput');
+            
+            if (chatPanel && chatPanel.style.display !== 'none') {
+                // Check if user is currently typing (input has focus and value)
+                const isTyping = chatInput && document.activeElement === chatInput && chatInput.value.length > 0;
+                
+                if (!isTyping) {
+                    this.loadChatMessages();
+                }
+            }
+        }, 5000); // 5 seconds
+    }
+    
+    stopChatAutoRefresh() {
+        if (this.chatRefreshTimer) {
+            clearInterval(this.chatRefreshTimer);
+            this.chatRefreshTimer = null;
         }
     }
     
@@ -1367,12 +1400,20 @@ class GardenGame {
             // Display recent chat messages
             const messages = this.multiplayer.chatMessages || [];
             if (messages.length > 0) {
-                const messagesHtml = messages.map(msg => 
-                    `<div class="chat-message">
-                        <span class="chat-username">${msg.senderName || msg.username}:</span>
+                const messagesHtml = messages.map(msg => {
+                    // Add [DEV] tag for AviDev only
+                    let displayName = msg.senderName || msg.username;
+                    let isDev = false;
+                    if (displayName === 'AviDev') {
+                        displayName = `[DEV] ${displayName}`;
+                        isDev = true;
+                    }
+                    
+                    return `<div class="chat-message">
+                        <span class="chat-username ${isDev ? 'dev-username' : ''}">${displayName}:</span>
                         <span class="chat-text">${msg.message}</span>
-                    </div>`
-                ).join('');
+                    </div>`;
+                }).join('');
                 chatMessagesDiv.innerHTML = messagesHtml;
                 chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
             } else {

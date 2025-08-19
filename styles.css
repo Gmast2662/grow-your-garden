@@ -1616,6 +1616,13 @@ body {
     margin-right: 5px;
 }
 
+/* Special styling for [DEV] tag */
+.chat-username.dev-username {
+    color: #FF6B6B !important;
+    text-shadow: 0 0 5px rgba(255, 107, 107, 0.5);
+    font-weight: bold;
+}
+
 .chat-text {
     color: white;
 }
