@@ -1,5 +1,12 @@
 # Update Log
 
+## [1.6.20] - 2025-08-19
+
+### 🚀 FIXED
+- **Admin Panel UI Issue**: Fixed tabs being visible on login page - admin section now properly hidden until login
+- **Login State Management**: Added localStorage token persistence and proper logout functionality
+- **Admin Panel Navigation**: Added logout button and improved admin section visibility control
+
 ## [1.6.19] - 2025-08-19
 
 ### 🚀 FIXED

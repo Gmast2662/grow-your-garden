@@ -51,6 +51,7 @@
 
         .admin-section {
             padding: 40px;
+            display: none; /* Hide by default */
         }
 
         .form-group {
@@ -560,6 +561,12 @@
 
         <!-- Admin Section -->
         <div id="adminSection" class="admin-section">
+            <!-- Admin Header with Logout -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>Welcome, Admin!</h2>
+                <button class="btn btn-danger" onclick="logout()">🚪 Logout</button>
+            </div>
+            
             <!-- Tab Navigation -->
             <div class="tab-nav">
                 <button class="tab-btn active" onclick="showTab('dashboard')">📊 Dashboard</button>
@@ -810,6 +817,7 @@
 
                 if (response.ok) {
                     adminToken = result.token;
+                    localStorage.setItem('adminToken', adminToken);
                     showAdminSection();
                     loadStats();
                     loadUsers();
@@ -1980,10 +1988,30 @@
         
         // Initialize dashboard when page loads
         document.addEventListener('DOMContentLoaded', () => {
-            if (adminToken) {
-                loadStats();
+            // Check if we have a stored admin token
+            const storedToken = localStorage.getItem('adminToken');
+            if (storedToken) {
+                adminToken = storedToken;
+                showAdminSection();
             }
         });
+
+        // Function to handle logout
+        function logout() {
+            adminToken = null;
+            localStorage.removeItem('adminToken');
+            document.getElementById('adminSection').style.display = 'none';
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('loginForm').reset();
+            
+            // Clear any intervals
+            if (window.adminStatsInterval) {
+                clearInterval(window.adminStatsInterval);
+            }
+            if (logsRefreshInterval) {
+                clearInterval(logsRefreshInterval);
+            }
+        }
     </script>
 </body>
 </html>

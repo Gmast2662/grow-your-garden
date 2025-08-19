@@ -2,7 +2,27 @@
 
 This document contains every single update, bug fix, and change made to Grow Your Garden, including detailed technical information.
 
-## 🆕 Latest Updates (v1.6.18)
+## 🆕 Latest Updates (v1.6.20)
+
+### 🔧 FIXED: Admin Panel UI & Login State Management
+- **Admin Panel Login UI Fix**: Fixed tabs being visible on login page
+  - **Issue**: Navigation tabs were visible even when user was on login page
+  - **Fix**: Added `display: none;` to `.admin-section` CSS to hide admin content by default
+  - **Fix**: Admin section now only shows after successful login
+  - **Result**: Clean login page without confusing navigation elements
+- **Login State Persistence**: Added localStorage token storage and proper logout functionality
+  - **Issue**: Admin had to log in every time they refreshed the page
+  - **Fix**: Added localStorage token persistence for admin sessions
+  - **Fix**: Added proper logout function with token cleanup
+  - **Fix**: Added logout button to admin panel header
+  - **Result**: Persistent admin sessions and proper logout functionality
+- **Admin Panel Navigation**: Improved admin section visibility control
+  - **Issue**: No way to logout from admin panel
+  - **Fix**: Added logout button in admin panel header
+  - **Fix**: Added welcome message for logged-in admin
+  - **Result**: Better admin panel navigation and user experience
+
+## 🆕 Previous Updates (v1.6.18)
 
 ### 🔧 CHANGED: Console Cleanup & Enhanced User Activity Logging
 - **Console Cleanup**: Removed excessive debug messages from admin panel and server
