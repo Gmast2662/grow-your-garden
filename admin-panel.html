@@ -923,11 +923,13 @@
         });
 
         function showAdminSection() {
+            console.log('showAdminSection called, adminToken:', adminToken ? 'present' : 'missing');
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('adminSection').style.display = 'block';
             
             // Only load data if we have a valid token
             if (adminToken) {
+                console.log('Loading initial admin data...');
                 // Load initial data
                 loadStats();
                 loadUsers();
@@ -943,6 +945,8 @@
                 window.adminStatsInterval = setInterval(() => {
                     loadStats();
                 }, 30000); // Refresh stats every 30 seconds
+            } else {
+                console.warn('showAdminSection called but no adminToken available');
             }
         }
 
@@ -1002,19 +1006,24 @@
         }
 
         async function loadStats() {
+            console.log('loadStats called, adminToken:', adminToken ? 'present' : 'missing');
             if (!adminToken) {
                 console.warn('No admin token available for loadStats');
                 return;
             }
             try {
+                console.log('Fetching stats from /api/admin/stats');
                 const response = await fetch('/api/admin/stats', {
                     headers: { 'Authorization': `Bearer ${adminToken}` }
                 });
 
+                console.log('Stats response status:', response.status);
                 const result = await response.json();
+                console.log('Stats response:', result);
 
                 if (response.ok) {
                     const stats = result.stats;
+                    console.log('Updating stats display with:', stats);
                     document.getElementById('statsGrid').innerHTML = `
                         <div class="stat-card">
                             <h3>${stats.totalUsers}</h3>
@@ -1043,9 +1052,11 @@
                         </div>
                     `;
                 } else {
+                    console.error('Stats API error:', result.error);
                     showAlert('Failed to load stats: ' + result.error, 'error');
                 }
             } catch (error) {
+                console.error('Stats fetch error:', error);
                 showAlert('Error loading stats: ' + error.message, 'error');
             }
         }
@@ -1665,16 +1676,19 @@
 
         // Load security data
         async function loadSecurityData() {
+            console.log('loadSecurityData called, adminToken:', adminToken ? 'present' : 'missing');
             if (!adminToken) {
                 showAlert('No admin token available. Please log in again.', 'error');
                 return;
             }
             try {
+                console.log('Loading security data...');
                 await Promise.all([
                     loadBannedIPs(),
                     loadBannedDevices(),
                     loadSecurityLogs()
                 ]);
+                console.log('Security data loaded successfully');
             } catch (error) {
                 console.error('Error loading security data:', error);
                 showAlert('Failed to load security data: ' + error.message, 'error');
@@ -1993,6 +2007,8 @@
             if (storedToken) {
                 adminToken = storedToken;
                 showAdminSection();
+                // Ensure stats are loaded immediately
+                loadStats();
             }
         });
 
