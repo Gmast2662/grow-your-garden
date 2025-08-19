@@ -2,7 +2,29 @@
 
 This document contains every single update, bug fix, and change made to Grow Your Garden, including detailed technical information.
 
-## 🆕 Latest Updates (v1.6.15)
+## 🆕 Latest Updates (v1.6.16)
+
+### 🔧 FIXED: Admin Panel Debugging & Permanent Mute Connection Issues
+- **Security Tab Debugging**: Enhanced debugging and error handling for security data loading
+  - **Issue**: Security tab was not displaying content despite backend working correctly
+  - **Fix**: Added comprehensive console logging and token validation checks
+  - **Fix**: Added element verification to ensure DOM elements exist before updating
+  - **Result**: Better visibility into security tab loading issues for troubleshooting
+- **Permanent Mute Connection Fix**: Fixed permanent mutes disconnecting users on refresh
+  - **Issue**: Permanently muted users were being blocked from connecting to the server
+  - **Fix**: Removed connection blocking for permanently muted users in server.js
+  - **Fix**: Permanently muted users can now connect and play, but cannot send chat messages
+  - **Result**: Non-disruptive permanent mutes that don't disconnect users
+- **Mute Reason Confirmation**: Confirmed mute reason is optional (no backend requirement)
+  - **Issue**: User reported that permanent mutes need a reason
+  - **Verification**: Backend code confirms reason is optional (reason || null)
+  - **Result**: Mute reasons remain optional as intended
+- **Clear Gardens Debugging**: Enhanced debugging for clear gardens functionality
+  - **Issue**: Clear gardens function was not working properly
+  - **Fix**: Added comprehensive logging and token validation for clear gardens
+  - **Result**: Better visibility into clear gardens operation for troubleshooting
+
+## 🆕 Previous Updates (v1.6.15)
 
 ### 🔧 FIXED: Admin Panel Security Tab & Mute System Improvements
 - **Security Tab Functionality**: Fixed security tab not working properly

@@ -1301,6 +1301,7 @@
         function clearUserGardens(userId) {
             if (confirm('Are you sure you want to clear all gardens for this user? This action cannot be undone!')) {
                 console.log('Clearing gardens for user:', userId);
+                console.log('Using admin token:', adminToken ? adminToken.substring(0, 20) + '...' : 'null');
                 fetch(`/api/admin/users/${userId}/clear-gardens`, {
                     method: 'POST',
                     headers: { 'Authorization': `Bearer ${adminToken}` }
@@ -1670,6 +1671,12 @@
         // Load security data
         async function loadSecurityData() {
             console.log('Loading security data...');
+            console.log('Admin token available:', !!adminToken);
+            if (!adminToken) {
+                console.error('No admin token available!');
+                showAlert('No admin token available. Please log in again.', 'error');
+                return;
+            }
             try {
                 await Promise.all([
                     loadBannedIPs(),
@@ -1687,6 +1694,7 @@
         async function loadBannedIPs() {
             try {
                 console.log('Loading banned IPs...');
+                console.log('Using admin token:', adminToken ? adminToken.substring(0, 20) + '...' : 'null');
                 const response = await fetch('/api/admin/banned-ips', {
                     headers: { 'Authorization': `Bearer ${adminToken}` }
                 });
@@ -1696,6 +1704,7 @@
                 
                 if (response.ok) {
                     const bannedIPsList = document.getElementById('bannedIPsList');
+                    console.log('Found bannedIPsList element:', !!bannedIPsList);
                     if (result.bannedIPs.length === 0) {
                         bannedIPsList.innerHTML = '<h5>Banned IP Addresses</h5><p>No banned IP addresses</p>';
                     } else {
@@ -1714,6 +1723,7 @@
                         });
                         bannedIPsList.innerHTML = html;
                     }
+                    console.log('Banned IPs loaded successfully');
                 } else {
                     console.error('Failed to load banned IPs:', result.error);
                     showAlert('Failed to load banned IPs: ' + result.error, 'error');

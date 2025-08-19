@@ -2,7 +2,39 @@
 
 This document tracks all updates, bug fixes, and new features added to the Grow Your Garden.
 
-## 🆕 Latest Update - Admin Panel Security Tab & Local Timezone Fixes! 🔒 (v1.6.15)
+## 🆕 Latest Update - Admin Panel Debugging & Permanent Mute Fixes! 🔒 (v1.6.16)
+
+**Date:** August 19, 2025
+
+**Admin Panel Debugging & Fixes:**
+- **Security Tab Debugging**: Enhanced debugging and error handling for security data loading
+  - **Token Validation**: Added checks to ensure admin token is available before making API calls
+  - **Comprehensive Logging**: Added detailed console logging for troubleshooting security tab issues
+  - **Element Verification**: Added checks to ensure DOM elements exist before updating content
+- **Permanent Mute Connection Fix**: Fixed permanent mutes disconnecting users on refresh
+  - **Previous Issue**: Permanently muted users were being blocked from connecting to the server
+  - **New Behavior**: Permanently muted users can connect and play, but cannot send chat messages
+  - **Connection Handling**: Removed connection blocking for permanently muted users
+- **Mute Reason Confirmation**: Confirmed mute reason is optional (no backend requirement)
+- **Clear Gardens Debugging**: Enhanced debugging for clear gardens functionality
+
+**Technical Improvements:**
+- **Connection Handling**: Removed connection blocking for permanently muted users
+- **Debugging**: Added comprehensive console logging for security tab and clear gardens functions
+- **Error Handling**: Enhanced error messages and debugging output for better troubleshooting
+- **Token Management**: Added validation to ensure admin token is properly set before API calls
+
+**User Experience:**
+- **Working Security Tab**: Enhanced debugging helps identify and resolve security tab issues
+- **Non-Disruptive Mutes**: Permanently muted users can continue playing without disconnection
+- **Better Error Messages**: More informative error messages help with troubleshooting
+- **Optional Mute Reasons**: Mute reasons remain optional as intended
+
+This update focuses on debugging and fixing the remaining admin panel issues, particularly the security tab and permanent mute behavior.
+
+---
+
+## 🆕 Previous Update - Admin Panel Security Tab & Local Timezone Fixes! 🔒 (v1.6.15)
 
 **Date:** August 18, 2025
 

@@ -308,12 +308,13 @@ const authenticateSocketToken = (socket, next) => {
             }
             
             // Check if user is permanently muted (only permanent mutes should block connections)
-            if (user.muted_until === null && user.mute_reason !== null) {
-                // Permanent mute - prevent connection entirely
-                const muteMessage = `Account permanently muted: ${user.mute_reason || 'No reason provided'}`;
-                console.log(`🚫 Blocking connection for permanently muted user: ${decoded.username} - ${muteMessage}`);
-                return next(new Error(muteMessage));
-            }
+            // REMOVED: Permanent mutes should not block connections, only prevent chat
+            // if (user.muted_until === null && user.mute_reason !== null) {
+            //     // Permanent mute - prevent connection entirely
+            //     const muteMessage = `Account permanently muted: ${user.mute_reason || 'No reason provided'}`;
+            //     console.log(`🚫 Blocking connection for permanently muted user: ${decoded.username} - ${muteMessage}`);
+            //     return next(new Error(muteMessage));
+            // }
             
             socket.userId = decoded.id;
             socket.username = decoded.username;
