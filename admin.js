@@ -1196,10 +1196,18 @@ router.post('/mute', authenticateAdmin, (req, res) => {
                         req.ip
                     );
                     
-                    // Disconnect user if permanently muted
+                    // Send mute notification to user if they're online (but don't disconnect)
                     if (duration === 'permanent') {
-                        const disconnectMessage = `You have been permanently muted: ${reason || 'No reason provided'}. You have been disconnected from the server.`;
-                        disconnectUser(userId, disconnectMessage);
+                        const muteMessage = `You have been permanently muted: ${reason || 'No reason provided'}. You can still play the game but cannot send chat messages.`;
+                        // Find user's socket and send notification
+                        userSockets.forEach((socket, socketUserId) => {
+                            if (socketUserId === userId) {
+                                socket.emit('admin_action', {
+                                    type: 'mute_notification',
+                                    message: muteMessage
+                                });
+                            }
+                        });
                     }
                     
                     res.json({

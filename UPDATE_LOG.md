@@ -2,7 +2,47 @@
 
 This document tracks all updates, bug fixes, and new features added to the Grow Your Garden.
 
-## 🆕 Latest Update - Chat System Improvements & Admin Panel Fixes! 💬 (v1.6.14)
+## 🆕 Latest Update - Admin Panel Security Tab & Local Timezone Fixes! 🔒 (v1.6.15)
+
+**Date:** August 18, 2025
+
+**Admin Panel Security Tab Fixes:**
+- **Security Tab Functionality**: Fixed security tab not working properly
+  - **Missing Styles**: Added CSS styles for security tab components
+  - **Enhanced Error Handling**: Improved error handling in security data loading
+  - **Complete Functionality**: Security tab now displays banned IPs, devices, and security logs correctly
+- **Permanent Mute Behavior**: Changed permanent mutes to not log out users
+  - **Previous Issue**: Permanent mutes were disconnecting users from the server entirely
+  - **New Behavior**: Permanently muted users can still play the game but cannot send chat messages
+  - **Mute Notifications**: Added system to notify users when they are permanently muted
+  - **Better User Experience**: Users stay connected but are informed about their mute status
+
+**Local Timezone Implementation:**
+- **Local Time Display**: All dates and times now display in user's local timezone
+  - **Admin Panel**: All dates in admin panel (user creation, last login, mute times, etc.) show in local time
+  - **Mute Messages**: When users are muted, the unmute time shows in their local timezone
+  - **Announcements**: Announcement timestamps display in local time
+  - **Consistent Experience**: All time displays are now consistent across the application
+- **Utility Function**: Created formatLocalTime() function for consistent time formatting
+- **Automatic Detection**: Browser automatically detects and applies user's local timezone
+
+**Technical Improvements:**
+- **CSS Enhancements**: Added missing styles for security tab components
+- **Error Handling**: Enhanced error handling for security data loading functions
+- **Time Conversion**: Implemented consistent local timezone conversion throughout the application
+- **Mute System**: Improved mute system to be less disruptive while maintaining security
+
+**User Experience:**
+- **Working Security Tab**: Admins can now properly view and manage banned IPs, devices, and security logs
+- **Non-Disruptive Mutes**: Permanently muted users can continue playing the game
+- **Local Time Display**: All times are now displayed in each user's local timezone
+- **Better Feedback**: Improved error messages and loading states in admin panel
+
+This update fixes the security tab functionality and implements local timezone display throughout the application, providing a better user experience for both admins and regular users.
+
+---
+
+## 🆕 Previous Update - Chat System Improvements & Admin Panel Fixes! 💬 (v1.6.14)
 
 **Date:** August 18, 2025
 

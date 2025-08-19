@@ -2,7 +2,28 @@
 
 This document contains every single update, bug fix, and change made to Grow Your Garden, including detailed technical information.
 
-## 🆕 Latest Updates (v1.6.14)
+## 🆕 Latest Updates (v1.6.15)
+
+### 🔧 FIXED: Admin Panel Security Tab & Mute System Improvements
+- **Security Tab Functionality**: Fixed security tab not working properly
+  - **Issue**: Security tab was missing CSS styles and had incomplete functionality
+  - **Fix**: Added missing CSS styles for admin-input-group, admin-list, admin-item, and item-info classes
+  - **Fix**: Enhanced error handling in security data loading functions
+  - **Result**: Security tab now displays banned IPs, devices, and security logs correctly
+- **Permanent Mute Behavior**: Changed permanent mutes to not log out users
+  - **Issue**: Permanent mutes were disconnecting users from the server entirely
+  - **Fix**: Modified permanent mute behavior to only block chat messages, not disconnect users
+  - **Fix**: Added mute notification system to inform users they are muted
+  - **Result**: Permanently muted users can still play the game but cannot send chat messages
+- **Local Timezone Display**: Implemented local timezone conversion for all dates
+  - **Issue**: All dates were showing in server timezone instead of user's local time
+  - **Fix**: Created formatLocalTime() utility function for consistent local time display
+  - **Fix**: Updated all date displays in admin panel to use local timezone
+  - **Fix**: Updated mute messages in main game to show local time
+  - **Affected Areas**: Admin panel dates, mute messages, announcement timestamps
+  - **Result**: All dates and times now display in each user's local timezone
+
+## 🆕 Previous Updates (v1.6.14)
 
 ### 🔧 FIXED: Timezone Display & Database Consistency
 - **Timezone Display Fix**: Fixed all date/time displays in admin panel to show PST

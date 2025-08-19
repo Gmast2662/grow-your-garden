@@ -502,7 +502,8 @@ io.on('connection', (socket) => {
                             const now = new Date();
                             const muteUntil = new Date(muteData.muted_until);
                             if (muteUntil > now) {
-                                const muteMessage = `You are muted until ${muteData.muted_until}: ${muteData.mute_reason || 'No reason provided'}`;
+                                const muteUntilDate = new Date(muteData.muted_until);
+                                const muteMessage = `You are muted until ${muteUntilDate.toLocaleString()}: ${muteData.mute_reason || 'No reason provided'}`;
                                 console.log(`🚫 Blocking message from temporarily muted user: ${socket.username} - ${muteMessage}`);
                                 socket.emit('message_sent', { 
                                     success: false, 

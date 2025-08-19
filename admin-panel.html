@@ -472,6 +472,65 @@
             background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
             color: #212529;
         }
+
+        /* Security tab styles */
+        .admin-input-group {
+            margin-bottom: 15px;
+        }
+
+        .admin-input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .admin-input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e1e5e9;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .admin-list {
+            margin-top: 20px;
+        }
+
+        .admin-list h5 {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 1.1rem;
+        }
+
+        .admin-item {
+            background: white;
+            border: 1px solid #e1e5e9;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+
+        .item-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .item-info strong {
+            color: #333;
+            font-size: 1rem;
+        }
+
+        .item-meta {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .loading {
+            color: #666;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -720,6 +779,17 @@
     <script>
         let adminToken = null;
         let currentUserId = null;
+
+        // Utility function to convert dates to local time
+        function formatLocalTime(dateString) {
+            if (!dateString) return 'Never';
+            try {
+                const date = new Date(dateString);
+                return date.toLocaleString();
+            } catch (error) {
+                return dateString; // Return original if parsing fails
+            }
+        }
 
         // Login form handler
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
@@ -1048,8 +1118,8 @@
                                 <td>${user.username}</td>
                                 <td>${user.email || '-'}</td>
                                 <td>${status.join(' ')}</td>
-                                                                  <td>${new Date(user.created_at).toLocaleDateString()}</td>
-                                <td>${user.last_login ? new Date(user.last_login).toLocaleString() : 'Never'}</td>
+                                                                  <td>${formatLocalTime(user.created_at)}</td>
+                                <td>${formatLocalTime(user.last_login)}</td>
                                 <td>
                                     ${user.is_banned ? 
                                         `<button class="btn btn-success" onclick="unbanUser('${user.id}')">Unban</button>` :
@@ -1289,7 +1359,7 @@
                                         <div>
                                             <span class="announcement-admin">${announcement.admin_username}</span>
                                         </div>
-                                        <span class="announcement-time">${new Date(announcement.created_at).toLocaleString()}</span>
+                                        <span class="announcement-time">${formatLocalTime(announcement.created_at)}</span>
                                     </div>
                                     <div class="announcement-message">${announcement.message}</div>
                                 </div>
@@ -1338,7 +1408,7 @@
                                             <span class="log-action">${log.action}</span>
                                             ${log.target_username ? `<span class="log-target">→ ${log.target_username}</span>` : ''}
                                         </div>
-                                        <span class="log-time">${new Date(log.created_at).toLocaleString()}</span>
+                                        <span class="log-time">${formatLocalTime(log.created_at)}</span>
                                     </div>
                                     ${log.details ? `<div class="log-details">${log.details}</div>` : ''}
                                     ${log.ip_address ? `<div class="log-ip">IP: ${log.ip_address}</div>` : ''}
@@ -1471,12 +1541,12 @@
                                             <span class="muted-user-name">${user.username}</span>
                                             <span class="muted-user-status ${statusClass}">${statusText}</span>
                                         </div>
-                                        <span class="muted-user-time">${new Date(user.created_at).toLocaleString()}</span>
+                                        <span class="muted-user-time">${formatLocalTime(user.created_at)}</span>
                                     </div>
                                     <div class="muted-user-details">
                                         <div><strong>User ID:</strong> ${user.user_id}</div>
                                         <div><strong>Muted by:</strong> ${user.muted_by_admin_username}</div>
-                                        ${user.muted_until ? `<div><strong>Until:</strong> ${new Date(user.muted_until).toLocaleString()}</div>` : ''}
+                                        ${user.muted_until ? `<div><strong>Until:</strong> ${formatLocalTime(user.muted_until)}</div>` : ''}
                                         ${user.mute_reason ? `<div><strong>Reason:</strong> ${user.mute_reason}</div>` : ''}
                                     </div>
                                     ${user.status === 'active' || user.status === 'permanent' ? 
@@ -1543,7 +1613,7 @@
                                         <div>
                                             <span class="filter-word-text">"${word.word}"</span>
                                         </div>
-                                        <span class="filter-word-time">${new Date(word.created_at).toLocaleString()}</span>
+                                        <span class="filter-word-time">${formatLocalTime(word.created_at)}</span>
                                     </div>
                                     <div class="filter-word-details">
                                         <div><strong>Added by:</strong> ${word.added_by_admin_username}</div>
@@ -1601,6 +1671,7 @@
                 console.log('Security data loaded successfully');
             } catch (error) {
                 console.error('Error loading security data:', error);
+                showAlert('Failed to load security data: ' + error.message, 'error');
             }
         }
 
@@ -1624,7 +1695,7 @@
                                     <div class="item-info">
                                         <strong>${ip.ip_address}</strong>
                                         <span class="item-meta">Banned by: ${ip.banned_by_admin_username}</span>
-                                        <span class="item-meta">Date: ${new Date(ip.created_at).toLocaleString()}</span>
+                                        <span class="item-meta">Date: ${formatLocalTime(ip.created_at)}</span>
                                         ${ip.reason ? `<span class="item-meta">Reason: ${ip.reason}</span>` : ''}
                                     </div>
                                 </div>
@@ -1632,6 +1703,8 @@
                         });
                         bannedIPsList.innerHTML = html;
                     }
+                } else {
+                    console.error('Failed to load banned IPs:', result.error);
                 }
             } catch (error) {
                 console.error('Error loading banned IPs:', error);
@@ -1658,7 +1731,7 @@
                                     <div class="item-info">
                                         <strong>${device.device_fingerprint.substring(0, 16)}...</strong>
                                         <span class="item-meta">Banned by: ${device.banned_by_admin_username}</span>
-                                        <span class="item-meta">Date: ${new Date(device.created_at).toLocaleString()}</span>
+                                        <span class="item-meta">Date: ${formatLocalTime(device.created_at)}</span>
                                         ${device.reason ? `<span class="item-meta">Reason: ${device.reason}</span>` : ''}
                                     </div>
                                 </div>
@@ -1666,6 +1739,8 @@
                         });
                         bannedDevicesList.innerHTML = html;
                     }
+                } else {
+                    console.error('Failed to load banned devices:', result.error);
                 }
             } catch (error) {
                 console.error('Error loading banned devices:', error);
@@ -1693,7 +1768,7 @@
                                         <strong>${log.username || 'Unknown'}</strong>
                                         <span class="item-meta">Action: ${log.action}</span>
                                         <span class="item-meta">IP: ${log.ip_address || 'Unknown'}</span>
-                                        <span class="item-meta">Date: ${new Date(log.created_at).toLocaleString()}</span>
+                                        <span class="item-meta">Date: ${formatLocalTime(log.created_at)}</span>
                                         ${log.details ? `<span class="item-meta">Details: ${log.details}</span>` : ''}
                                     </div>
                                 </div>
@@ -1701,6 +1776,8 @@
                         });
                         securityLogsList.innerHTML = html;
                     }
+                } else {
+                    console.error('Failed to load security logs:', result.error);
                 }
             } catch (error) {
                 console.error('Error loading security logs:', error);
