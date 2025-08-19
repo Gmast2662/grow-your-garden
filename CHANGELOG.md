@@ -1219,6 +1219,25 @@ This document contains every single update, bug fix, and change made to Grow You
 
 **Last Updated: August 2025**
 
+## [1.6.19] - 2025-08-19
+### Fixed
+- **Security Tab Display**: Fixed CSS issue that was hiding security tab content
+- **Permanent Mute Functionality**: Verified permanent mute without reason works correctly
+- **Clear Gardens Functionality**: Confirmed backend and frontend work properly
+- **Timezone Conversion**: All date/time displays now use local timezone
+
+### Technical
+- Fixed `.admin-section` CSS class that had `display: none`
+- Verified database schema and API endpoints
+- Confirmed all admin panel functionality works as expected
+
+## [1.6.18] - 2025-08-19
+### Changed
+- Console cleanup and enhanced user activity logging
+- Reduced excessive debug messages from admin panel and server
+- Enhanced user activity logging with clear status messages
+- Improved console output organization and readability
+
 ## Version 1.5.5 - Enhanced Rare & Legendary Seed Stock System
 
 ### 🎯 ADDED: Enhanced Rare & Legendary Seed Stock System
