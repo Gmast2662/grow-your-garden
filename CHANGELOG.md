@@ -31,6 +31,11 @@ This document contains every single update, bug fix, and change made to Grow You
   - **Issue**: When refreshing the page without being logged in, the login page wasn't displayed
   - **Fix**: Added proper logic in DOMContentLoaded to show login page when no token is stored
   - **Result**: Proper login page display on page refresh when not authenticated
+- **Tab Visibility Debugging**: Added comprehensive debugging to identify display issues
+  - **Issue**: Dashboard and security tabs were not displaying content despite API calls working
+  - **Fix**: Added debugging logs to showTab function and loadStats function to track tab activation and content display
+  - **Fix**: Modified showAdminSection to explicitly call showTab('dashboard') to ensure proper tab activation
+  - **Result**: Better visibility into tab switching and content display issues
 
 
 ## 🆕 Previous Updates (v1.6.18)

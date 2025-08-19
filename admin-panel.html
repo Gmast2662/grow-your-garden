@@ -923,16 +923,12 @@
         });
 
         function showAdminSection() {
+            console.log('showAdminSection called');
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('adminSection').style.display = 'block';
             
-            // Load initial data
-            loadStats();
-            loadUsers();
-            loadLogs();
-            loadMutedUsers();
-            loadFilterWords();
-            loadSecurityData();
+            // Ensure dashboard tab is active by default
+            showTab('dashboard');
             
             // Set up automatic stats refresh every 30 seconds
             if (window.adminStatsInterval) {
@@ -944,6 +940,7 @@
         }
 
         function showTab(tabName) {
+            console.log('showTab called with:', tabName);
             // Only show tabs if we have a valid token
             if (!adminToken) {
                 showAlert('Please log in first', 'error');
@@ -962,8 +959,10 @@
                 targetTabId = 'chatFilterTab'; // Remove hyphen for chat filter
             }
             
+            console.log('Looking for tab with ID:', targetTabId);
             const targetTab = document.getElementById(targetTabId);
             if (targetTab) {
+                console.log('Found target tab, adding active class');
                 targetTab.classList.add('active');
                 
                 // Load data for specific tabs
@@ -979,8 +978,10 @@
                     loadLogs();
                     startLogsAutoRefresh();
                 } else if (tabName === 'dashboard') {
+                    console.log('Loading dashboard stats');
                     loadStats();
                 } else if (tabName === 'security') {
+                    console.log('Loading security data');
                     loadSecurityData();
                 } else {
                     // Stop auto-refresh for other tabs
@@ -1049,6 +1050,9 @@
                     if (statsGrid) {
                         statsGrid.innerHTML = statsHTML;
                         console.log('Stats HTML set successfully');
+                        console.log('statsGrid display style:', statsGrid.style.display);
+                        console.log('statsGrid computed display:', window.getComputedStyle(statsGrid).display);
+                        console.log('statsGrid parent display:', window.getComputedStyle(statsGrid.parentElement).display);
                     } else {
                         console.error('statsGrid element not found!');
                     }

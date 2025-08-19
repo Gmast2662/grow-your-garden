@@ -8,6 +8,7 @@
 - **Admin Panel Navigation**: Added logout button and improved admin section visibility control
 - **Dashboard & Security Tab Issues**: Fixed dashboard stats and security tab loading problems with enhanced debugging
 - **Login Page Redirect**: Fixed issue where login page wasn't showing on page refresh when not authenticated
+- **Tab Visibility Debugging**: Added comprehensive debugging to identify why dashboard and security tabs aren't displaying content
 
 
 ## [1.6.19] - 2025-08-19
