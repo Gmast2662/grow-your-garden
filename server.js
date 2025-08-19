@@ -1050,6 +1050,102 @@ app.get('/api/fix-database', (req, res) => {
     });
 });
 
+// Test database status endpoint
+app.get('/api/test-db', (req, res) => {
+    console.log('🔍 Testing database status...');
+    
+    db.all('SELECT name FROM sqlite_master WHERE type="table"', (err, tables) => {
+        if (err) {
+            console.error('❌ Database error:', err.message);
+            return res.json({ 
+                error: 'Database error', 
+                message: err.message,
+                tables: []
+            });
+        }
+        
+        const tableNames = tables.map(t => t.name);
+        console.log('📋 Tables found:', tableNames);
+        
+        // Check specific tables
+        const requiredTables = ['banned_ips', 'banned_devices', 'security_logs', 'user_mutes'];
+        const missingTables = requiredTables.filter(table => !tableNames.includes(table));
+        
+        res.json({
+            success: true,
+            totalTables: tableNames.length,
+            allTables: tableNames,
+            requiredTables: requiredTables,
+            missingTables: missingTables,
+            hasAllRequired: missingTables.length === 0
+        });
+    });
+});
+
+// Test admin users endpoint
+app.get('/api/test-admin', (req, res) => {
+    db.get('SELECT COUNT(*) as count FROM users WHERE is_admin = 1', (err, result) => {
+        if (err) {
+            return res.json({ error: 'Database error', message: err.message });
+        }
+        
+        res.json({
+            success: true,
+            adminCount: result.count,
+            hasAdmins: result.count > 0
+        });
+    });
+});
+
+// Create admin user endpoint (for first-time setup)
+app.post('/api/create-admin', async (req, res) => {
+    const { username, password, email } = req.body;
+    
+    if (!username || !password) {
+        return res.status(400).json({ error: 'Username and password required' });
+    }
+    
+    try {
+        const bcrypt = require('bcryptjs');
+        const { v4: uuidv4 } = require('uuid');
+        const jwt = require('jsonwebtoken');
+        
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const userId = uuidv4();
+        const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this';
+        
+        db.run(
+            'INSERT INTO users (id, username, email, password_hash, is_admin) VALUES (?, ?, ?, ?, 1)',
+            [userId, username, email || null, hashedPassword],
+            function(err) {
+                if (err) {
+                    console.error('Error creating admin:', err);
+                    return res.status(500).json({ error: 'Database error', message: err.message });
+                }
+                
+                const token = jwt.sign(
+                    { id: userId, username, isAdmin: true },
+                    JWT_SECRET,
+                    { expiresIn: '24h' }
+                );
+                
+                res.json({
+                    message: 'Admin account created successfully',
+                    token,
+                    user: {
+                        id: userId,
+                        username,
+                        isAdmin: true
+                    }
+                });
+            }
+        );
+    } catch (error) {
+        console.error('Error creating admin:', error);
+        res.status(500).json({ error: 'Server error', message: error.message });
+    }
+});
+
 // Serve the main game page (client-side handles authentication)
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
