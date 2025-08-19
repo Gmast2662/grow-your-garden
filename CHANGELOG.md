@@ -65,6 +65,12 @@ This document contains every single update, bug fix, and change made to Grow You
   - **Affected Files**: `admin-panel.html`, `multiplayer.js`
   - **Result**: Times now display in each user's local timezone automatically
 
+### 🔧 FIXED: Database Schema Compatibility
+- **User Mutes Table Fix**: Fixed compatibility issue with existing user_mutes table structure
+  - **Issue**: Script was trying to insert into non-existent `username` column in user_mutes table
+  - **Fix**: Updated fix-all-issues.js to work with existing table structure
+  - **Result**: Script now completes successfully without database errors
+
 ## 🆕 Previous Updates (v1.6.12)
 
 ### 🔧 FIXED: Critical Admin Panel & Mute System Fixes

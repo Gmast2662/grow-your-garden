@@ -191,14 +191,14 @@ async function fixAllIssues() {
         `);
         console.log('  ✅ Added test admin logs');
         
-        // Add test user mutes
+        // Add test user mutes (without username column since it doesn't exist)
         await runSQL(`
-            INSERT OR IGNORE INTO user_mutes (user_id, username, muted_until, mute_reason, muted_by_admin_username) 
+            INSERT OR IGNORE INTO user_mutes (user_id, muted_until, mute_reason, muted_by_admin_username) 
             VALUES 
-            (999, 'test-muted-user-1', NULL, 'Permanent mute - spam', 'test-admin'),
-            (998, 'test-muted-user-2', datetime('now', '+1 hour'), 'Temporary mute - inappropriate content', 'test-admin'),
-            (997, 'test-muted-user-3', datetime('now', '+30 minutes'), 'Temporary mute - harassment', 'test-admin'),
-            (996, 'test-muted-user-4', NULL, 'Permanent mute - no reason', 'test-admin')
+            (999, NULL, 'Permanent mute - spam', 'test-admin'),
+            (998, datetime('now', '+1 hour'), 'Temporary mute - inappropriate content', 'test-admin'),
+            (997, datetime('now', '+30 minutes'), 'Temporary mute - harassment', 'test-admin'),
+            (996, NULL, 'Permanent mute - no reason', 'test-admin')
         `);
         console.log('  ✅ Added test user mutes');
         
