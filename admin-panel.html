@@ -1300,21 +1300,29 @@
 
         function clearUserGardens(userId) {
             if (confirm('Are you sure you want to clear all gardens for this user? This action cannot be undone!')) {
+                console.log('Clearing gardens for user:', userId);
                 fetch(`/api/admin/users/${userId}/clear-gardens`, {
                     method: 'POST',
                     headers: { 'Authorization': `Bearer ${adminToken}` }
                 })
-                .then(response => response.json())
+                .then(response => {
+                    console.log('Clear gardens response status:', response.status);
+                    return response.json();
+                })
                 .then(result => {
+                    console.log('Clear gardens result:', result);
                     if (result.message) {
                         showAlert(`All gardens cleared successfully! (${result.gardensCleared} garden(s) cleared)`, 'success');
                         loadUsers();
                         loadStats();
                     } else {
-                        showAlert(result.error, 'error');
+                        showAlert(result.error || 'Unknown error occurred', 'error');
                     }
                 })
-                .catch(error => showAlert('Clear gardens failed: ' + error.message, 'error'));
+                .catch(error => {
+                    console.error('Clear gardens error:', error);
+                    showAlert('Clear gardens failed: ' + error.message, 'error');
+                });
             }
         }
 
@@ -1678,10 +1686,13 @@
         // Load banned IPs
         async function loadBannedIPs() {
             try {
+                console.log('Loading banned IPs...');
                 const response = await fetch('/api/admin/banned-ips', {
                     headers: { 'Authorization': `Bearer ${adminToken}` }
                 });
                 const result = await response.json();
+                
+                console.log('Banned IPs response:', response.status, result);
                 
                 if (response.ok) {
                     const bannedIPsList = document.getElementById('bannedIPsList');
@@ -1705,19 +1716,24 @@
                     }
                 } else {
                     console.error('Failed to load banned IPs:', result.error);
+                    showAlert('Failed to load banned IPs: ' + result.error, 'error');
                 }
             } catch (error) {
                 console.error('Error loading banned IPs:', error);
+                showAlert('Error loading banned IPs: ' + error.message, 'error');
             }
         }
 
         // Load banned devices
         async function loadBannedDevices() {
             try {
+                console.log('Loading banned devices...');
                 const response = await fetch('/api/admin/banned-devices', {
                     headers: { 'Authorization': `Bearer ${adminToken}` }
                 });
                 const result = await response.json();
+                
+                console.log('Banned devices response:', response.status, result);
                 
                 if (response.ok) {
                     const bannedDevicesList = document.getElementById('bannedDevicesList');
@@ -1741,19 +1757,24 @@
                     }
                 } else {
                     console.error('Failed to load banned devices:', result.error);
+                    showAlert('Failed to load banned devices: ' + result.error, 'error');
                 }
             } catch (error) {
                 console.error('Error loading banned devices:', error);
+                showAlert('Error loading banned devices: ' + error.message, 'error');
             }
         }
 
         // Load security logs
         async function loadSecurityLogs() {
             try {
+                console.log('Loading security logs...');
                 const response = await fetch('/api/admin/security-logs?limit=50', {
                     headers: { 'Authorization': `Bearer ${adminToken}` }
                 });
                 const result = await response.json();
+                
+                console.log('Security logs response:', response.status, result);
                 
                 if (response.ok) {
                     const securityLogsList = document.getElementById('securityLogsList');
@@ -1778,9 +1799,11 @@
                     }
                 } else {
                     console.error('Failed to load security logs:', result.error);
+                    showAlert('Failed to load security logs: ' + result.error, 'error');
                 }
             } catch (error) {
                 console.error('Error loading security logs:', error);
+                showAlert('Error loading security logs: ' + error.message, 'error');
             }
         }
 
