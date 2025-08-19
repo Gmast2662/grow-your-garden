@@ -947,6 +947,17 @@ app.get('/health', (req, res) => {
     });
 });
 
+// Get current IP address (for testing ban system safely)
+app.get('/api/my-ip', (req, res) => {
+    const clientIP = req.ip || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket?.remoteAddress;
+    res.json({ 
+        ip: clientIP,
+        forwardedFor: req.headers['x-forwarded-for'],
+        realIP: req.headers['x-real-ip'],
+        userAgent: req.headers['user-agent']
+    });
+});
+
 // Serve the main game page (client-side handles authentication)
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
