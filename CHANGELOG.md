@@ -2,9 +2,14 @@
 
 This document contains every single update, bug fix, and change made to Grow Your Garden, including detailed technical information.
 
-## 🆕 Latest Updates (v1.6.13)
+## 🆕 Latest Updates (v1.6.14)
 
-### 🔧 FIXED: Comprehensive Database & Admin Panel Fixes
+### 🔧 FIXED: Timezone Display & Database Consistency
+- **Timezone Display Fix**: Fixed all date/time displays in admin panel to show PST
+  - **Issue**: Admin panel was showing times in server timezone instead of PST
+  - **Fix**: Updated all `toLocaleString()` calls to explicitly use `timeZone: 'America/Los_Angeles'`
+  - **Result**: All dates and times now display correctly in PST timezone
+- **Database Schema Consistency**: Fixed critical database schema mismatches
 - **Database Schema Consistency**: Fixed critical database schema mismatches
   - **Issue**: Server was creating both `security_logs` and `admin_logs` tables, causing confusion
   - **Fix**: Standardized to use only `admin_logs` table for security logging
