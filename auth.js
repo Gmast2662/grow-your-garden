@@ -16,8 +16,8 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this';
 router.post('/register', async (req, res) => {
     const { username, email, password } = req.body;
 
-    if (!username || !email || !password) {
-        return res.status(400).json({ error: 'Username, email, and password are required' });
+    if (!username || !password) {
+        return res.status(400).json({ error: 'Username and password are required' });
     }
 
     if (password.length < 6) {
@@ -35,16 +35,27 @@ router.post('/register', async (req, res) => {
                 return res.status(400).json({ error: 'Username already exists' });
             }
 
-            // Check if email already exists
-            db.get('SELECT id FROM users WHERE email = ?', [email], async (err, existingEmail) => {
-                if (err) {
-                    return res.status(500).json({ error: 'Database error' });
-                }
+            // Check if email already exists (only if email is provided)
+            if (email) {
+                db.get('SELECT id FROM users WHERE email = ?', [email], async (err, existingEmail) => {
+                    if (err) {
+                        return res.status(500).json({ error: 'Database error' });
+                    }
 
-                if (existingEmail) {
-                    return res.status(400).json({ error: 'Email already exists' });
-                }
+                    if (existingEmail) {
+                        return res.status(400).json({ error: 'Email already exists' });
+                    }
 
+                    // Continue with user creation
+                    createUser();
+                });
+            } else {
+                // No email provided, continue with user creation
+                createUser();
+            }
+
+            // Function to create user
+            async function createUser() {
                 // Hash password
                 const passwordHash = await bcrypt.hash(password, 10);
 
@@ -54,7 +65,7 @@ router.post('/register', async (req, res) => {
 
                 db.run(
                     'INSERT INTO users (id, username, email, password_hash, registration_ip) VALUES (?, ?, ?, ?, ?)',
-                    [userId, username, email, passwordHash, ipAddress],
+                    [userId, username, email || null, passwordHash, ipAddress],
                     function(err) {
                         if (err) {
                             return res.status(500).json({ error: 'Failed to create user' });
@@ -72,8 +83,7 @@ router.post('/register', async (req, res) => {
                         });
                     }
                 );
-            });
-        });
+            }
     } catch (error) {
         console.error('Registration error:', error);
         res.status(500).json({ error: 'Server error' });

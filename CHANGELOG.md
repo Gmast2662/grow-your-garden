@@ -2,19 +2,21 @@
 
 This document contains every single update, bug fix, and change made to Grow Your Garden, including detailed technical information.
 
-## 🆕 Latest Updates (v1.6.8)
+## 🆕 Latest Updates (v1.6.9)
 
-### 🔧 FIXED: Admin Panel Fixes & Log Auto-Refresh
+### 🔧 FIXED: Admin Panel Fixes & Registration Fix
 - **Log Auto-Refresh**: Admin logs now automatically refresh every 10 seconds when logs tab is active
 - **Dashboard Loading**: Fixed dashboard tab not showing statistics properly
 - **Security Tab Loading**: Fixed security tab not displaying IP bans, device bans, and security logs
 - **Tab Structure Fix**: Corrected CSS class inconsistencies between tab content sections
 - **Clear Garden Functionality**: Verified clear garden actions work properly with server-side garden deletion
+- **Optional Email Registration**: Fixed registration to make email field truly optional
 - **Technical Improvements**:
   - Added intelligent auto-refresh for logs that only runs when logs tab is active
   - Fixed tab switching and content loading for all admin panel sections
   - Enhanced security tab with proper data loading and refresh functionality
   - Improved error handling for admin panel data loading operations
+  - Updated registration flow to support optional email addresses
   - Standardized tab content structure across all admin panel sections
 - **Bug Fixes**:
   - Fixed admin logs not updating automatically
