@@ -321,6 +321,7 @@ router.post('/unban-device', authenticateAdmin, (req, res) => {
 
 // Get banned IPs (admin only)
 router.get('/banned-ips', authenticateAdmin, (req, res) => {
+    console.log('🔍 Fetching banned IPs...');
     db.all(`
         SELECT 
             ip_address,
@@ -331,18 +332,21 @@ router.get('/banned-ips', authenticateAdmin, (req, res) => {
         ORDER BY created_at DESC
     `, (err, bannedIPs) => {
         if (err) {
+            console.error('❌ Error fetching banned IPs:', err);
             return res.status(500).json({ error: 'Database error' });
         }
         
+        console.log(`✅ Found ${bannedIPs.length} banned IPs`);
         res.json({ bannedIPs });
     });
 });
 
 // Get banned devices (admin only)
 router.get('/banned-devices', authenticateAdmin, (req, res) => {
+    console.log('🔍 Fetching banned devices...');
     db.all(`
         SELECT 
-            device_id as device_fingerprint,
+            device_fingerprint,
             reason,
             banned_by_admin_username,
             created_at
@@ -350,9 +354,11 @@ router.get('/banned-devices', authenticateAdmin, (req, res) => {
         ORDER BY created_at DESC
     `, (err, bannedDevices) => {
         if (err) {
+            console.error('❌ Error fetching banned devices:', err);
             return res.status(500).json({ error: 'Database error' });
         }
         
+        console.log(`✅ Found ${bannedDevices.length} banned devices`);
         res.json({ bannedDevices });
     });
 });
@@ -362,6 +368,7 @@ router.get('/security-logs', authenticateAdmin, (req, res) => {
     const limit = parseInt(req.query.limit) || 100;
     const offset = parseInt(req.query.offset) || 0;
     
+    console.log(`🔍 Fetching security logs (limit: ${limit}, offset: ${offset})...`);
     db.all(`
         SELECT 
             admin_username as username,
@@ -369,14 +376,16 @@ router.get('/security-logs', authenticateAdmin, (req, res) => {
             ip_address,
             details,
             created_at
-        FROM security_logs 
+        FROM admin_logs 
         ORDER BY created_at DESC 
         LIMIT ? OFFSET ?
     `, [limit, offset], (err, securityLogs) => {
         if (err) {
+            console.error('❌ Error fetching security logs:', err);
             return res.status(500).json({ error: 'Database error' });
         }
         
+        console.log(`✅ Found ${securityLogs.length} security logs`);
         res.json({ securityLogs });
     });
 });
@@ -532,7 +541,7 @@ router.post('/users/:userId/ban', authenticateAdmin, (req, res) => {
         // Ban device if requested and available
         if (shouldBanDevice && targetUser.device_fingerprint) {
             db.run(
-                'INSERT OR REPLACE INTO banned_devices (device_id, reason, banned_by_admin_id, banned_by_admin_username) VALUES (?, ?, ?, ?)',
+                'INSERT OR REPLACE INTO banned_devices (device_fingerprint, reason, banned_by_admin_id, banned_by_admin_username) VALUES (?, ?, ?, ?)',
                 [targetUser.device_fingerprint, `User ban: ${reason}`, req.user.id, req.user.username]
             );
         }

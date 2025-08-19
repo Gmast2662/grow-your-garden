@@ -2,7 +2,49 @@
 
 This document contains every single update, bug fix, and change made to Grow Your Garden, including detailed technical information.
 
-## 🆕 Latest Updates (v1.6.10)
+## 🆕 Latest Updates (v1.6.12)
+
+### 🔧 FIXED: Critical Admin Panel & Mute System Fixes
+- **Mute System Bug**: Fixed critical bug where mutes without reasons were not working
+  - **Issue**: Mute logic was checking `mute_reason !== null` which failed when no reason was provided
+  - **Fix**: Changed to check `muted_until !== null OR mute_reason !== null` to handle mutes without reasons
+  - **Result**: Mutes now work properly whether a reason is provided or not
+- **IP Ban Functionality**: Fixed IP banning system not working properly
+  - **Issue**: Database column name mismatches between `device_id` and `device_fingerprint`
+  - **Fix**: Standardized all queries to use `device_fingerprint` consistently
+  - **Result**: IP bans now work correctly and ask for IP addresses as expected
+- **Security Tab Display**: Fixed security tab showing empty content
+  - **Issue**: Security logs query was using wrong table name (`security_logs` instead of `admin_logs`)
+  - **Fix**: Updated query to use correct `admin_logs` table for security logs
+  - **Result**: Security tab now displays banned IPs, devices, and security logs properly
+- **Permanent Mute Behavior**: Fixed permanent mute to properly prevent login like a ban
+  - **Issue**: Permanent mutes weren't blocking connections properly
+  - **Fix**: Enhanced mute logic to check both `muted_until` and `mute_reason` fields
+  - **Result**: Permanent mutes now properly prevent users from logging in
+- **Database Consistency**: Fixed column name inconsistencies across all admin queries
+  - **Issue**: Mixed usage of `device_id` and `device_fingerprint` in different queries
+  - **Fix**: Standardized all queries to use `device_fingerprint` consistently
+  - **Result**: All admin panel features now work reliably
+
+### 🔧 FIXED: Enhanced Logging & Debugging
+- **Admin Endpoint Logging**: Added comprehensive logging to all admin endpoints
+  - **Added**: Console logging for banned IPs, devices, and security logs queries
+  - **Added**: Error logging with detailed messages for troubleshooting
+  - **Result**: Much easier to debug admin panel issues
+- **Database Query Debugging**: Enhanced error handling and logging for all database operations
+  - **Added**: Query result logging showing number of records found
+  - **Added**: Detailed error messages for failed database operations
+  - **Result**: Better visibility into what's happening in the admin panel
+
+## 🆕 Previous Updates (v1.6.11)
+
+### 🔧 FIXED: Admin Panel & Database Issues
+- **Database Diagnostic Endpoints**: Added `/api/test-db` and `/api/test-admin` endpoints for troubleshooting
+- **Admin Account Creation**: Added `/api/create-admin` endpoint for first-time setup
+- **Database Fix Endpoint**: Enhanced `/api/fix-database` with comprehensive table creation
+- **Technical Improvements**: Better error handling and logging throughout admin system
+
+## 🆕 Previous Updates (v1.6.10)
 
 ### 🔒 ENHANCED: Enhanced Ban System & Admin Panel Fixes
 - **Multiple Ban Types**: Admins can now choose between 4 ban types when banning users:

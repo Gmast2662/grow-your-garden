@@ -301,10 +301,10 @@ const authenticateSocketToken = (socket, next) => {
             }
             
             // Check if user is muted (either temporary or permanent)
-            if (user.mute_reason !== null) {
+            if (user.muted_until !== null || user.mute_reason !== null) {
                 if (user.muted_until === null) {
                     // Permanent mute - prevent connection entirely
-                    const muteMessage = `Account permanently muted: ${user.mute_reason}`;
+                    const muteMessage = `Account permanently muted: ${user.mute_reason || 'No reason provided'}`;
                     console.log(`🚫 Blocking connection for permanently muted user: ${decoded.username} - ${muteMessage}`);
                     return next(new Error(muteMessage));
                 } else {
@@ -312,7 +312,7 @@ const authenticateSocketToken = (socket, next) => {
                     const now = new Date();
                     const muteUntil = new Date(user.muted_until);
                     if (muteUntil > now) {
-                        const muteMessage = `Account muted until ${user.muted_until}: ${user.mute_reason}`;
+                        const muteMessage = `Account muted until ${user.muted_until}: ${user.mute_reason || 'No reason provided'}`;
                         console.log(`🚫 Blocking connection for temporarily muted user: ${decoded.username} - ${muteMessage}`);
                         return next(new Error(muteMessage));
                     }
@@ -491,10 +491,10 @@ io.on('connection', (socket) => {
                         return;
                     }
 
-                    if (muteData && muteData.mute_reason !== null) {
+                    if (muteData && (muteData.muted_until !== null || muteData.mute_reason !== null)) {
                         if (muteData.muted_until === null) {
                             // Permanent mute
-                            const muteMessage = `You are permanently muted: ${muteData.mute_reason}`;
+                            const muteMessage = `You are permanently muted: ${muteData.mute_reason || 'No reason provided'}`;
                             console.log(`🚫 Blocking message from permanently muted user: ${socket.username} - ${muteMessage}`);
                             socket.emit('message_sent', { 
                                 success: false, 
@@ -506,7 +506,7 @@ io.on('connection', (socket) => {
                             const now = new Date();
                             const muteUntil = new Date(muteData.muted_until);
                             if (muteUntil > now) {
-                                const muteMessage = `You are muted until ${muteData.muted_until}: ${muteData.mute_reason}`;
+                                const muteMessage = `You are muted until ${muteData.muted_until}: ${muteData.mute_reason || 'No reason provided'}`;
                                 console.log(`🚫 Blocking message from temporarily muted user: ${socket.username} - ${muteMessage}`);
                                 socket.emit('message_sent', { 
                                     success: false, 
