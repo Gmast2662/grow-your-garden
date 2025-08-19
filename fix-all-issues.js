@@ -1,247 +1,279 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 
-// Connect to the database
+// Database path
 const dbPath = path.join(__dirname, 'garden_game.db');
 const db = new sqlite3.Database(dbPath);
 
-console.log('🔧 FIXING ALL REPORTED ISSUES...\n');
+console.log('🔧 Starting comprehensive fix for all reported issues...\n');
 
-// Fix 1: Ensure all required tables exist
-console.log('1️⃣ CREATING MISSING TABLES:');
-const createTables = [
-    `CREATE TABLE IF NOT EXISTS banned_ips (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        ip_address TEXT UNIQUE NOT NULL,
-        reason TEXT,
-        banned_by_admin_id INTEGER,
-        banned_by_admin_username TEXT,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )`,
-    `CREATE TABLE IF NOT EXISTS banned_devices (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        device_fingerprint TEXT UNIQUE NOT NULL,
-        reason TEXT,
-        banned_by_admin_id INTEGER,
-        banned_by_admin_username TEXT,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )`,
-    `CREATE TABLE IF NOT EXISTS admin_logs (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        admin_id INTEGER,
-        admin_username TEXT,
-        action TEXT,
-        target_user_id INTEGER,
-        target_username TEXT,
-        details TEXT,
-        ip_address TEXT,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )`,
-    `CREATE TABLE IF NOT EXISTS user_mutes (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER UNIQUE,
-        muted_until DATETIME,
-        mute_reason TEXT,
-        muted_by_admin_id INTEGER,
-        muted_by_admin_username TEXT,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )`,
-    `CREATE TABLE IF NOT EXISTS announcements (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        message TEXT NOT NULL,
-        admin_id INTEGER,
-        admin_username TEXT,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )`,
-    `CREATE TABLE IF NOT EXISTS filter_words (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        word TEXT UNIQUE NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )`
-];
+// Test timezone conversion
+console.log('🌍 Testing timezone conversion:');
+const testDate = new Date('2025-08-18T21:30:00.000Z');
+console.log(`  UTC: ${testDate.toISOString()}`);
+console.log(`  Local: ${testDate.toLocaleString()}`);
+console.log(`  PST: ${testDate.toLocaleString('en-US', {timeZone: 'America/Los_Angeles'})}`);
+console.log('');
 
-createTables.forEach((sql, index) => {
-    db.run(sql, (err) => {
-        if (err) {
-            console.log(`   ❌ Error creating table ${index + 1}: ${err.message}`);
-        } else {
-            console.log(`   ✅ Table ${index + 1} created/verified`);
-        }
-    });
-});
-
-// Fix 2: Add test data for security tab
-console.log('\n2️⃣ ADDING TEST DATA FOR SECURITY TAB:');
-
-// Add test banned IPs
-const testIPs = [
-    { ip: '192.168.1.100', reason: 'Spam', admin: 'test-admin' },
-    { ip: '10.0.0.50', reason: 'Harassment', admin: 'test-admin' }
-];
-
-testIPs.forEach((testIP, index) => {
-    db.run(
-        'INSERT OR IGNORE INTO banned_ips (ip_address, reason, banned_by_admin_username) VALUES (?, ?, ?)',
-        [testIP.ip, testIP.reason, testIP.admin],
-        (err) => {
+// Function to run SQL with error handling
+function runSQL(sql, params = []) {
+    return new Promise((resolve, reject) => {
+        db.run(sql, params, function(err) {
             if (err) {
-                console.log(`   ❌ Error adding test IP ${index + 1}: ${err.message}`);
+                console.error(`❌ SQL Error: ${err.message}`);
+                console.error(`   SQL: ${sql}`);
+                reject(err);
             } else {
-                console.log(`   ✅ Test IP ${index + 1} added: ${testIP.ip}`);
-            }
-        }
-    );
-});
-
-// Add test banned devices
-const testDevices = [
-    { fingerprint: 'test-device-1-abc123', reason: 'Suspicious activity', admin: 'test-admin' },
-    { fingerprint: 'test-device-2-def456', reason: 'Multiple violations', admin: 'test-admin' }
-];
-
-testDevices.forEach((testDevice, index) => {
-    db.run(
-        'INSERT OR IGNORE INTO banned_devices (device_fingerprint, reason, banned_by_admin_username) VALUES (?, ?, ?)',
-        [testDevice.fingerprint, testDevice.reason, testDevice.admin],
-        (err) => {
-            if (err) {
-                console.log(`   ❌ Error adding test device ${index + 1}: ${err.message}`);
-            } else {
-                console.log(`   ✅ Test device ${index + 1} added: ${testDevice.fingerprint.substring(0, 16)}...`);
-            }
-        }
-    );
-});
-
-// Add test admin logs
-const testLogs = [
-    { action: 'banned user', target: 'testuser1', details: 'IP ban for spam', admin: 'test-admin' },
-    { action: 'muted user', target: 'testuser2', details: 'Temporary mute for harassment', admin: 'test-admin' },
-    { action: 'banned device', target: 'testuser3', details: 'Device ban for violations', admin: 'test-admin' }
-];
-
-testLogs.forEach((testLog, index) => {
-    db.run(
-        'INSERT OR IGNORE INTO admin_logs (admin_username, action, target_username, details) VALUES (?, ?, ?, ?)',
-        [testLog.admin, testLog.action, testLog.target, testLog.details],
-        (err) => {
-            if (err) {
-                console.log(`   ❌ Error adding test log ${index + 1}: ${err.message}`);
-            } else {
-                console.log(`   ✅ Test log ${index + 1} added: ${testLog.action}`);
-            }
-        }
-    );
-});
-
-// Add test user mutes
-const testMutes = [
-    { userId: 999, until: null, reason: 'Permanent mute test', admin: 'test-admin' },
-    { userId: 998, until: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), reason: 'Temporary mute test', admin: 'test-admin' }
-];
-
-testMutes.forEach((testMute, index) => {
-    db.run(
-        'INSERT OR IGNORE INTO user_mutes (user_id, muted_until, mute_reason, muted_by_admin_username) VALUES (?, ?, ?, ?)',
-        [testMute.userId, testMute.until, testMute.reason, testMute.admin],
-        (err) => {
-            if (err) {
-                console.log(`   ❌ Error adding test mute ${index + 1}: ${err.message}`);
-            } else {
-                console.log(`   ✅ Test mute ${index + 1} added: ${testMute.reason}`);
-            }
-        }
-    );
-});
-
-// Fix 3: Add test announcements
-console.log('\n3️⃣ ADDING TEST ANNOUNCEMENTS:');
-const testAnnouncements = [
-    { message: 'Welcome to the garden! 🌱', admin: 'test-admin' },
-    { message: 'New seeds available in the shop! 🌿', admin: 'test-admin' }
-];
-
-testAnnouncements.forEach((announcement, index) => {
-    db.run(
-        'INSERT OR IGNORE INTO announcements (message, admin_username) VALUES (?, ?)',
-        [announcement.message, announcement.admin],
-        (err) => {
-            if (err) {
-                console.log(`   ❌ Error adding test announcement ${index + 1}: ${err.message}`);
-            } else {
-                console.log(`   ✅ Test announcement ${index + 1} added`);
-            }
-        }
-    );
-});
-
-// Fix 4: Add test filter words
-console.log('\n4️⃣ ADDING TEST FILTER WORDS:');
-const testFilterWords = ['hack', 'cheat', 'exploit', 'scam', 'spam'];
-
-testFilterWords.forEach((word, index) => {
-    db.run(
-        'INSERT OR IGNORE INTO filter_words (word) VALUES (?)',
-        [word],
-        (err) => {
-            if (err) {
-                console.log(`   ❌ Error adding filter word ${index + 1}: ${err.message}`);
-            } else {
-                console.log(`   ✅ Filter word ${index + 1} added: ${word}`);
-            }
-        }
-    );
-});
-
-// Fix 5: Verify users table has required columns
-console.log('\n5️⃣ VERIFYING USERS TABLE STRUCTURE:');
-db.all("PRAGMA table_info(users)", (err, columns) => {
-    if (err) {
-        console.log(`   ❌ Error checking users table: ${err.message}`);
-    } else {
-        const columnNames = columns.map(col => col.name);
-        const requiredColumns = ['is_banned', 'ban_reason', 'is_muted', 'mute_reason', 'muted_until', 'registration_ip', 'device_fingerprint'];
-        
-        requiredColumns.forEach(column => {
-            if (!columnNames.includes(column)) {
-                console.log(`   ⚠️  Missing column: ${column}`);
-                // Add missing column
-                db.run(`ALTER TABLE users ADD COLUMN ${column} TEXT`, (alterErr) => {
-                    if (alterErr) {
-                        console.log(`   ❌ Error adding column ${column}: ${alterErr.message}`);
-                    } else {
-                        console.log(`   ✅ Added missing column: ${column}`);
-                    }
-                });
-            } else {
-                console.log(`   ✅ Column exists: ${column}`);
+                resolve(this);
             }
         });
+    });
+}
+
+// Function to get all rows
+function getAll(sql, params = []) {
+    return new Promise((resolve, reject) => {
+        db.all(sql, params, (err, rows) => {
+            if (err) {
+                console.error(`❌ SQL Error: ${err.message}`);
+                reject(err);
+            } else {
+                resolve(rows);
+            }
+        });
+    });
+}
+
+async function fixAllIssues() {
+    try {
+        console.log('📊 Step 1: Checking current database structure...');
+        
+        // Check if tables exist
+        const tables = await getAll("SELECT name FROM sqlite_master WHERE type='table'");
+        const tableNames = tables.map(t => t.name);
+        console.log(`  Found tables: ${tableNames.join(', ')}`);
+        
+        // Ensure all required tables exist
+        console.log('\n📋 Step 2: Creating/updating required tables...');
+        
+        // Banned IPs table
+        await runSQL(`
+            CREATE TABLE IF NOT EXISTS banned_ips (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                ip_address TEXT NOT NULL UNIQUE,
+                reason TEXT,
+                banned_by_admin_id INTEGER,
+                banned_by_admin_username TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+        console.log('  ✅ banned_ips table ready');
+        
+        // Banned devices table
+        await runSQL(`
+            CREATE TABLE IF NOT EXISTS banned_devices (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                device_fingerprint TEXT NOT NULL UNIQUE,
+                reason TEXT,
+                banned_by_admin_id INTEGER,
+                banned_by_admin_username TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+        console.log('  ✅ banned_devices table ready');
+        
+        // Admin logs table (for security logs)
+        await runSQL(`
+            CREATE TABLE IF NOT EXISTS admin_logs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                admin_id INTEGER,
+                admin_username TEXT,
+                action TEXT NOT NULL,
+                target_username TEXT,
+                target_user_id INTEGER,
+                ip_address TEXT,
+                details TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+        console.log('  ✅ admin_logs table ready');
+        
+        // User mutes table
+        await runSQL(`
+            CREATE TABLE IF NOT EXISTS user_mutes (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                username TEXT NOT NULL,
+                muted_until DATETIME,
+                mute_reason TEXT,
+                muted_by_admin_id INTEGER,
+                muted_by_admin_username TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+        console.log('  ✅ user_mutes table ready');
+        
+        // Announcements table
+        await runSQL(`
+            CREATE TABLE IF NOT EXISTS announcements (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                message TEXT NOT NULL,
+                admin_id INTEGER,
+                admin_username TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+        console.log('  ✅ announcements table ready');
+        
+        // Filter words table
+        await runSQL(`
+            CREATE TABLE IF NOT EXISTS filter_words (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                word TEXT NOT NULL UNIQUE,
+                admin_id INTEGER,
+                admin_username TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+        console.log('  ✅ filter_words table ready');
+        
+        // Check users table structure
+        console.log('\n👥 Step 3: Checking users table structure...');
+        const userColumns = await getAll("PRAGMA table_info(users)");
+        const userColumnNames = userColumns.map(c => c.name);
+        console.log(`  User table columns: ${userColumnNames.join(', ')}`);
+        
+        // Add missing columns to users table if needed
+        const requiredUserColumns = [
+            'is_banned', 'ban_reason', 'is_muted', 'mute_reason', 
+            'muted_until', 'muted_by_admin_id', 'muted_by_admin_username',
+            'registration_ip', 'device_fingerprint'
+        ];
+        
+        for (const column of requiredUserColumns) {
+            if (!userColumnNames.includes(column)) {
+                console.log(`  Adding missing column: ${column}`);
+                await runSQL(`ALTER TABLE users ADD COLUMN ${column} TEXT`);
+            }
+        }
+        
+        console.log('\n📝 Step 4: Adding test data for security features...');
+        
+        // Add test banned IPs
+        await runSQL(`
+            INSERT OR IGNORE INTO banned_ips (ip_address, reason, banned_by_admin_username) 
+            VALUES 
+            ('192.168.1.100', 'Test ban - spam', 'test-admin'),
+            ('10.0.0.50', 'Test ban - inappropriate content', 'test-admin'),
+            ('172.16.0.25', 'Test ban - harassment', 'test-admin')
+        `);
+        console.log('  ✅ Added test banned IPs');
+        
+        // Add test banned devices
+        await runSQL(`
+            INSERT OR IGNORE INTO banned_devices (device_fingerprint, reason, banned_by_admin_username) 
+            VALUES 
+            ('test-device-fingerprint-1', 'Test device ban - spam', 'test-admin'),
+            ('test-device-fingerprint-2', 'Test device ban - inappropriate content', 'test-admin'),
+            ('test-device-fingerprint-3', 'Test device ban - harassment', 'test-admin')
+        `);
+        console.log('  ✅ Added test banned devices');
+        
+        // Add test admin logs
+        await runSQL(`
+            INSERT OR IGNORE INTO admin_logs (admin_username, action, target_username, ip_address, details) 
+            VALUES 
+            ('test-admin', 'IP_BAN', 'test-user-1', '192.168.1.100', 'Banned for spam'),
+            ('test-admin', 'DEVICE_BAN', 'test-user-2', '10.0.0.50', 'Banned for inappropriate content'),
+            ('test-admin', 'USER_MUTE', 'test-user-3', '172.16.0.25', 'Muted for harassment'),
+            ('test-admin', 'USER_UNMUTE', 'test-user-4', '192.168.1.101', 'Unmuted user'),
+            ('test-admin', 'IP_UNBAN', 'test-user-5', '10.0.0.51', 'Unbanned IP')
+        `);
+        console.log('  ✅ Added test admin logs');
+        
+        // Add test user mutes
+        await runSQL(`
+            INSERT OR IGNORE INTO user_mutes (user_id, username, muted_until, mute_reason, muted_by_admin_username) 
+            VALUES 
+            (999, 'test-muted-user-1', NULL, 'Permanent mute - spam', 'test-admin'),
+            (998, 'test-muted-user-2', datetime('now', '+1 hour'), 'Temporary mute - inappropriate content', 'test-admin'),
+            (997, 'test-muted-user-3', datetime('now', '+30 minutes'), 'Temporary mute - harassment', 'test-admin'),
+            (996, 'test-muted-user-4', NULL, 'Permanent mute - no reason', 'test-admin')
+        `);
+        console.log('  ✅ Added test user mutes');
+        
+        // Add test announcements
+        await runSQL(`
+            INSERT OR IGNORE INTO announcements (message, admin_username) 
+            VALUES 
+            ('Welcome to the garden game! Please be respectful to other players.', 'test-admin'),
+            ('Server maintenance will occur tonight at 2 AM PST.', 'test-admin'),
+            ('New features coming soon! Stay tuned for updates.', 'test-admin')
+        `);
+        console.log('  ✅ Added test announcements');
+        
+        // Add test filter words
+        await runSQL(`
+            INSERT OR IGNORE INTO filter_words (word, admin_username) 
+            VALUES 
+            ('spam', 'test-admin'),
+            ('inappropriate', 'test-admin'),
+            ('harassment', 'test-admin')
+        `);
+        console.log('  ✅ Added test filter words');
+        
+        console.log('\n🔍 Step 5: Verifying data...');
+        
+        // Check banned IPs
+        const bannedIPs = await getAll('SELECT * FROM banned_ips');
+        console.log(`  Banned IPs: ${bannedIPs.length} records`);
+        
+        // Check banned devices
+        const bannedDevices = await getAll('SELECT * FROM banned_devices');
+        console.log(`  Banned devices: ${bannedDevices.length} records`);
+        
+        // Check admin logs
+        const adminLogs = await getAll('SELECT * FROM admin_logs');
+        console.log(`  Admin logs: ${adminLogs.length} records`);
+        
+        // Check user mutes
+        const userMutes = await getAll('SELECT * FROM user_mutes');
+        console.log(`  User mutes: ${userMutes.length} records`);
+        
+        // Check announcements
+        const announcements = await getAll('SELECT * FROM announcements');
+        console.log(`  Announcements: ${announcements.length} records`);
+        
+        // Check filter words
+        const filterWords = await getAll('SELECT * FROM filter_words');
+        console.log(`  Filter words: ${filterWords.length} records`);
+        
+        // Check total gardens stat
+        const totalGardens = await getAll('SELECT COUNT(DISTINCT user_id) as count FROM gardens WHERE user_id IS NOT NULL');
+        console.log(`  Total gardens: ${totalGardens[0]?.count || 0} unique users with gardens`);
+        
+        console.log('\n✅ All fixes completed successfully!');
+        console.log('\n📋 Summary of fixes:');
+        console.log('  • Fixed timezone display to use user\'s local timezone');
+        console.log('  • Ensured all required database tables exist');
+        console.log('  • Added test data for security tab content');
+        console.log('  • Verified user table structure');
+        console.log('  • Added comprehensive test data for all features');
+        
+        console.log('\n🚀 Next steps:');
+        console.log('  1. Upload the updated files to GitHub:');
+        console.log('     - admin-panel.html');
+        console.log('     - multiplayer.js');
+        console.log('     - fix-all-issues.js');
+        console.log('  2. Run this script: node fix-all-issues.js');
+        console.log('  3. Restart your server');
+        console.log('  4. Test the admin panel features');
+        
+    } catch (error) {
+        console.error('❌ Error during fix:', error);
+    } finally {
+        db.close();
     }
-});
+}
 
-// Fix 6: Test timezone conversion
-console.log('\n6️⃣ TESTING TIMEZONE CONVERSION:');
-const testDate = new Date('2025-08-18T21:01:00.000Z');
-console.log(`   UTC timestamp: ${testDate.toISOString()}`);
-console.log(`   PST display: ${testDate.toLocaleString('en-US', {timeZone: 'America/Los_Angeles'})}`);
-console.log(`   Local display: ${testDate.toLocaleString()}`);
-
-// Close database after a delay to allow all operations to complete
-setTimeout(() => {
-    console.log('\n🔧 ALL FIXES COMPLETE!');
-    console.log('\n📋 SUMMARY OF FIXES:');
-    console.log('   1. ✅ Created/verified all required database tables');
-    console.log('   2. ✅ Added test data for security tab (IPs, devices, logs, mutes)');
-    console.log('   3. ✅ Added test announcements and filter words');
-    console.log('   4. ✅ Verified users table structure');
-    console.log('   5. ✅ Tested timezone conversion');
-    console.log('\n🎯 NEXT STEPS:');
-    console.log('   1. Restart your server');
-    console.log('   2. Check the security tab - it should now show content');
-    console.log('   3. Test temp muting - it should only block chat, not disconnect');
-    console.log('   4. Check times in admin panel - they should show in PST');
-    console.log('   5. Test total gardens stat - it should update correctly');
-    
-    db.close();
-}, 3000);
+fixAllIssues();

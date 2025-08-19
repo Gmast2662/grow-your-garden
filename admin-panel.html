@@ -1048,8 +1048,8 @@
                                 <td>${user.username}</td>
                                 <td>${user.email || '-'}</td>
                                 <td>${status.join(' ')}</td>
-                                                                  <td>${new Date(user.created_at).toLocaleDateString('en-US', {timeZone: 'America/Los_Angeles'})}</td>
-                                <td>${user.last_login ? new Date(user.last_login).toLocaleString('en-US', {timeZone: 'America/Los_Angeles'}) : 'Never'}</td>
+                                                                  <td>${new Date(user.created_at).toLocaleDateString()}</td>
+                                <td>${user.last_login ? new Date(user.last_login).toLocaleString() : 'Never'}</td>
                                 <td>
                                     ${user.is_banned ? 
                                         `<button class="btn btn-success" onclick="unbanUser('${user.id}')">Unban</button>` :
@@ -1289,7 +1289,7 @@
                                         <div>
                                             <span class="announcement-admin">${announcement.admin_username}</span>
                                         </div>
-                                        <span class="announcement-time">${new Date(announcement.created_at).toLocaleString('en-US', {timeZone: 'America/Los_Angeles'})}</span>
+                                        <span class="announcement-time">${new Date(announcement.created_at).toLocaleString()}</span>
                                     </div>
                                     <div class="announcement-message">${announcement.message}</div>
                                 </div>
@@ -1338,7 +1338,7 @@
                                             <span class="log-action">${log.action}</span>
                                             ${log.target_username ? `<span class="log-target">→ ${log.target_username}</span>` : ''}
                                         </div>
-                                        <span class="log-time">${new Date(log.created_at).toLocaleString('en-US', {timeZone: 'America/Los_Angeles'})}</span>
+                                        <span class="log-time">${new Date(log.created_at).toLocaleString()}</span>
                                     </div>
                                     ${log.details ? `<div class="log-details">${log.details}</div>` : ''}
                                     ${log.ip_address ? `<div class="log-ip">IP: ${log.ip_address}</div>` : ''}
@@ -1471,12 +1471,12 @@
                                             <span class="muted-user-name">${user.username}</span>
                                             <span class="muted-user-status ${statusClass}">${statusText}</span>
                                         </div>
-                                        <span class="muted-user-time">${new Date(user.created_at).toLocaleString('en-US', {timeZone: 'America/Los_Angeles'})}</span>
+                                        <span class="muted-user-time">${new Date(user.created_at).toLocaleString()}</span>
                                     </div>
                                     <div class="muted-user-details">
                                         <div><strong>User ID:</strong> ${user.user_id}</div>
                                         <div><strong>Muted by:</strong> ${user.muted_by_admin_username}</div>
-                                        ${user.muted_until ? `<div><strong>Until:</strong> ${new Date(user.muted_until).toLocaleString('en-US', {timeZone: 'America/Los_Angeles'})}</div>` : ''}
+                                        ${user.muted_until ? `<div><strong>Until:</strong> ${new Date(user.muted_until).toLocaleString()}</div>` : ''}
                                         ${user.mute_reason ? `<div><strong>Reason:</strong> ${user.mute_reason}</div>` : ''}
                                     </div>
                                     ${user.status === 'active' || user.status === 'permanent' ? 
@@ -1543,7 +1543,7 @@
                                         <div>
                                             <span class="filter-word-text">"${word.word}"</span>
                                         </div>
-                                        <span class="filter-word-time">${new Date(word.created_at).toLocaleString('en-US', {timeZone: 'America/Los_Angeles'})}</span>
+                                        <span class="filter-word-time">${new Date(word.created_at).toLocaleString()}</span>
                                     </div>
                                     <div class="filter-word-details">
                                         <div><strong>Added by:</strong> ${word.added_by_admin_username}</div>
@@ -1624,7 +1624,7 @@
                                     <div class="item-info">
                                         <strong>${ip.ip_address}</strong>
                                         <span class="item-meta">Banned by: ${ip.banned_by_admin_username}</span>
-                                        <span class="item-meta">Date: ${new Date(ip.created_at).toLocaleString('en-US', {timeZone: 'America/Los_Angeles'})}</span>
+                                        <span class="item-meta">Date: ${new Date(ip.created_at).toLocaleString()}</span>
                                         ${ip.reason ? `<span class="item-meta">Reason: ${ip.reason}</span>` : ''}
                                     </div>
                                 </div>
@@ -1658,7 +1658,7 @@
                                     <div class="item-info">
                                         <strong>${device.device_fingerprint.substring(0, 16)}...</strong>
                                         <span class="item-meta">Banned by: ${device.banned_by_admin_username}</span>
-                                        <span class="item-meta">Date: ${new Date(device.created_at).toLocaleString('en-US', {timeZone: 'America/Los_Angeles'})}</span>
+                                        <span class="item-meta">Date: ${new Date(device.created_at).toLocaleString()}</span>
                                         ${device.reason ? `<span class="item-meta">Reason: ${device.reason}</span>` : ''}
                                     </div>
                                 </div>
@@ -1693,7 +1693,7 @@
                                         <strong>${log.username || 'Unknown'}</strong>
                                         <span class="item-meta">Action: ${log.action}</span>
                                         <span class="item-meta">IP: ${log.ip_address || 'Unknown'}</span>
-                                        <span class="item-meta">Date: ${new Date(log.created_at).toLocaleString('en-US', {timeZone: 'America/Los_Angeles'})}</span>
+                                        <span class="item-meta">Date: ${new Date(log.created_at).toLocaleString()}</span>
                                         ${log.details ? `<span class="item-meta">Details: ${log.details}</span>` : ''}
                                     </div>
                                 </div>

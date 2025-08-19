@@ -58,6 +58,13 @@ This document contains every single update, bug fix, and change made to Grow You
   - **Added**: Test data for all security features
   - **Result**: All admin panel features now have proper database support
 
+### 🌍 FIXED: Timezone Display Issues
+- **User Timezone Conversion**: Changed all time displays to use user's local timezone instead of PST
+  - **Issue**: All times were hardcoded to PST, showing incorrect times for users in different timezones
+  - **Fix**: Removed hardcoded `timeZone: 'America/Los_Angeles'` from all `toLocaleString()` calls
+  - **Affected Files**: `admin-panel.html`, `multiplayer.js`
+  - **Result**: Times now display in each user's local timezone automatically
+
 ## 🆕 Previous Updates (v1.6.12)
 
 ### 🔧 FIXED: Critical Admin Panel & Mute System Fixes

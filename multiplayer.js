@@ -490,7 +490,7 @@ class MultiplayerManager {
             <p style="margin-bottom: 15px; line-height: 1.5; font-size: 1.1rem;">${data.message}</p>
             <div style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 20px;">
                 From: ${data.adminUsername}<br>
-                ${new Date(data.timestamp).toLocaleString('en-US', {timeZone: 'America/Los_Angeles'})}
+                ${new Date(data.timestamp).toLocaleString()}
             </div>
             <button onclick="this.parentElement.remove()" style="
                 background: rgba(255,255,255,0.2);
