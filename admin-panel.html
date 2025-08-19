@@ -918,24 +918,33 @@
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('adminSection').style.display = 'block';
             
-            // Load initial data
-            loadStats();
-            loadUsers();
-            loadLogs();
-            loadMutedUsers();
-            loadFilterWords();
-            loadSecurityData();
-            
-            // Set up automatic stats refresh every 30 seconds
-            if (window.adminStatsInterval) {
-                clearInterval(window.adminStatsInterval);
-            }
-            window.adminStatsInterval = setInterval(() => {
+            // Only load data if we have a valid token
+            if (adminToken) {
+                // Load initial data
                 loadStats();
-            }, 30000); // Refresh stats every 30 seconds
+                loadUsers();
+                loadLogs();
+                loadMutedUsers();
+                loadFilterWords();
+                loadSecurityData();
+                
+                // Set up automatic stats refresh every 30 seconds
+                if (window.adminStatsInterval) {
+                    clearInterval(window.adminStatsInterval);
+                }
+                window.adminStatsInterval = setInterval(() => {
+                    loadStats();
+                }, 30000); // Refresh stats every 30 seconds
+            }
         }
 
         function showTab(tabName) {
+            // Only show tabs if we have a valid token
+            if (!adminToken) {
+                showAlert('Please log in first', 'error');
+                return;
+            }
+            
             // Hide all tabs
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
@@ -985,6 +994,10 @@
         }
 
         async function loadStats() {
+            if (!adminToken) {
+                console.warn('No admin token available for loadStats');
+                return;
+            }
             try {
                 const response = await fetch('/api/admin/stats', {
                     headers: { 'Authorization': `Bearer ${adminToken}` }
@@ -1013,55 +1026,27 @@
                         </div>
 
                         <div class="stat-card">
-                            <h3>${stats.totalMessages}</h3>
-                            <p>Total Messages</p>
-                        </div>
-                        <div class="stat-card">
-                            <h3>${stats.totalFriends}</h3>
-                            <p>Total Friends</p>
-                        </div>
-                        <div class="stat-card">
-                            <h3>${stats.pendingFriends}</h3>
-                            <p>Pending Friends</p>
-                        </div>
-                        <div class="stat-card">
-                            <h3>${stats.totalAnnouncements}</h3>
-                            <p>Total Announcements</p>
-                        </div>
-                        <div class="stat-card">
-                            <h3>${stats.adminUsers}</h3>
-                            <p>Admin Users</p>
-                        </div>
-                        <div class="stat-card">
-                            <h3>${stats.totalLogs}</h3>
-                            <p>Admin Logs</p>
-                        </div>
-                        <div class="stat-card">
-                            <h3>${stats.todayUsers}</h3>
-                            <p>New Users Today</p>
-                        </div>
-                        <div class="stat-card">
-                            <h3>${stats.todayMessages}</h3>
-                            <p>Messages Today</p>
-                        </div>
-                        <div class="stat-card">
                             <h3>${stats.mutedUsers}</h3>
                             <p>Muted Users</p>
                         </div>
                         <div class="stat-card">
-                            <h3>${stats.totalFilterWords}</h3>
-                            <p>Filtered Words</p>
+                            <h3>${stats.totalChatMessages}</h3>
+                            <p>Chat Messages</p>
                         </div>
                     `;
                 } else {
-                    showAlert(result.error, 'error');
+                    showAlert('Failed to load stats: ' + result.error, 'error');
                 }
             } catch (error) {
-                showAlert('Failed to load stats: ' + error.message, 'error');
+                showAlert('Error loading stats: ' + error.message, 'error');
             }
         }
 
         async function loadUsers() {
+            if (!adminToken) {
+                console.warn('No admin token available for loadUsers');
+                return;
+            }
             try {
                 const response = await fetch('/api/admin/users', {
                     headers: { 'Authorization': `Bearer ${adminToken}` }
@@ -1281,12 +1266,20 @@
         }
 
         function clearUserGardens(userId) {
+            if (!adminToken) {
+                showAlert('No admin token available. Please log in again.', 'error');
+                return;
+            }
+            
             if (confirm('Are you sure you want to clear all gardens for this user? This action cannot be undone!')) {
                 fetch(`/api/admin/users/${userId}/clear-gardens`, {
                     method: 'POST',
                     headers: { 'Authorization': `Bearer ${adminToken}` }
                 })
                 .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
                     return response.json();
                 })
                 .then(result => {
@@ -1325,6 +1318,10 @@
         }
 
         async function loadAnnouncements() {
+            if (!adminToken) {
+                console.warn('No admin token available for loadAnnouncements');
+                return;
+            }
             try {
                 const response = await fetch('/api/admin/announcements', {
                     headers: { 'Authorization': `Bearer ${adminToken}` }
@@ -1364,6 +1361,10 @@
         }
 
         async function loadLogs() {
+            if (!adminToken) {
+                console.warn('No admin token available for loadLogs');
+                return;
+            }
             try {
                 const filter = document.getElementById('logFilter').value;
                 const url = filter ? `/api/admin/logs?limit=100&filter=${encodeURIComponent(filter)}` : '/api/admin/logs?limit=100';
@@ -1501,6 +1502,10 @@
         });
 
         async function loadMutedUsers() {
+            if (!adminToken) {
+                console.warn('No admin token available for loadMutedUsers');
+                return;
+            }
             try {
                 const response = await fetch('/api/admin/muted-users', {
                     headers: { 'Authorization': `Bearer ${adminToken}` }
@@ -1579,6 +1584,10 @@
         }
 
         async function loadFilterWords() {
+            if (!adminToken) {
+                console.warn('No admin token available for loadFilterWords');
+                return;
+            }
             try {
                 const response = await fetch('/api/admin/chat-filter/words', {
                     headers: { 'Authorization': `Bearer ${adminToken}` }
@@ -1666,6 +1675,10 @@
 
         // Load banned IPs
         async function loadBannedIPs() {
+            if (!adminToken) {
+                console.warn('No admin token available for loadBannedIPs');
+                return;
+            }
             try {
                 const response = await fetch('/api/admin/banned-ips', {
                     headers: { 'Authorization': `Bearer ${adminToken}` }
@@ -1707,6 +1720,10 @@
 
         // Load banned devices
         async function loadBannedDevices() {
+            if (!adminToken) {
+                console.warn('No admin token available for loadBannedDevices');
+                return;
+            }
             try {
                 const response = await fetch('/api/admin/banned-devices', {
                     headers: { 'Authorization': `Bearer ${adminToken}` }
@@ -1749,6 +1766,10 @@
 
         // Load security logs
         async function loadSecurityLogs() {
+            if (!adminToken) {
+                console.warn('No admin token available for loadSecurityLogs');
+                return;
+            }
             try {
                 const response = await fetch('/api/admin/security-logs?limit=50', {
                     headers: { 'Authorization': `Bearer ${adminToken}` }
@@ -1791,6 +1812,10 @@
 
         // Ban IP address
         async function banIP() {
+            if (!adminToken) {
+                showAlert('No admin token available. Please log in again.', 'error');
+                return;
+            }
             const ipAddress = document.getElementById('ipAddressInput').value.trim();
             const reason = document.getElementById('ipBanReasonInput').value.trim();
             
@@ -1826,6 +1851,10 @@
 
         // Unban IP address
         async function unbanIP() {
+            if (!adminToken) {
+                showAlert('No admin token available. Please log in again.', 'error');
+                return;
+            }
             const ipAddress = document.getElementById('ipAddressInput').value.trim();
             
             if (!ipAddress) {
@@ -1860,6 +1889,10 @@
 
         // Ban device
         async function banDevice() {
+            if (!adminToken) {
+                showAlert('No admin token available. Please log in again.', 'error');
+                return;
+            }
             const deviceFingerprint = document.getElementById('deviceFingerprintInput').value.trim();
             const reason = document.getElementById('deviceBanReasonInput').value.trim();
             
@@ -1895,6 +1928,10 @@
 
         // Unban device
         async function unbanDevice() {
+            if (!adminToken) {
+                showAlert('No admin token available. Please log in again.', 'error');
+                return;
+            }
             const deviceFingerprint = document.getElementById('deviceFingerprintInput').value.trim();
             
             if (!deviceFingerprint) {

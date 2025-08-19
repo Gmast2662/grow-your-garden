@@ -469,7 +469,7 @@ io.on('connection', (socket) => {
                 db.get(`
                     SELECT muted_until, mute_reason 
                     FROM user_mutes 
-                    WHERE user_id = ? AND (um.muted_until IS NULL OR um.muted_until > datetime('now'))
+                    WHERE user_id = ? AND (muted_until IS NULL OR muted_until > datetime('now'))
                 `, [socket.userId], (err, muteData) => {
                     if (err) {
                         console.error('Error checking mute status:', err);
