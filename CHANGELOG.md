@@ -2,7 +2,31 @@
 
 This document contains every single update, bug fix, and change made to Grow Your Garden, including detailed technical information.
 
-## 🆕 Latest Updates (v1.6.16)
+## 🆕 Latest Updates (v1.6.17)
+
+### 🔧 FIXED: Critical Login Issue & Enhanced Admin Panel Debugging
+- **Permanent Mute Login Fix**: Fixed permanently muted users being unable to log in
+  - **Issue**: Permanently muted users were blocked from logging in entirely
+  - **Fix**: Removed login blocking for permanently muted users in auth.js
+  - **Fix**: Permanently muted users can now log in and play, but cannot send chat messages
+  - **Result**: Non-disruptive permanent mutes that don't block login
+- **Admin Panel Initialization**: Added proper initialization for dashboard data loading
+  - **Issue**: Dashboard data was not loading automatically when admin panel opened
+  - **Fix**: Added DOMContentLoaded event listener for proper page setup
+  - **Fix**: Dashboard data now loads automatically when admin panel opens
+  - **Result**: Better user experience with automatic data loading
+- **Security Tab DOM Verification**: Added comprehensive DOM element verification
+  - **Issue**: Security tab functions were failing silently when DOM elements were missing
+  - **Fix**: Added checks to ensure all required DOM elements exist before updating
+  - **Fix**: Added user-friendly error messages when elements are missing
+  - **Result**: Better error handling and debugging for security tab issues
+- **Enhanced Error Handling**: Improved error messages and debugging throughout admin panel
+  - **Issue**: Limited visibility into admin panel operation issues
+  - **Fix**: Added comprehensive console logging and error alerts
+  - **Fix**: Enhanced debugging output for troubleshooting admin panel issues
+  - **Result**: Better troubleshooting capabilities for admin panel problems
+
+## 🆕 Previous Updates (v1.6.16)
 
 ### 🔧 FIXED: Admin Panel Debugging & Permanent Mute Connection Issues
 - **Security Tab Debugging**: Enhanced debugging and error handling for security data loading

@@ -124,25 +124,17 @@ router.post('/login', async (req, res) => {
                 });
             }
 
-            // Check if user is muted (either temporary or permanent)
-            if (user.mute_reason !== null) {
-                if (user.muted_until === null) {
-                    // Permanent mute
+            // Check if user is temporarily muted (permanent mutes should not block login)
+            if (user.mute_reason !== null && user.muted_until !== null) {
+                // Temporary mute - check if still active
+                const now = new Date();
+                const muteUntil = new Date(user.muted_until);
+                if (muteUntil > now) {
                     return res.status(403).json({ 
-                        error: 'Account permanently muted', 
-                        reason: user.mute_reason 
+                        error: 'Account muted', 
+                        reason: user.mute_reason,
+                        muted_until: user.muted_until
                     });
-                } else {
-                    // Temporary mute - check if still active
-                    const now = new Date();
-                    const muteUntil = new Date(user.muted_until);
-                    if (muteUntil > now) {
-                        return res.status(403).json({ 
-                            error: 'Account muted', 
-                            reason: user.mute_reason,
-                            muted_until: user.muted_until
-                        });
-                    }
                 }
             }
 

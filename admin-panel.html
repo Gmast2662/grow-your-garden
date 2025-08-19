@@ -1705,6 +1705,11 @@
                 if (response.ok) {
                     const bannedIPsList = document.getElementById('bannedIPsList');
                     console.log('Found bannedIPsList element:', !!bannedIPsList);
+                    if (!bannedIPsList) {
+                        console.error('❌ bannedIPsList element not found!');
+                        showAlert('Error: bannedIPsList element not found', 'error');
+                        return;
+                    }
                     if (result.bannedIPs.length === 0) {
                         bannedIPsList.innerHTML = '<h5>Banned IP Addresses</h5><p>No banned IP addresses</p>';
                     } else {
@@ -1747,6 +1752,12 @@
                 
                 if (response.ok) {
                     const bannedDevicesList = document.getElementById('bannedDevicesList');
+                    console.log('Found bannedDevicesList element:', !!bannedDevicesList);
+                    if (!bannedDevicesList) {
+                        console.error('❌ bannedDevicesList element not found!');
+                        showAlert('Error: bannedDevicesList element not found', 'error');
+                        return;
+                    }
                     if (result.bannedDevices.length === 0) {
                         bannedDevicesList.innerHTML = '<h5>Banned Devices</h5><p>No banned devices</p>';
                     } else {
@@ -1788,6 +1799,12 @@
                 
                 if (response.ok) {
                     const securityLogsList = document.getElementById('securityLogsList');
+                    console.log('Found securityLogsList element:', !!securityLogsList);
+                    if (!securityLogsList) {
+                        console.error('❌ securityLogsList element not found!');
+                        showAlert('Error: securityLogsList element not found', 'error');
+                        return;
+                    }
                     if (result.securityLogs.length === 0) {
                         securityLogsList.innerHTML = '<p>No security logs</p>';
                     } else {
@@ -1966,6 +1983,17 @@
         window.addEventListener('beforeunload', () => {
             if (window.adminStatsInterval) {
                 clearInterval(window.adminStatsInterval);
+            }
+        });
+        
+        // Initialize dashboard when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Admin panel loaded, initializing dashboard...');
+            if (adminToken) {
+                console.log('Admin token available, loading stats...');
+                loadStats();
+            } else {
+                console.log('No admin token available yet');
             }
         });
     </script>
