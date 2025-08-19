@@ -307,23 +307,12 @@ const authenticateSocketToken = (socket, next) => {
                 return next(new Error(`Account banned: ${user.ban_reason || 'No reason provided'}`));
             }
             
-            // Check if user is muted (either temporary or permanent)
-            if (user.muted_until !== null || user.mute_reason !== null) {
-                if (user.muted_until === null) {
-                    // Permanent mute - prevent connection entirely
-                    const muteMessage = `Account permanently muted: ${user.mute_reason || 'No reason provided'}`;
-                    console.log(`🚫 Blocking connection for permanently muted user: ${decoded.username} - ${muteMessage}`);
-                    return next(new Error(muteMessage));
-                } else {
-                    // Temporary mute - check if still active
-                    const now = new Date();
-                    const muteUntil = new Date(user.muted_until);
-                    if (muteUntil > now) {
-                        const muteMessage = `Account muted until ${user.muted_until}: ${user.mute_reason || 'No reason provided'}`;
-                        console.log(`🚫 Blocking connection for temporarily muted user: ${decoded.username} - ${muteMessage}`);
-                        return next(new Error(muteMessage));
-                    }
-                }
+            // Check if user is permanently muted (only permanent mutes should block connections)
+            if (user.muted_until === null && user.mute_reason !== null) {
+                // Permanent mute - prevent connection entirely
+                const muteMessage = `Account permanently muted: ${user.mute_reason || 'No reason provided'}`;
+                console.log(`🚫 Blocking connection for permanently muted user: ${decoded.username} - ${muteMessage}`);
+                return next(new Error(muteMessage));
             }
             
             socket.userId = decoded.id;
