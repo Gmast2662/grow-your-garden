@@ -513,8 +513,8 @@
                 <button class="tab-btn" onclick="showTab('logs')">📝 Logs</button>
             </div>
 
-            <!-- Statistics Tab -->
-            <div id="statsTab" class="tab-content active">
+            <!-- Dashboard Tab -->
+            <div id="dashboardTab" class="tab-content active">
                 <h2>Server Statistics</h2>
                 <div id="statsGrid" class="stats-grid">
                     <!-- Stats will be loaded here -->
@@ -846,13 +846,17 @@
         });
 
         function showAdminSection() {
+            console.log('Initializing admin panel...');
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('adminSection').style.display = 'block';
+            
+            // Load initial data
             loadStats();
             loadUsers();
             loadLogs();
             loadMutedUsers();
             loadFilterWords();
+            loadSecurityData();
             
             // Set up automatic stats refresh every 30 seconds
             if (window.adminStatsInterval) {
@@ -861,9 +865,13 @@
             window.adminStatsInterval = setInterval(() => {
                 loadStats();
             }, 30000); // Refresh stats every 30 seconds
+            
+            console.log('Admin panel initialized');
         }
 
         function showTab(tabName) {
+            console.log('Switching to tab:', tabName);
+            
             // Hide all tabs
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
@@ -876,30 +884,41 @@
                 targetTabId = 'chatFilterTab'; // Remove hyphen for chat filter
             }
             
+            console.log('Looking for tab with ID:', targetTabId);
             const targetTab = document.getElementById(targetTabId);
             if (targetTab) {
+                console.log('Found tab, making it active');
                 targetTab.classList.add('active');
                 
                 // Load data for specific tabs
                 if (tabName === 'chat-filter') {
+                    console.log('Loading chat filter words');
                     loadFilterWords();
                 } else if (tabName === 'users') {
+                    console.log('Loading users');
                     loadUsers();
                 } else if (tabName === 'announcements') {
+                    console.log('Loading announcements');
                     loadAnnouncements();
                 } else if (tabName === 'mutes') {
+                    console.log('Loading muted users');
                     loadMutedUsers();
                 } else if (tabName === 'logs') {
+                    console.log('Loading logs');
                     loadLogs();
                     startLogsAutoRefresh();
                 } else if (tabName === 'dashboard') {
+                    console.log('Loading stats');
                     loadStats();
                 } else if (tabName === 'security') {
+                    console.log('Loading security data');
                     loadSecurityData();
                 } else {
                     // Stop auto-refresh for other tabs
                     stopLogsAutoRefresh();
                 }
+            } else {
+                console.error('Tab not found:', targetTabId);
             }
             
             // Find and activate the correct tab button
@@ -911,15 +930,18 @@
         }
 
         async function loadStats() {
+            console.log('Loading stats...');
             try {
                 const response = await fetch('/api/admin/stats', {
                     headers: { 'Authorization': `Bearer ${adminToken}` }
                 });
 
                 const result = await response.json();
+                console.log('Stats response:', result);
 
                 if (response.ok) {
                     const stats = result.stats;
+                    console.log('Updating stats grid with:', stats);
                     document.getElementById('statsGrid').innerHTML = `
                         <div class="stat-card">
                             <h3>${stats.totalUsers}</h3>
@@ -1506,11 +1528,17 @@
 
         // Load security data
         async function loadSecurityData() {
-            await Promise.all([
-                loadBannedIPs(),
-                loadBannedDevices(),
-                loadSecurityLogs()
-            ]);
+            console.log('Loading security data...');
+            try {
+                await Promise.all([
+                    loadBannedIPs(),
+                    loadBannedDevices(),
+                    loadSecurityLogs()
+                ]);
+                console.log('Security data loaded successfully');
+            } catch (error) {
+                console.error('Error loading security data:', error);
+            }
         }
 
         // Load banned IPs
