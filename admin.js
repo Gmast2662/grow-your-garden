@@ -37,6 +37,47 @@ const disconnectUser = (userId, reason = null) => {
     }
 };
 
+// JWT secret
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this';
+
+// Admin authentication middleware
+const authenticateAdmin = (req, res, next) => {
+    const token = req.headers.authorization?.split(' ')[1];
+    
+    if (!token) {
+        return res.status(401).json({ error: 'No token provided' });
+    }
+    
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        
+        // Check if user is admin
+        db.get('SELECT is_admin FROM users WHERE id = ?', [decoded.id], (err, user) => {
+            if (err) {
+                return res.status(500).json({ error: 'Database error' });
+            }
+            
+            if (!user || !user.is_admin) {
+                return res.status(403).json({ error: 'Admin access required' });
+            }
+            
+            req.user = decoded;
+            next();
+        });
+    } catch (error) {
+        return res.status(401).json({ error: 'Invalid token' });
+    }
+};
+
+// Helper function to log admin actions
+function logAdminAction(adminId, adminUsername, action, targetUserId = null, targetUsername = null, details = null, ipAddress = null) {
+    db.run(
+        'INSERT INTO admin_logs (admin_id, admin_username, action, target_user_id, target_username, details, ip_address) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [adminId, adminUsername, action, targetUserId, targetUsername, details, ipAddress]
+    );
+    console.log(`📝 Admin log: ${adminUsername} ${action} ${targetUsername || ''}`);
+}
+
 // Force logout user
 router.post('/force-logout/:userId', authenticateAdmin, async (req, res) => {
     const { userId } = req.params;
@@ -70,47 +111,6 @@ router.post('/force-logout/:userId', authenticateAdmin, async (req, res) => {
         res.status(500).json({ error: 'Server error' });
     }
 });
-
-// Helper function to log admin actions
-function logAdminAction(adminId, adminUsername, action, targetUserId = null, targetUsername = null, details = null, ipAddress = null) {
-    db.run(
-        'INSERT INTO admin_logs (admin_id, admin_username, action, target_user_id, target_username, details, ip_address) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        [adminId, adminUsername, action, targetUserId, targetUsername, details, ipAddress]
-    );
-    console.log(`📝 Admin log: ${adminUsername} ${action} ${targetUsername || ''}`);
-}
-
-// JWT secret
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this';
-
-// Admin authentication middleware
-const authenticateAdmin = (req, res, next) => {
-    const token = req.headers.authorization?.split(' ')[1];
-    
-    if (!token) {
-        return res.status(401).json({ error: 'No token provided' });
-    }
-    
-    try {
-        const decoded = jwt.verify(token, JWT_SECRET);
-        
-        // Check if user is admin
-        db.get('SELECT is_admin FROM users WHERE id = ?', [decoded.id], (err, user) => {
-            if (err) {
-                return res.status(500).json({ error: 'Database error' });
-            }
-            
-            if (!user || !user.is_admin) {
-                return res.status(403).json({ error: 'Admin access required' });
-            }
-            
-            req.user = decoded;
-            next();
-        });
-    } catch (error) {
-        return res.status(401).json({ error: 'Invalid token' });
-    }
-};
 
 // Admin login
 router.post('/login', async (req, res) => {
