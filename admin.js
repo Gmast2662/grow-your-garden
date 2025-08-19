@@ -342,7 +342,7 @@ router.get('/banned-ips', authenticateAdmin, (req, res) => {
 router.get('/banned-devices', authenticateAdmin, (req, res) => {
     db.all(`
         SELECT 
-            device_fingerprint,
+            device_id as device_fingerprint,
             reason,
             banned_by_admin_username,
             created_at
@@ -364,10 +364,9 @@ router.get('/security-logs', authenticateAdmin, (req, res) => {
     
     db.all(`
         SELECT 
-            username,
+            admin_username as username,
             action,
             ip_address,
-            device_fingerprint,
             details,
             created_at
         FROM security_logs 
@@ -533,7 +532,7 @@ router.post('/users/:userId/ban', authenticateAdmin, (req, res) => {
         // Ban device if requested and available
         if (shouldBanDevice && targetUser.device_fingerprint) {
             db.run(
-                'INSERT OR REPLACE INTO banned_devices (device_fingerprint, reason, banned_by_admin_id, banned_by_admin_username) VALUES (?, ?, ?, ?)',
+                'INSERT OR REPLACE INTO banned_devices (device_id, reason, banned_by_admin_id, banned_by_admin_username) VALUES (?, ?, ?, ?)',
                 [targetUser.device_fingerprint, `User ban: ${reason}`, req.user.id, req.user.username]
             );
         }
