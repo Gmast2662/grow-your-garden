@@ -1079,7 +1079,58 @@
 
         function banUser(userId) {
             currentUserId = userId;
-            document.getElementById('banModal').style.display = 'block';
+            // Show ban options dialog
+            const banOptions = prompt(
+                'Choose ban type:\n' +
+                '1. Ban User Account (user cannot login)\n' +
+                '2. Ban IP Address (IP cannot register/login)\n' +
+                '3. Ban Device (device cannot access)\n' +
+                '4. Ban All (user + IP + device)\n\n' +
+                'Enter 1, 2, 3, or 4:'
+            );
+            
+            if (banOptions === null) return; // User cancelled
+            
+            let banType = '';
+            switch(banOptions.trim()) {
+                case '1': banType = 'user'; break;
+                case '2': banType = 'ip'; break;
+                case '3': banType = 'device'; break;
+                case '4': banType = 'all'; break;
+                default: 
+                    showAlert('Invalid option. Please enter 1, 2, 3, or 4.', 'error');
+                    return;
+            }
+            
+            const reason = prompt('Enter ban reason (optional):');
+            if (reason === null) return; // User cancelled
+            
+            executeBan(userId, banType, reason);
+        }
+        
+        function executeBan(userId, banType, reason) {
+            fetch(`/api/admin/users/${userId}/ban`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${adminToken}`
+                },
+                body: JSON.stringify({
+                    banType: banType,
+                    reason: reason || 'No reason provided'
+                })
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.message) {
+                    showAlert(`Ban executed successfully! Type: ${banType}`, 'success');
+                    loadUsers();
+                    loadStats();
+                } else {
+                    showAlert(result.error, 'error');
+                }
+            })
+            .catch(error => showAlert('Ban failed: ' + error.message, 'error'));
         }
 
         function unbanUser(userId) {

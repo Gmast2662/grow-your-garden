@@ -2,7 +2,7 @@
 
 This document tracks all updates, bug fixes, and new features added to the Grow Your Garden.
 
-## 🆕 Latest Update - Admin Panel Fixes & Registration Fix! 🔧 (v1.6.9)
+## 🆕 Latest Update - Enhanced Ban System & Admin Panel Fixes! 🔧 (v1.6.10)
 
 **Date:** August 18, 2025
 
@@ -12,6 +12,16 @@ This document tracks all updates, bug fixes, and new features added to the Grow 
 - **Security Tab Loading**: Fixed security tab not displaying IP bans, device bans, and security logs
 - **Tab Structure Fix**: Corrected CSS class inconsistencies between tab content sections
 - **Clear Garden Functionality**: Verified clear garden actions work properly with server-side garden deletion
+
+**Enhanced Ban System:**
+- **Multiple Ban Types**: Admins can now choose between 4 ban types when banning users:
+  - **User Account Ban**: Prevents user from logging in
+  - **IP Address Ban**: Prevents registration/login from that IP
+  - **Device Ban**: Prevents access from that device fingerprint
+  - **Ban All**: Bans user account, IP, and device simultaneously
+- **Ban Reason Tracking**: All bans now include detailed reason tracking
+- **Enhanced Logging**: Improved admin logs with detailed ban type information
+- **Flexible Ban Options**: Admins can ban just IPs or devices without banning the user account
 
 **Registration Fix:**
 - **Optional Email**: Fixed registration to make email field truly optional

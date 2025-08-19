@@ -443,10 +443,34 @@ router.get('/users/:userId', authenticateAdmin, (req, res) => {
 // Ban user (admin only)
 router.post('/users/:userId/ban', authenticateAdmin, (req, res) => {
     const { userId } = req.params;
-    const { reason, banIP = false, banDevice = false } = req.body;
+    const { reason, banType = 'user', banIP = false, banDevice = false } = req.body;
     
     if (!reason) {
         return res.status(400).json({ error: 'Ban reason required' });
+    }
+    
+    // Determine ban options based on banType
+    let shouldBanUser = false;
+    let shouldBanIP = false;
+    let shouldBanDevice = false;
+    
+    switch(banType) {
+        case 'user':
+            shouldBanUser = true;
+            break;
+        case 'ip':
+            shouldBanIP = true;
+            break;
+        case 'device':
+            shouldBanDevice = true;
+            break;
+        case 'all':
+            shouldBanUser = true;
+            shouldBanIP = true;
+            shouldBanDevice = true;
+            break;
+        default:
+            return res.status(400).json({ error: 'Invalid ban type. Use: user, ip, device, or all' });
     }
     
     // Get target user info for logging
@@ -459,57 +483,67 @@ router.post('/users/:userId/ban', authenticateAdmin, (req, res) => {
             return res.status(404).json({ error: 'User not found' });
         }
         
-        db.run(
-            'UPDATE users SET is_banned = 1, ban_reason = ? WHERE id = ?',
-            [reason, userId],
-            function(err) {
-                if (err) {
-                    return res.status(500).json({ error: 'Database error' });
+        // Ban user account if requested
+        if (shouldBanUser) {
+            db.run(
+                'UPDATE users SET is_banned = 1, ban_reason = ? WHERE id = ?',
+                [reason, userId],
+                function(err) {
+                    if (err) {
+                        return res.status(500).json({ error: 'Database error' });
+                    }
+                    
+                    if (this.changes === 0) {
+                        return res.status(404).json({ error: 'User not found' });
+                    }
+                    
+                    // Disconnect user if online
+                    disconnectUser(userId);
                 }
-                
-                if (this.changes === 0) {
-                    return res.status(404).json({ error: 'User not found' });
-                }
-                
-                // Log the action
-                logAdminAction(
-                    req.user.id,
-                    req.user.username,
-                    'banned user',
-                    userId,
-                    targetUser.username,
-                    `Reason: ${reason}${banIP ? ' + IP banned' : ''}${banDevice ? ' + Device banned' : ''}`,
-                    req.ip
-                );
-                
-                // Ban IP address if requested and available
-                if (banIP && targetUser.registration_ip) {
-                    db.run(
-                        'INSERT OR REPLACE INTO banned_ips (ip_address, reason, banned_by_admin_id, banned_by_admin_username) VALUES (?, ?, ?, ?)',
-                        [targetUser.registration_ip, `User ban: ${reason}`, req.user.id, req.user.username]
-                    );
-                }
-                
-                // Ban device if requested and available
-                if (banDevice && targetUser.device_fingerprint) {
-                    db.run(
-                        'INSERT OR REPLACE INTO banned_devices (device_fingerprint, reason, banned_by_admin_id, banned_by_admin_username) VALUES (?, ?, ?, ?)',
-                        [targetUser.device_fingerprint, `User ban: ${reason}`, req.user.id, req.user.username]
-                    );
-                }
-                
-                // Disconnect user if online
-                disconnectUser(userId);
-                
-                res.json({ 
-                    message: 'User banned successfully',
-                    userId,
-                    reason,
-                    ipBanned: banIP && targetUser.registration_ip,
-                    deviceBanned: banDevice && targetUser.device_fingerprint
-                });
-            }
+            );
+        }
+        
+        // Log the action
+        const banDetails = [];
+        if (shouldBanUser) banDetails.push('User banned');
+        if (shouldBanIP) banDetails.push('IP banned');
+        if (shouldBanDevice) banDetails.push('Device banned');
+        
+        logAdminAction(
+            req.user.id,
+            req.user.username,
+            'banned user',
+            userId,
+            targetUser.username,
+            `Reason: ${reason} | Types: ${banDetails.join(', ')}`,
+            req.ip
         );
+        
+        // Ban IP address if requested and available
+        if (shouldBanIP && targetUser.registration_ip) {
+            db.run(
+                'INSERT OR REPLACE INTO banned_ips (ip_address, reason, banned_by_admin_id, banned_by_admin_username) VALUES (?, ?, ?, ?)',
+                [targetUser.registration_ip, `User ban: ${reason}`, req.user.id, req.user.username]
+            );
+        }
+        
+        // Ban device if requested and available
+        if (shouldBanDevice && targetUser.device_fingerprint) {
+            db.run(
+                'INSERT OR REPLACE INTO banned_devices (device_fingerprint, reason, banned_by_admin_id, banned_by_admin_username) VALUES (?, ?, ?, ?)',
+                [targetUser.device_fingerprint, `User ban: ${reason}`, req.user.id, req.user.username]
+            );
+        }
+        
+        res.json({ 
+            message: 'Ban executed successfully',
+            userId,
+            reason,
+            banType,
+            userBanned: shouldBanUser,
+            ipBanned: shouldBanIP && targetUser.registration_ip,
+            deviceBanned: shouldBanDevice && targetUser.device_fingerprint
+        });
     });
 });
 

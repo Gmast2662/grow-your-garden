@@ -2,7 +2,30 @@
 
 This document contains every single update, bug fix, and change made to Grow Your Garden, including detailed technical information.
 
-## 🆕 Latest Updates (v1.6.9)
+## 🆕 Latest Updates (v1.6.10)
+
+### 🔒 ENHANCED: Enhanced Ban System & Admin Panel Fixes
+- **Multiple Ban Types**: Admins can now choose between 4 ban types when banning users:
+  - **User Account Ban**: Prevents user from logging in
+  - **IP Address Ban**: Prevents registration/login from that IP
+  - **Device Ban**: Prevents access from that device fingerprint
+  - **Ban All**: Bans user account, IP, and device simultaneously
+- **Ban Reason Tracking**: All bans now include detailed reason tracking
+- **Enhanced Logging**: Improved admin logs with detailed ban type information
+- **Flexible Ban Options**: Admins can ban just IPs or devices without banning the user account
+- **Technical Improvements**:
+  - Auto-refresh system for logs that only runs when logs tab is active
+  - Enhanced tab navigation and content loading for all admin panel sections
+  - Improved security tab with proper data loading and refresh functionality
+  - Better error handling for admin panel data loading operations
+  - Standardized tab content structure across all admin panel sections
+  - Updated registration flow to support optional email addresses
+- **Admin Panel Enhancements**:
+  - Real-time logs that update automatically without manual refresh
+  - Added refresh buttons to dashboard and security tabs for manual updates
+  - Better loading states and error messages throughout admin panel
+  - Consistent styling in tab navigation and content areas
+- **Result**: Significantly improved admin panel experience with real-time updates and enhanced ban system
 
 ### 🔧 FIXED: Admin Panel Fixes & Registration Fix
 - **Log Auto-Refresh**: Admin logs now automatically refresh every 10 seconds when logs tab is active
