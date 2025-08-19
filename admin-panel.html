@@ -1105,10 +1105,17 @@
             const reason = prompt('Enter ban reason (optional):');
             if (reason === null) return; // User cancelled
             
-            executeBan(userId, banType, reason);
+            // For IP bans, ask for the specific IP address
+            let ipAddress = null;
+            if (banType === 'ip' || banType === 'all') {
+                ipAddress = prompt('Enter IP address to ban (or leave empty to use user\'s IP):');
+                if (ipAddress === null) return; // User cancelled
+            }
+            
+            executeBan(userId, banType, reason, ipAddress);
         }
         
-        function executeBan(userId, banType, reason) {
+        function executeBan(userId, banType, reason, ipAddress) {
             fetch(`/api/admin/users/${userId}/ban`, {
                 method: 'POST',
                 headers: {
@@ -1117,7 +1124,8 @@
                 },
                 body: JSON.stringify({
                     banType: banType,
-                    reason: reason || 'No reason provided'
+                    reason: reason || 'No reason provided',
+                    ipAddress: ipAddress
                 })
             })
             .then(response => response.json())
@@ -1126,6 +1134,10 @@
                     showAlert(`Ban executed successfully! Type: ${banType}`, 'success');
                     loadUsers();
                     loadStats();
+                    // Refresh security data if we're on the security tab
+                    if (document.getElementById('securityTab').classList.contains('active')) {
+                        loadSecurityData();
+                    }
                 } else {
                     showAlert(result.error, 'error');
                 }

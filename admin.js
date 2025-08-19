@@ -443,7 +443,7 @@ router.get('/users/:userId', authenticateAdmin, (req, res) => {
 // Ban user (admin only)
 router.post('/users/:userId/ban', authenticateAdmin, (req, res) => {
     const { userId } = req.params;
-    const { reason, banType = 'user', banIP = false, banDevice = false } = req.body;
+    const { reason, banType = 'user', banIP = false, banDevice = false, ipAddress } = req.body;
     
     if (!reason) {
         return res.status(400).json({ error: 'Ban reason required' });
@@ -519,12 +519,15 @@ router.post('/users/:userId/ban', authenticateAdmin, (req, res) => {
             req.ip
         );
         
-        // Ban IP address if requested and available
-        if (shouldBanIP && targetUser.registration_ip) {
-            db.run(
-                'INSERT OR REPLACE INTO banned_ips (ip_address, reason, banned_by_admin_id, banned_by_admin_username) VALUES (?, ?, ?, ?)',
-                [targetUser.registration_ip, `User ban: ${reason}`, req.user.id, req.user.username]
-            );
+        // Ban IP address if requested
+        if (shouldBanIP) {
+            const ipToBan = ipAddress || targetUser.registration_ip;
+            if (ipToBan) {
+                db.run(
+                    'INSERT OR REPLACE INTO banned_ips (ip_address, reason, banned_by_admin_id, banned_by_admin_username) VALUES (?, ?, ?, ?)',
+                    [ipToBan, `User ban: ${reason}`, req.user.id, req.user.username]
+                );
+            }
         }
         
         // Ban device if requested and available
@@ -913,7 +916,7 @@ router.get('/stats', authenticateAdmin, (req, res) => {
             });
         }),
         new Promise((resolve, reject) => {
-            db.get('SELECT COUNT(DISTINCT user_id) as total_gardens FROM gardens', (err, result) => {
+            db.get('SELECT COUNT(DISTINCT user_id) as total_gardens FROM gardens WHERE user_id IS NOT NULL', (err, result) => {
                 if (err) reject(err);
                 else resolve(result.total_gardens || 0);
             });
