@@ -37,20 +37,48 @@ const disconnectUser = (userId, reason = null) => {
     }
 };
 
-// Function to log admin actions
-const logAdminAction = (adminId, adminUsername, action, targetUserId = null, targetUsername = null, details = null, ipAddress = null) => {
+// Force logout user
+router.post('/force-logout/:userId', authenticateAdmin, async (req, res) => {
+    const { userId } = req.params;
+    const { reason } = req.body;
+
+    try {
+        // Get user info
+        db.get('SELECT username FROM users WHERE id = ?', [userId], (err, user) => {
+            if (err || !user) {
+                return res.status(404).json({ error: 'User not found' });
+            }
+
+            // Disconnect user if online
+            const userSocket = userSockets.get(userId);
+            if (userSocket) {
+                userSocket.emit('force_logout', { reason: reason || 'Admin action' });
+                userSocket.disconnect();
+                console.log(`🔌 Admin forced logout for user: ${user.username}${reason ? ` - ${reason}` : ''}`);
+            }
+
+            // Log admin action
+            db.run(
+                'INSERT INTO admin_logs (admin_id, admin_username, action, target_user_id, target_username, details, ip_address) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                [req.user.id, req.user.username, 'force_logout', userId, user.username, reason || 'No reason provided', req.ip]
+            );
+
+            res.json({ message: 'User logged out successfully' });
+        });
+    } catch (error) {
+        console.error('Error forcing logout:', error);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Helper function to log admin actions
+function logAdminAction(adminId, adminUsername, action, targetUserId = null, targetUsername = null, details = null, ipAddress = null) {
     db.run(
         'INSERT INTO admin_logs (admin_id, admin_username, action, target_user_id, target_username, details, ip_address) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        [adminId, adminUsername, action, targetUserId, targetUsername, details, ipAddress],
-        function(err) {
-            if (err) {
-                console.error('❌ Error logging admin action:', err);
-            } else {
-                console.log(`📝 Admin log: ${adminUsername} ${action} ${targetUsername || ''}`);
-            }
-        }
+        [adminId, adminUsername, action, targetUserId, targetUsername, details, ipAddress]
     );
-};
+    console.log(`📝 Admin log: ${adminUsername} ${action} ${targetUsername || ''}`);
+}
 
 // JWT secret
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this';
@@ -321,7 +349,6 @@ router.post('/unban-device', authenticateAdmin, (req, res) => {
 
 // Get banned IPs (admin only)
 router.get('/banned-ips', authenticateAdmin, (req, res) => {
-    console.log('🔍 Fetching banned IPs...');
     db.all(`
         SELECT 
             ip_address,
@@ -336,14 +363,12 @@ router.get('/banned-ips', authenticateAdmin, (req, res) => {
             return res.status(500).json({ error: 'Database error' });
         }
         
-        console.log(`✅ Found ${bannedIPs.length} banned IPs`);
         res.json({ bannedIPs });
     });
 });
 
 // Get banned devices (admin only)
 router.get('/banned-devices', authenticateAdmin, (req, res) => {
-    console.log('🔍 Fetching banned devices...');
     db.all(`
         SELECT 
             device_fingerprint,
@@ -358,7 +383,6 @@ router.get('/banned-devices', authenticateAdmin, (req, res) => {
             return res.status(500).json({ error: 'Database error' });
         }
         
-        console.log(`✅ Found ${bannedDevices.length} banned devices`);
         res.json({ bannedDevices });
     });
 });
@@ -368,7 +392,6 @@ router.get('/security-logs', authenticateAdmin, (req, res) => {
     const limit = parseInt(req.query.limit) || 100;
     const offset = parseInt(req.query.offset) || 0;
     
-    console.log(`🔍 Fetching security logs (limit: ${limit}, offset: ${offset})...`);
     db.all(`
         SELECT 
             admin_username as username,
@@ -385,7 +408,6 @@ router.get('/security-logs', authenticateAdmin, (req, res) => {
             return res.status(500).json({ error: 'Database error' });
         }
         
-        console.log(`✅ Found ${securityLogs.length} security logs`);
         res.json({ securityLogs });
     });
 });

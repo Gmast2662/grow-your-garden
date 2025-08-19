@@ -2,39 +2,43 @@
 
 This document tracks all updates, bug fixes, and new features added to the Grow Your Garden.
 
-## 🆕 Latest Update - Admin Panel Login Fix & Enhanced Debugging! 🔒 (v1.6.17)
+## 🆕 Latest Update - Console Cleanup & Enhanced User Activity Logging! 🔒 (v1.6.18)
 
 **Date:** August 19, 2025
 
-**Critical Fixes:**
-- **Permanent Mute Login Fix**: Fixed permanently muted users being unable to log in
-  - **Previous Issue**: Permanently muted users were blocked from logging in entirely
-  - **New Behavior**: Permanently muted users can log in and play, but cannot send chat messages
-  - **Login Handling**: Removed login blocking for permanently muted users in auth.js
-- **Admin Panel Initialization**: Added proper initialization for dashboard data loading
-  - **Page Load**: Dashboard data now loads automatically when admin panel opens
-  - **Tab Switching**: Enhanced tab switching with better error handling
+**Console Cleanup & Organization:**
+- **Reduced Console Noise**: Removed excessive debug messages from admin panel and server
+  - **Admin Panel**: Cleaned up verbose logging in tab switching, data loading, and initialization
+  - **Server Logs**: Removed redundant debug messages while keeping essential error logging
+  - **Security Endpoints**: Streamlined logging for banned IPs, devices, and security logs
+- **Enhanced User Activity Logging**: Added clear, informative messages for important user events
+  - **User Online/Offline**: Clear status messages when users connect/disconnect
+  - **Account Creation**: Logs when new accounts are created with IP information
+  - **User Login**: Enhanced login logging with admin status indication
+  - **Friend Activities**: Logs friend requests, acceptances, rejections, and unfriending
+  - **Message Blocking**: Clear logging when messages are blocked due to mutes or filters
 
-**Enhanced Debugging:**
-- **Security Tab Debugging**: Added comprehensive DOM element verification
-  - **Element Checks**: Added checks to ensure all required DOM elements exist before updating
-  - **Error Alerts**: Added user-friendly error messages when elements are missing
-  - **Console Logging**: Enhanced logging for troubleshooting security tab issues
-- **Clear Gardens Debugging**: Improved error handling and user feedback
+**Improved Console Output:**
+- **User Status**: `🟢 User ONLINE: username (ID: userId)` and `🔴 User OFFLINE: username (ID: userId)`
+- **Account Events**: `👤 NEW ACCOUNT CREATED: username (ID: userId) from IP: ipAddress`
+- **Login Events**: `🔑 USER LOGIN: username (ID: userId) from IP: ipAddress [ADMIN]` (if admin)
+- **Friend Activities**: `👥 FRIEND REQUEST: user1 → user2`, `✅ FRIENDSHIP ACCEPTED: user1 ↔ user2`
+- **Message Blocking**: `🚫 MESSAGE BLOCKED - Permanently muted user username: reason`
+- **Admin Actions**: `🔌 Admin forced logout for user: username - reason`
 
 **Technical Improvements:**
-- **Login System**: Fixed permanent mute login blocking in authentication middleware
-- **Page Initialization**: Added DOMContentLoaded event listener for proper page setup
-- **Error Handling**: Enhanced error messages and debugging output throughout admin panel
-- **DOM Verification**: Added checks to prevent errors when DOM elements are missing
+- **Cleaner Code**: Removed unnecessary console.log statements throughout the application
+- **Better Organization**: Console messages are now more focused and informative
+- **Error Handling**: Maintained essential error logging while reducing noise
+- **User Experience**: Console output is now more readable and useful for monitoring
 
 **User Experience:**
-- **Working Login**: Permanently muted users can now log in and continue playing
-- **Better Error Messages**: More informative error messages help identify issues
-- **Automatic Loading**: Dashboard data loads automatically when admin panel opens
-- **Enhanced Debugging**: Better troubleshooting information for admin panel issues
+- **Cleaner Console**: Reduced clutter in Replit console for better readability
+- **Better Monitoring**: Clear indication of user activities and important events
+- **Easier Debugging**: Focused logging makes it easier to identify issues
+- **Professional Output**: Console messages are now more organized and professional
 
-This update fixes the critical login issue for permanently muted users and enhances the admin panel debugging capabilities.
+This update significantly improves the console output by cleaning up excessive debug messages and adding clear, informative logging for important user activities.
 
 ---
 

@@ -331,7 +331,7 @@ io.use(authenticateSocketToken);
 
 io.on('connection', (socket) => {
     try {
-        console.log(`User connected: ${socket.username} (${socket.userId})`);
+        console.log(`🟢 User ONLINE: ${socket.username} (ID: ${socket.userId})`);
         
         // Add user to online list
         onlineUsers.set(socket.userId, {
@@ -366,8 +366,6 @@ io.on('connection', (socket) => {
         // Handle garden updates
         socket.on('garden_update', (gardenData) => {
             try {
-                console.log(`Garden update from ${socket.username} for slot ${gardenData.saveSlot || 1}`);
-                
                 // Save garden data to database with slot information
                 const gardenJson = JSON.stringify(gardenData);
                 const slot = gardenData.saveSlot || 1;
@@ -381,21 +379,17 @@ io.on('connection', (socket) => {
                         if (err) {
                             console.error('❌ Error saving garden update with slot_number:', err);
                             // Fallback to old format without slot_number
-                            console.log('🔄 Trying fallback save without slot_number...');
                             db.run(
                                 'INSERT OR REPLACE INTO gardens (id, user_id, garden_data, last_updated) VALUES (?, ?, ?, CURRENT_TIMESTAMP)',
                                 [gardenId, socket.userId, gardenJson],
                                 function(fallbackErr) {
                                     if (fallbackErr) {
                                         console.error('❌ Fallback save also failed:', fallbackErr);
-                                    } else {
-                                        console.log(`✅ Garden saved with fallback for ${socket.username}`);
                                     }
                                 }
                             );
                             return;
                         }
-                        console.log(`✅ Garden saved for ${socket.username} slot ${slot}`);
                     }
                 );
 
@@ -437,8 +431,6 @@ io.on('connection', (socket) => {
 
         // Handle garden visit requests
         socket.on('visit_garden', (targetUserId) => {
-            console.log(`${socket.username} wants to visit ${targetUserId}'s garden`);
-            
             // Check if target user is online
             const targetSocket = userSockets.get(targetUserId);
             if (targetSocket) {
@@ -477,7 +469,7 @@ io.on('connection', (socket) => {
                 db.get(`
                     SELECT muted_until, mute_reason 
                     FROM user_mutes 
-                    WHERE user_id = ? AND (muted_until IS NULL OR muted_until > datetime('now'))
+                    WHERE user_id = ? AND (um.muted_until IS NULL OR um.muted_until > datetime('now'))
                 `, [socket.userId], (err, muteData) => {
                     if (err) {
                         console.error('Error checking mute status:', err);
@@ -492,7 +484,7 @@ io.on('connection', (socket) => {
                         if (muteData.muted_until === null) {
                             // Permanent mute
                             const muteMessage = `You are permanently muted: ${muteData.mute_reason || 'No reason provided'}`;
-                            console.log(`🚫 Blocking message from permanently muted user: ${socket.username} - ${muteMessage}`);
+                            console.log(`🚫 MESSAGE BLOCKED - Permanently muted user ${socket.username}: ${muteData.mute_reason || 'No reason'}`);
                             socket.emit('message_sent', { 
                                 success: false, 
                                 error: muteMessage 
@@ -505,7 +497,7 @@ io.on('connection', (socket) => {
                             if (muteUntil > now) {
                                 const muteUntilDate = new Date(muteData.muted_until);
                                 const muteMessage = `You are muted until ${muteUntilDate.toLocaleString()}: ${muteData.mute_reason || 'No reason provided'}`;
-                                console.log(`🚫 Blocking message from temporarily muted user: ${socket.username} - ${muteMessage}`);
+                                console.log(`🚫 MESSAGE BLOCKED - Temporarily muted user ${socket.username} until ${muteUntilDate.toLocaleString()}: ${muteData.mute_reason || 'No reason'}`);
                                 socket.emit('message_sent', { 
                                     success: false, 
                                     error: muteMessage 
@@ -522,12 +514,6 @@ io.on('connection', (socket) => {
                             // Continue without filter if there's an error
                         }
 
-                        console.log('🔍 Chat filter check:', {
-                            message: data.message,
-                            filterWords: filterWords,
-                            isAdmin: socket.isAdmin
-                        });
-
                         let filteredMessage = data.message;
                         let messageBlocked = false;
                         let blockedWords = [];
@@ -535,23 +521,21 @@ io.on('connection', (socket) => {
                         if (filterWords && filterWords.length > 0) {
                             const messageLower = data.message.toLowerCase();
                             filterWords.forEach(filterWord => {
-                                console.log('🔍 Checking word:', filterWord.word, 'against message:', messageLower);
                                 if (messageLower.includes(filterWord.word.toLowerCase())) {
                                     messageBlocked = true;
                                     blockedWords.push(filterWord.word);
-                                    console.log('🚫 Word blocked:', filterWord.word);
                                 }
                             });
 
                             if (messageBlocked && !socket.isAdmin) {
-                                console.log('🚫 Message blocked for non-admin user:', blockedWords);
+                                console.log(`🚫 MESSAGE BLOCKED - Filtered content from ${socket.username}: ${blockedWords.join(', ')}`);
                                 socket.emit('message_sent', { 
                                     success: false, 
                                     error: `Message blocked due to inappropriate content: ${blockedWords.join(', ')}` 
                                 });
                                 return;
                             } else if (messageBlocked && socket.isAdmin) {
-                                console.log('✅ Admin bypassed filter for words:', blockedWords);
+                                console.log(`✅ Admin ${socket.username} bypassed filter for words: ${blockedWords.join(', ')}`);
                             }
                         }
 
@@ -564,23 +548,12 @@ io.on('connection', (socket) => {
                         };
 
                         // Save to database with error handling (let SQLite auto-generate the id)
-                        console.log('📝 Attempting to save message:', {
-                            senderId: socket.userId,
-                            receiverId: data.receiverId || 'global',
-                            message: filteredMessage
-                        });
-                        
                         db.run(
                             'INSERT INTO chat_messages (sender_id, receiver_id, message) VALUES (?, ?, ?)',
                             [socket.userId, data.receiverId || 'global', filteredMessage],
                             function(err) {
                                 if (err) {
                                     console.error('❌ Database error saving message:', err);
-                                    console.error('Error details:', {
-                                        code: err.code,
-                                        errno: err.errno,
-                                        message: err.message
-                                    });
                                     socket.emit('message_sent', { 
                                         success: false, 
                                         error: 'Failed to save message' 
@@ -642,7 +615,6 @@ io.on('connection', (socket) => {
                 }
 
                 // Check if already friends or request pending (only check for active relationships)
-                console.log(`🔍 Checking existing friendship: userId=${socket.userId}, targetId=${targetUser.id}`);
                 db.get('SELECT * FROM friends WHERE ((user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)) AND status IN ("pending", "accepted")', 
                     [socket.userId, targetUser.id, targetUser.id, socket.userId], (err, existing) => {
                     if (err) {
@@ -653,12 +625,9 @@ io.on('connection', (socket) => {
 
                     if (existing) {
                         const status = existing.status === 'accepted' ? 'already friends' : 'request pending';
-                        console.log(`❌ Friendship exists with status: ${existing.status}`);
                         socket.emit('friend_request_result', { success: false, message: `Already ${status}` });
                         return;
                     }
-
-                    console.log(`✅ No existing friendship found, proceeding with friend request`);
 
                     // Send friend request
                     db.run('INSERT INTO friends (user_id, friend_id, status) VALUES (?, ?, "pending")', 
@@ -668,18 +637,16 @@ io.on('connection', (socket) => {
                             return;
                         }
 
+                        console.log(`👥 FRIEND REQUEST: ${socket.username} → ${targetUser.username}`);
                         socket.emit('friend_request_result', { success: true, message: 'Friend request sent!' });
 
                         // Notify target user if online
                         const targetSocket = userSockets.get(targetUser.id);
                         if (targetSocket) {
-                            console.log(`📨 Sending friend request notification to ${targetUser.username} from ${socket.username}`);
                             targetSocket.emit('friend_request_received', {
                                 fromId: socket.userId,
                                 fromName: socket.username
                             });
-                        } else {
-                            console.log(`📨 Target user ${targetUser.username} is not online, friend request will be seen when they log in`);
                         }
                     });
                 });
@@ -690,8 +657,6 @@ io.on('connection', (socket) => {
         socket.on('respond_friend_request', (data) => {
             if (data.accepted) {
                 // Accept the friend request - use INSERT OR REPLACE to avoid duplicates
-                console.log(`✅ Accepting friend request: fromId=${data.fromId}, toId=${socket.userId}`);
-                
                 // First, update the existing request to accepted
                 db.run('UPDATE friends SET status = ? WHERE user_id = ? AND friend_id = ?', 
                     ['accepted', data.fromId, socket.userId], function(err) {
@@ -700,8 +665,6 @@ io.on('connection', (socket) => {
                         socket.emit('friend_response_result', { success: false, message: 'Database error' });
                         return;
                     }
-
-                    console.log(`✅ Updated friend request. Rows affected: ${this.changes}`);
 
                     // Add reverse friendship using INSERT OR REPLACE to avoid constraint violations
                     db.run('INSERT OR REPLACE INTO friends (user_id, friend_id, status) VALUES (?, ?, "accepted")', 
@@ -712,8 +675,7 @@ io.on('connection', (socket) => {
                             return;
                         }
 
-                        console.log(`✅ Created reverse friendship. Rows affected: ${this.changes}`);
-
+                        console.log(`✅ FRIENDSHIP ACCEPTED: ${socket.username} ↔ ${data.fromName || 'Unknown'}`);
                         socket.emit('friend_response_result', { 
                             success: true, 
                             message: 'Friend request accepted!' 
@@ -732,7 +694,6 @@ io.on('connection', (socket) => {
                 });
             } else {
                 // Reject the friend request - DELETE it completely
-                console.log(`🗑️ Deleting friend request: fromId=${data.fromId}, toId=${socket.userId}`);
                 db.run('DELETE FROM friends WHERE (user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)', 
                     [data.fromId, socket.userId, socket.userId, data.fromId], function(err) {
                     if (err) {
@@ -741,7 +702,7 @@ io.on('connection', (socket) => {
                         return;
                     }
 
-                    console.log(`✅ Friend request deleted successfully. Rows affected: ${this.changes}`);
+                    console.log(`❌ FRIEND REQUEST REJECTED: ${socket.username} → ${data.fromName || 'Unknown'}`);
                     socket.emit('friend_response_result', { 
                         success: true, 
                         message: 'Friend request rejected' 
@@ -764,7 +725,6 @@ io.on('connection', (socket) => {
         socket.on('unfriend_user', (data) => {
             try {
                 const { friendId } = data;
-                console.log(`Unfriend request: userId=${socket.userId}, friendId=${friendId}`);
                 
                 // Remove friendship from both sides
                 db.run(
@@ -778,7 +738,7 @@ io.on('connection', (socket) => {
                         }
                         
                         if (this.changes > 0) {
-                            console.log(`User unfriended successfully`);
+                            console.log(`👥 UNFRIENDED: ${socket.username} removed friendship`);
                             
                             // Notify the other user
                             const targetSocket = userSockets.get(friendId);
@@ -806,7 +766,7 @@ io.on('connection', (socket) => {
 
         // Handle disconnection
         socket.on('disconnect', () => {
-            console.log(`User disconnected: ${socket.username}`);
+            console.log(`🔴 User OFFLINE: ${socket.username} (ID: ${socket.userId})`);
             
             // Remove from online users
             onlineUsers.delete(socket.userId);

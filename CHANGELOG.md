@@ -2,7 +2,27 @@
 
 This document contains every single update, bug fix, and change made to Grow Your Garden, including detailed technical information.
 
-## 🆕 Latest Updates (v1.6.17)
+## 🆕 Latest Updates (v1.6.18)
+
+### 🔧 CHANGED: Console Cleanup & Enhanced User Activity Logging
+- **Console Cleanup**: Removed excessive debug messages from admin panel and server
+  - **Issue**: Console was cluttered with verbose debug messages making it hard to read
+  - **Fix**: Removed unnecessary console.log statements from admin panel functions
+  - **Fix**: Cleaned up server-side logging while maintaining essential error logging
+  - **Result**: Much cleaner and more readable console output
+- **Enhanced User Activity Logging**: Added clear, informative messages for important user events
+  - **User Online/Offline**: Clear status messages when users connect/disconnect
+  - **Account Creation**: Logs when new accounts are created with IP information
+  - **User Login**: Enhanced login logging with admin status indication
+  - **Friend Activities**: Logs friend requests, acceptances, rejections, and unfriending
+  - **Message Blocking**: Clear logging when messages are blocked due to mutes or filters
+- **Improved Console Organization**: Console messages are now more focused and professional
+  - **Issue**: Console output was disorganized and hard to monitor
+  - **Fix**: Standardized message format with emojis and clear descriptions
+  - **Fix**: Organized messages by activity type for better monitoring
+  - **Result**: Professional, easy-to-read console output for monitoring user activities
+
+## 🆕 Previous Updates (v1.6.17)
 
 ### 🔧 FIXED: Critical Login Issue & Enhanced Admin Panel Debugging
 - **Permanent Mute Login Fix**: Fixed permanently muted users being unable to log in

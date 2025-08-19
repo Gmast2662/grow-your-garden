@@ -77,6 +77,8 @@ router.post('/register', async (req, res) => {
                             [userId, username, 'user_registration', ipAddress, 'New user registration']
                         );
 
+                        console.log(`👤 NEW ACCOUNT CREATED: ${username} (ID: ${userId}) from IP: ${ipAddress}`);
+
                         res.status(201).json({
                             message: 'User registered successfully',
                             userId: userId
@@ -118,6 +120,7 @@ router.post('/login', async (req, res) => {
             }
 
             if (user.is_banned) {
+                console.log(`🚫 LOGIN BLOCKED - Banned user ${username} attempted login: ${user.ban_reason || 'No reason'}`);
                 return res.status(403).json({ 
                     error: 'Account banned', 
                     reason: user.ban_reason || 'No reason provided' 
@@ -130,6 +133,7 @@ router.post('/login', async (req, res) => {
                 const now = new Date();
                 const muteUntil = new Date(user.muted_until);
                 if (muteUntil > now) {
+                    console.log(`🚫 LOGIN BLOCKED - Temporarily muted user ${username} attempted login until ${muteUntil.toLocaleString()}: ${user.mute_reason || 'No reason'}`);
                     return res.status(403).json({ 
                         error: 'Account muted', 
                         reason: user.mute_reason,
@@ -163,6 +167,8 @@ router.post('/login', async (req, res) => {
                 'INSERT INTO security_logs (user_id, username, action, ip_address, details) VALUES (?, ?, ?, ?, ?)',
                 [user.id, user.username, 'user_login', ipAddress, 'Successful login']
             );
+
+            console.log(`🔑 USER LOGIN: ${username} (ID: ${user.id}) from IP: ${ipAddress}${user.is_admin ? ' [ADMIN]' : ''}`);
 
             res.json({
                 message: 'Login successful',
