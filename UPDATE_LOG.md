@@ -1,5 +1,17 @@
 # Update Log
 
+## v1.7.4 - Friend System Targeted Fixes
+
+### 🔧 FIXED: Friend System Issues (Targeted Fixes)
+- **Issue 1**: Friend request notifications were not user-friendly on sender's side
+- **Fix**: Enhanced `handleFriendRequestResponse` in `multiplayer.js` to show descriptive messages with emojis and use game's `showMessage` system
+- **Issue 2**: Only one out of two friends was showing in friends list
+- **Fix**: Corrected filtering logic in `loadFriendsList` from `&&` to `||` for `acceptedFriends` to show all accepted friends
+- **Issue 3**: Basic friend request response messages needed improvement
+- **Fix**: Enhanced `respondToFriendRequest` in `game.js` to show more descriptive and user-friendly messages
+- **Files Modified**: `multiplayer.js`, `game.js`
+- **Result**: Better friend request notifications and all accepted friends now display correctly
+
 ## v1.7.3 - Account Settings Refinements & Bug Fixes
 
 ### 🔧 FIXED: Account Settings Data Loading

@@ -328,7 +328,23 @@ class MultiplayerManager {
     // Handle friend request response
     handleFriendRequestResponse(data) {
         const status = data.accepted ? 'accepted' : 'rejected';
-        alert(`${data.byName} ${status} your friend request!`);
+        const message = data.accepted
+            ? `🎉 ${data.byName} accepted your friend request! You are now friends.`
+            : `❌ ${data.byName} rejected your friend request.`;
+
+        // Show a more user-friendly notification
+        if (window.game && window.game.showMessage) {
+            window.game.showMessage(message, data.accepted ? 'success' : 'info');
+        } else {
+            alert(message);
+        }
+
+        // Refresh friends list to show updated status
+        if (window.game && window.game.loadFriendsList) {
+            setTimeout(() => {
+                window.game.loadFriendsList();
+            }, 1000);
+        }
     }
 
     // Handle friend response result

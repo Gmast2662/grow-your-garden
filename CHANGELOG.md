@@ -2,6 +2,30 @@
 
 This document contains every single update, bug fix, and change made to Grow Your Garden, including detailed technical information.
 
+## 🆕 Latest Updates (v1.7.4)
+
+### 🔧 FIXED: Friend System Issues (Targeted Fixes)
+- **Issue 1**: Friend request notifications were not user-friendly on sender's side
+- **Root Cause**: Basic alert messages were not descriptive enough and didn't use the game's notification system
+- **Solution**: Enhanced `handleFriendRequestResponse` in `multiplayer.js` to show descriptive messages with emojis and use game's `showMessage` system
+- **Technical Implementation**:
+  - Modified `handleFriendRequestResponse` function to display user-friendly messages like "🎉 John accepted your friend request! You are now friends."
+  - Added automatic friends list refresh after friend request responses
+  - Integrated with game's `showMessage` system for consistent UI experience
+- **Issue 2**: Only one out of two friends was showing in friends list
+- **Root Cause**: Filtering logic in `loadFriendsList` was too restrictive using `&&` instead of `||`
+- **Solution**: Corrected filtering logic from `&&` to `||` for `acceptedFriends` to show all accepted friends
+- **Technical Implementation**:
+  - Changed filter condition from `friend.status === 'accepted' && friend.request_type === 'accepted'` to `(friend.status === 'accepted') || (friend.request_type === 'accepted')`
+  - This ensures friends are shown if either condition is met, not requiring both
+- **Issue 3**: Basic friend request response messages needed improvement
+- **Solution**: Enhanced `respondToFriendRequest` in `game.js` to show more descriptive and user-friendly messages
+- **Technical Implementation**:
+  - Updated response messages to include emojis and clearer descriptions
+  - Added different message types (success/info) based on acceptance/rejection
+- **Files Modified**: `multiplayer.js`, `game.js`
+- **Result**: Better friend request notifications and all accepted friends now display correctly
+
 ## 🆕 Latest Updates (v1.7.3)
 
 ### 🔧 FIXED: Account Settings Data Loading

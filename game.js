@@ -1166,7 +1166,9 @@ class GardenGame {
                 let friendsHtml = '';
                 
                 // Show accepted friends
-                const acceptedFriends = uniqueFriends.filter(friend => friend.status === 'accepted' && friend.request_type === 'accepted');
+                const acceptedFriends = uniqueFriends.filter(friend => {
+                    return (friend.status === 'accepted') || (friend.request_type === 'accepted');
+                });
                 if (acceptedFriends.length > 0) {
                     // Separate online and offline friends
                     const onlineFriends = acceptedFriends.filter(friend => {
@@ -1521,7 +1523,10 @@ class GardenGame {
         }
         
         const status = accepted ? 'accepted' : 'rejected';
-        this.showMessage(`Friend request ${status}!`, 'success');
+        const message = accepted 
+            ? `🎉 Friend request accepted! You are now friends with this user.`
+            : `❌ Friend request rejected.`;
+        this.showMessage(message, accepted ? 'success' : 'info');
         
         // Refresh the friends list to show updated status
         setTimeout(() => {
