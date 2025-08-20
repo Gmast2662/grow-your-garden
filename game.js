@@ -348,6 +348,9 @@ class GardenGame {
         // Update expansion cost for next expansion
         this.expansionCost = Math.floor(this.expansionCost * 1.3);
         
+        // Update expansion challenge progress
+        this.updateChallengeProgress('expansion', 1);
+        
         this.showMessage(`Garden expanded to ${this.gardenSize}x${this.gardenSize}!`, 'success');
         this.updateUI();
         this.saveGame();
@@ -3182,8 +3185,14 @@ class GardenGame {
         if (sprinklerBonus > 0) {
             // Calculate continuous growth based on time
             const now = Date.now();
-            const lastGrowthCheck = cell.lastSprinklerGrowth || now;
-            const timeSinceLastCheck = now - lastGrowthCheck;
+            
+            // Initialize lastSprinklerGrowth if it doesn't exist
+            if (!cell.lastSprinklerGrowth) {
+                cell.lastSprinklerGrowth = now;
+                return; // Skip this frame to start timing from now
+            }
+            
+            const timeSinceLastCheck = now - cell.lastSprinklerGrowth;
             
             // Growth rate: 1 stage per 30 seconds with sprinkler
             let growthTimePerStage = 30000; // 30 seconds per stage (base)
@@ -3330,6 +3339,9 @@ class GardenGame {
             this.achievementStats.plantsPlanted++;
             this.achievementStats.differentPlantsPlanted.add(seedType);
             
+            // Update daily challenge progress for planting
+            this.updateChallengeProgress('plant', 1);
+            
             // Add plant particle effect
             const x = (col * this.cellSize) + (this.cellSize / 2);
             const y = (row * this.cellSize) + (this.cellSize / 2);
@@ -3384,6 +3396,9 @@ class GardenGame {
                 const plantData = this.plantTypes[cell.plant.type];
                 this.showMessage(`${plantData.name} watered! (Already fully grown)`, 'success');
             }
+            
+            // Update daily challenge progress for watering
+            this.updateChallengeProgress('water', 1);
             
             this.playSound('water');
             this.achievementStats.plantsWatered++;
@@ -3472,20 +3487,20 @@ class GardenGame {
             this.updateChallengeProgress('harvest', 1);
             this.updateChallengeProgress('money', finalValue);
             
+            // Update rare/legendary challenge progress
+            if (plantData.isRare) {
+                this.updateChallengeProgress('rare', 1);
+                this.achievementStats.rareHarvests++;
+            }
+            if (plantData.isLegendary) {
+                this.updateChallengeProgress('legendary', 1);
+                this.achievementStats.legendaryHarvests++;
+            }
+            
             // Add particle effect
             const x = (col * this.cellSize) + (this.cellSize / 2);
             const y = (row * this.cellSize) + (this.cellSize / 2);
             this.addParticle(x, y, 'money', finalValue);
-            
-
-            
-            // Check for rare/legendary achievements
-            if (plantData.isRare) {
-                this.achievementStats.rareHarvests++;
-            }
-            if (plantData.isLegendary) {
-                this.achievementStats.legendaryHarvests++;
-            }
             
             // Show bonus message if harvest tool is upgraded
             if (this.harvestBonus > 0) {

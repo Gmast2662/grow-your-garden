@@ -2,6 +2,31 @@
 
 This document contains every single update, bug fix, and change made to Grow Your Garden, including detailed technical information.
 
+## 🆕 Latest Updates (v1.7.7)
+
+### 🔧 FIXED: Daily Challenges Not Counting Progress
+- **Issue**: Daily challenges were not counting progress for watering plants, planting seeds, and other actions
+- **Root Cause**: Missing `updateChallengeProgress()` calls in key game functions
+- **Solution**: Added challenge progress updates to all relevant game actions
+- **Technical Implementation**:
+  - Added `updateChallengeProgress('water', 1)` to `waterPlant()` function
+  - Added `updateChallengeProgress('plant', 1)` to `plantSeed()` function
+  - Added `updateChallengeProgress('rare', 1)` and `updateChallengeProgress('legendary', 1)` to harvest function for rare/legendary plants
+  - Added `updateChallengeProgress('expansion', 1)` to `expandGarden()` function
+- **Files Modified**: `game.js`
+- **Result**: All daily and weekly challenges now properly track progress for all supported challenge types
+
+### 🔧 FIXED: Sprinkler Growth System Timing Issue
+- **Issue**: Sprinklers were not growing plants due to timing initialization problem
+- **Root Cause**: `lastSprinklerGrowth` was being initialized to current time, causing immediate 0 time difference on first check
+- **Solution**: Modified `checkSprinklerGrowth()` to properly initialize timing on first call
+- **Technical Implementation**:
+  - Changed timing logic to initialize `lastSprinklerGrowth` on first call and skip that frame
+  - This ensures proper 30-second intervals between growth stages
+  - Maintains existing growth rate multipliers and sprinkler bonus calculations
+- **Files Modified**: `game.js`
+- **Result**: Sprinklers now properly grow plants at the intended rate (1 stage per 30 seconds)
+
 ## 🆕 Latest Updates (v1.7.6)
 
 ### 🔧 FIXED: Friend Request Visibility Issue
