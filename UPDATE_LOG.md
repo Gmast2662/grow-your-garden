@@ -1,5 +1,42 @@
 # Update Log
 
+## v1.7.9 - Chat Auto-Update Information
+
+### 💬 ADDED: Chat Auto-Update Information Message
+- **Request**: User requested to add a small text in the multiplayer chat explaining that chat updates automatically when not typing
+- **Solution**: Added subtle informational message about auto-update functionality
+- **Technical Implementation**:
+  - Modified `loadChatMessages()` function to display auto-update info message
+  - Added message both when there are messages and when chat is empty
+  - Created `.chat-auto-update-info` CSS class for subtle styling
+  - Message appears as: "💬 Chat updates automatically when you're not typing"
+- **Styling**: 
+  - Semi-transparent white text (60% opacity)
+  - Smaller font size (0.75em)
+  - Italic style for subtle appearance
+  - Centered alignment with top border separator
+  - Positioned at bottom of chat messages
+- **Files Modified**: `game.js`, `styles.css`
+- **Result**: Users now see a helpful reminder that the chat updates automatically when they're not typing
+
+## v1.7.8 - Friend System Console Log Cleanup
+
+### 🔧 FIXED: Excessive Console Logs in Friend System
+- **Issue**: Console was being flooded with debug logs from friend system functions
+- **Root Cause**: `loadFriendsList()` function contained many debug console.log statements that were called frequently
+- **Solution**: Removed excessive debug logs while keeping essential ones for actual friend actions
+- **Technical Implementation**:
+  - Removed debug logs from `loadFriendsList()` function (friends data, deduplication, status checks)
+  - Removed debug logs from button click handlers (accept/reject/unfriend)
+  - Removed debug logs from `sendFriendRequest()`, `respondToFriendRequest()`, and `unfriendUser()` functions
+  - Removed debug log from server-side friends endpoint
+  - Kept essential console logs for actual friend events:
+    - `👥 New friend request from [username]` - when receiving a friend request
+    - `👥 Friend request accepted/rejected by [username]` - when a request is responded to
+    - `😢 [username] unfriended you` - when someone unfriends you
+- **Files Modified**: `game.js`, `multiplayer.js`, `server.js`
+- **Result**: Console is now much cleaner, only showing important friend system events once
+
 ## v1.7.7 - Daily Challenges & Sprinkler Growth Fixes
 
 ### 🔧 FIXED: Daily Challenges Not Counting Progress

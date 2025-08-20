@@ -180,7 +180,7 @@ class MultiplayerManager {
 
         // Friend request events
         this.socket.on('friend_request_received', (data) => {
-            console.log(`👥 Friend request from ${data.fromName}`);
+            console.log(`👥 New friend request from ${data.fromName}`);
             this.emit('friend_request', data);
         });
 
@@ -349,6 +349,8 @@ class MultiplayerManager {
     // Handle friend request response
     handleFriendRequestResponse(data) {
         const status = data.accepted ? 'accepted' : 'rejected';
+        console.log(`👥 Friend request ${status} by ${data.byName}`);
+        
         const message = data.accepted
             ? `🎉 ${data.byName} accepted your friend request! You are now friends.`
             : `❌ ${data.byName} rejected your friend request.`;

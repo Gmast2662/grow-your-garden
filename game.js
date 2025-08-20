@@ -1145,8 +1145,6 @@ class GardenGame {
             
             // Get friends from multiplayer manager
             this.multiplayer.getFriends().then(friends => {
-                console.log('🔍 Friends data received:', friends);
-                
                 // Remove duplicates based on user ID AND status/request_type
                 // This ensures we don't lose pending requests when we have accepted friends for the same user
                 const uniqueFriends = friends.filter((friend, index, self) => {
@@ -1156,53 +1154,23 @@ class GardenGame {
                         return fKey === friendKey;
                     });
                 });
-                console.log('🔍 Unique friends after deduplication:', uniqueFriends);
-                
-                // Debug: Log all friends with their status and request_type
-                console.log('🔍 All friends with status details:');
-                uniqueFriends.forEach(friend => {
-                    console.log(`  - ${friend.username}: status=${friend.status}, request_type=${friend.request_type}, online=${friend.online}`);
-                });
-                console.log('🔍 Current user ID:', this.multiplayer?.currentUser?.id);
-                
-                // Debug each friend's online status
-                uniqueFriends.forEach(friend => {
-                    console.log(`🔍 Friend ${friend.username}:`, {
-                        id: friend.id,
-                        online: friend.online,
-                        isOnline: friend.isOnline,
-                        isCurrentUser: friend.id === this.multiplayer?.currentUser?.id
-                    });
-                });
                 
                 let friendsHtml = '';
                 
                 // Show accepted friends
                 const acceptedFriends = uniqueFriends.filter(friend => {
                     const isAccepted = (friend.status === 'accepted') || (friend.request_type === 'accepted');
-                    console.log(`🔍 Friend ${friend.username} accepted check:`, {
-                        status: friend.status,
-                        request_type: friend.request_type,
-                        isAccepted: isAccepted
-                    });
                     return isAccepted;
                 });
-                console.log('🔍 Accepted friends found:', acceptedFriends.length, acceptedFriends);
                 if (acceptedFriends.length > 0) {
                     // Separate online and offline friends
                     const onlineFriends = acceptedFriends.filter(friend => {
                         // Don't show current user in friends list
                         if (friend.id === this.multiplayer?.currentUser?.id) {
-                            console.log(`🔍 Skipping current user: ${friend.username}`);
                             return false;
                         }
                         // Check real-time online status
                         const isOnline = friend.online === true || friend.isOnline === true;
-                        console.log(`🔍 Friend ${friend.username} online status:`, {
-                            online: friend.online,
-                            isOnline: friend.isOnline,
-                            result: isOnline
-                        });
                         return isOnline;
                     });
                     
@@ -1218,7 +1186,6 @@ class GardenGame {
                     
                     // Show online friends first
                     if (onlineFriends.length > 0) {
-                        console.log('🟢 Online friends:', onlineFriends);
                         friendsHtml += '<h4>🟢 Online Friends</h4>';
                         friendsHtml += onlineFriends.map(friend => {
                             return `<div class="friend-item">
@@ -1235,7 +1202,6 @@ class GardenGame {
                     
                     // Show offline friends
                     if (offlineFriends.length > 0) {
-                        console.log('🔴 Offline friends:', offlineFriends);
                         friendsHtml += '<h4>🔴 Offline Friends</h4>';
                         friendsHtml += offlineFriends.map(friend => {
                             return `<div class="friend-item">
@@ -1255,20 +1221,12 @@ class GardenGame {
                 const pendingRequests = uniqueFriends.filter(friend => {
                     // Only show received requests, not sent ones
                     const isPendingReceived = friend.status === 'pending' && friend.request_type === 'received';
-                    console.log(`🔍 Friend ${friend.username} pending check:`, {
-                        status: friend.status,
-                        request_type: friend.request_type,
-                        isPendingReceived: isPendingReceived
-                    });
                     return isPendingReceived;
                 });
-                console.log('🔍 Pending requests found:', pendingRequests.length, pendingRequests);
                 if (pendingRequests.length > 0) {
                     friendsHtml += '<h4>⏳ Pending Requests</h4>';
                     pendingRequests.forEach(friend => {
-                        console.log('🔍 Creating button for friend:', friend);
                         const friendId = friend.id || friend.user_id || friend.from_id;
-                        console.log('🔍 Using friend ID:', friendId);
                         friendsHtml += `
                             <div class="friend-item pending">
                                 <div class="friend-info">
@@ -1325,19 +1283,15 @@ class GardenGame {
                 acceptButtons.forEach(button => {
                     button.addEventListener('click', (e) => {
                         const friendId = e.target.getAttribute('data-friend-id');
-                        console.log('🔍 Accept button clicked for friend ID:', friendId);
-                        console.log('🔍 window.game exists:', !!window.game);
                         
                         // Try to find the game object if window.game doesn't exist
                         let gameObj = window.game;
                         if (!gameObj) {
                             // Look for the game object in different places
                             gameObj = window.currentGame || window.gardenGame;
-                            console.log('🔍 Trying alternative game object:', !!gameObj);
                         }
                         
                         if (gameObj && friendId) {
-                            console.log('🔍 Calling respondToFriendRequest...');
                             gameObj.respondToFriendRequest(friendId, true);
                         } else {
                             console.error('❌ Cannot call respondToFriendRequest - game object or friendId missing');
@@ -1350,19 +1304,15 @@ class GardenGame {
                 rejectButtons.forEach(button => {
                     button.addEventListener('click', (e) => {
                         const friendId = e.target.getAttribute('data-friend-id');
-                        console.log('🔍 Reject button clicked for friend ID:', friendId);
-                        console.log('🔍 window.game exists:', !!window.game);
                         
                         // Try to find the game object if window.game doesn't exist
                         let gameObj = window.game;
                         if (!gameObj) {
                             // Look for the game object in different places
                             gameObj = window.currentGame || window.gardenGame;
-                            console.log('🔍 Trying alternative game object:', !!gameObj);
                         }
                         
                         if (gameObj && friendId) {
-                            console.log('🔍 Calling respondToFriendRequest...');
                             gameObj.respondToFriendRequest(friendId, false);
                         } else {
                             console.error('❌ Cannot call respondToFriendRequest - game object or friendId missing');
@@ -1377,19 +1327,15 @@ class GardenGame {
                 unfriendButtons.forEach(button => {
                     button.addEventListener('click', (e) => {
                         const friendId = e.target.getAttribute('data-friend-id');
-                        console.log('🔍 Unfriend button clicked for friend ID:', friendId);
-                        console.log('🔍 window.game exists:', !!window.game);
                         
                         // Try to find the game object if window.game doesn't exist
                         let gameObj = window.game;
                         if (!gameObj) {
                             // Look for the game object in different places
                             gameObj = window.currentGame || window.gardenGame;
-                            console.log('🔍 Trying alternative game object:', !!gameObj);
                         }
                         
                         if (gameObj && friendId) {
-                            console.log('🔍 Calling unfriendUser...');
                             gameObj.unfriendUser(friendId);
                         } else {
                             console.error('❌ Cannot call unfriendUser - game object or friendId missing');
@@ -1424,10 +1370,13 @@ class GardenGame {
                         <span class="chat-text">${msg.message}</span>
                     </div>`;
                 }).join('');
-                chatMessagesDiv.innerHTML = messagesHtml;
+                
+                // Add auto-update info message at the bottom
+                const autoUpdateMessage = '<div class="chat-auto-update-info">💬 Chat updates automatically when you\'re not typing</div>';
+                chatMessagesDiv.innerHTML = messagesHtml + autoUpdateMessage;
                 chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
             } else {
-                chatMessagesDiv.innerHTML = '<p>No messages yet. Start chatting!</p>';
+                chatMessagesDiv.innerHTML = '<p>No messages yet. Start chatting!</p><div class="chat-auto-update-info">💬 Chat updates automatically when you\'re not typing</div>';
             }
         }
     }
@@ -1458,7 +1407,6 @@ class GardenGame {
     }
     
     sendFriendRequest() {
-        console.log('🔍 sendFriendRequest called');
         console.log('Multiplayer object:', this.multiplayer);
         console.log('Multiplayer connected:', this.multiplayer?.isConnected);
         
@@ -1494,7 +1442,6 @@ class GardenGame {
         
         if (username) {
             try {
-                console.log('📤 Sending friend request to server...');
                 this.multiplayer.sendFriendRequest(username);
                 usernameInput.value = '';
                 this.showMessage(`Friend request sent to ${username}!`, 'success');
@@ -1532,9 +1479,6 @@ class GardenGame {
     }
     
     respondToFriendRequest(fromId, accepted) {
-        console.log('🔍 respondToFriendRequest called with:', { fromId, accepted });
-        console.log('🔍 this.multiplayer exists:', !!this.multiplayer);
-        console.log('🔍 this.multiplayer.isConnected:', this.multiplayer?.isConnected);
         
         if (!this.multiplayer) {
             console.error('❌ Multiplayer not initialized');
@@ -1547,7 +1491,6 @@ class GardenGame {
             return;
         }
         
-        console.log(`📤 Sending friend request response: fromId=${fromId}, accepted=${accepted}`);
         this.multiplayer.respondToFriendRequest(fromId, accepted);
         
         // Remove the notification
@@ -1574,9 +1517,6 @@ class GardenGame {
     }
     
     unfriendUser(friendId) {
-        console.log('🔍 unfriendUser called with:', { friendId });
-        console.log('🔍 this.multiplayer exists:', !!this.multiplayer);
-        console.log('🔍 this.multiplayer.isConnected:', this.multiplayer?.isConnected);
         
         if (!this.multiplayer) {
             console.error('❌ Multiplayer not initialized');
@@ -1594,7 +1534,6 @@ class GardenGame {
             return;
         }
         
-        console.log(`📤 Sending unfriend request: friendId=${friendId}`);
         this.multiplayer.unfriendUser(friendId);
         
         this.showMessage('User unfriended!', 'success');
