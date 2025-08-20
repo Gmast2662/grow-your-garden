@@ -23,11 +23,19 @@ This document contains every single update, bug fix, and change made to Grow You
   - When `muted_until` is NULL, the condition `muted_until > datetime('now')` evaluates to NULL
   - `NULL OR NULL` is still NULL (falsy), so permanent mutes were not detected
   - Using `datetime('now', 'localtime')` ensures proper timezone handling
+- **Mute Enforcement Logic Fix**: Fixed JavaScript logic that was preventing mute enforcement
+  - **Issue**: Even after fixing SQL queries, mute enforcement was still not working for permanent mutes without reasons
+  - **Root Cause**: JavaScript conditions were too restrictive, requiring either `muted_until` or `mute_reason` to be non-null
+  - **Solution**: Simplified mute enforcement logic to check only for the existence of mute data
+  - **Code Changes**:
+    - `server.js` line 482: Changed `if (muteData && (muteData.muted_until !== null || muteData.mute_reason !== null))` to `if (muteData)`
+    - `auth.js` line 149: Changed `if (user.mute_reason !== null)` to `if (user.muted_until !== null || user.mute_reason !== null)`
 - **Result**: 
   - Ban reasons are now truly optional as indicated in the UI
   - Permanent mutes now work correctly whether a reason is provided or not
   - Temporary mutes continue to work as expected
   - All mute enforcement is now consistent across login, chat, and admin functions
+  - Mute enforcement logic now properly handles all mute types regardless of reason presence
 
 ## 🆕 Latest Updates (v1.6.24)
 

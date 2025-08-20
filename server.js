@@ -480,7 +480,7 @@ io.on('connection', (socket) => {
                         return;
                     }
 
-                    if (muteData && (muteData.muted_until !== null || muteData.mute_reason !== null)) {
+                    if (muteData) {
                         if (muteData.muted_until === null) {
                             // Permanent mute
                             const muteMessage = `You are permanently muted: ${muteData.mute_reason || 'No reason provided'}`;

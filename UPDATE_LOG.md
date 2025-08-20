@@ -5,16 +5,21 @@
 ### 🔧 FIXED: Ban and Mute Reason Requirements
 - **Issue**: Ban endpoint required a reason even when UI indicated it was optional
 - **Issue**: Permanent mutes were not being enforced due to SQL query logic error
+- **Issue**: Mute enforcement logic was too restrictive, preventing permanent mutes without reasons from being enforced
 - **Ban Fix**: Modified `/api/admin/users/:userId/ban` endpoint to make reason optional
   - Changed `if (!reason) return error` to `const banReason = reason || 'No reason provided'`
   - Updated all references to use `banReason` instead of `reason`
 - **Mute Fix**: Fixed SQL queries that were incorrectly filtering out permanent mutes
   - Updated queries in `server.js`, `admin.js`, and `auth.js` to use `datetime('now', 'localtime')`
   - Fixed the logic that was preventing permanent mutes (where `muted_until` is NULL) from being detected
+- **Mute Enforcement Fix**: Fixed JavaScript logic that was preventing mute enforcement
+  - Changed `if (muteData && (muteData.muted_until !== null || muteData.mute_reason !== null))` to `if (muteData)` in `server.js`
+  - Changed `if (user.mute_reason !== null)` to `if (user.muted_until !== null || user.mute_reason !== null)` in `auth.js`
 - **Result**: 
   - Ban reasons are now truly optional as indicated in the UI
   - Permanent mutes now work correctly whether a reason is provided or not
   - Temporary mutes continue to work as expected
+  - Mute enforcement logic now properly handles all mute types
 
 ## [1.6.24] - 2025-08-19
 

@@ -149,7 +149,7 @@ router.post('/login', async (req, res) => {
             }
 
             // Check if user is muted (permanent mutes should not block login)
-            if (user.mute_reason !== null) {
+            if (user.muted_until !== null || user.mute_reason !== null) {
                 if (user.muted_until !== null) {
                     // Temporary mute - check if still active
                     const now = new Date();
