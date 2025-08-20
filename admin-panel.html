@@ -2105,6 +2105,20 @@
                 return;
             }
             
+            // First, let's test if the tab content is visible
+            const securityTab = document.getElementById('securityTab');
+            console.log('Security tab element:', securityTab);
+            console.log('Security tab display style:', securityTab ? securityTab.style.display : 'element not found');
+            console.log('Security tab classes:', securityTab ? securityTab.className : 'element not found');
+            
+            // Test if the admin sections are visible
+            const adminSections = securityTab ? securityTab.querySelectorAll('.admin-section') : [];
+            console.log('Found admin sections:', adminSections.length);
+            adminSections.forEach((section, index) => {
+                console.log(`Admin section ${index} display:`, section.style.display);
+                console.log(`Admin section ${index} classes:`, section.className);
+            });
+            
             try {
                 console.log('Loading new security data...');
                 
@@ -2116,6 +2130,13 @@
                 ]);
                 
                 console.log('New security data loading completed');
+                
+                // Force show all admin sections
+                const adminSections = securityTab.querySelectorAll('.admin-section');
+                adminSections.forEach((section, index) => {
+                    section.style.display = 'block';
+                    console.log(`Forced display block on admin section ${index}`);
+                });
             } catch (error) {
                 console.error('Error loading new security data:', error);
                 showAlert('Failed to load security data: ' + error.message, 'error');
