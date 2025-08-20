@@ -32,6 +32,19 @@ This document contains every single update, bug fix, and change made to Grow You
   - Handles cases where device fingerprint is not recorded
 - **Result**: Admins can now easily obtain device fingerprints from the User tab to use in the Security tab for device banning
 
+### 🔧 FIXED: Device Fingerprint Generation and Storage
+- **Device Fingerprint Implementation**: Fixed missing device fingerprint generation in authentication system
+- **Issue**: Device fingerprints were "not recorded" even after user logins
+- **Root Cause**: No device fingerprint generation code was implemented in the authentication system
+- **Fix**: Added `generateDeviceFingerprint()` function that creates SHA256 hash from IP + User-Agent + Accept headers
+- **Fix**: Updated registration route to generate and store device fingerprint during user creation
+- **Fix**: Updated login route to generate and store device fingerprint during login
+- **Implementation**: 
+  - Added crypto module import for SHA256 hashing
+  - Device fingerprint combines IP address, User-Agent, Accept headers, Accept-Language, and Accept-Encoding
+  - Stored in `device_fingerprint` column during registration and updated during login
+- **Result**: Device fingerprints are now properly generated and stored for all users
+
 ## 🆕 Latest Updates (v1.6.22)
 
 ### 🔧 FIXED: Permanent Mute Issue & User Tab Cleanup

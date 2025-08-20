@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const sqlite3 = require('sqlite3').verbose();
 const { v4: uuidv4 } = require('uuid');
+const crypto = require('crypto');
 
 const router = express.Router();
 
@@ -11,6 +12,25 @@ const db = new sqlite3.Database('./garden_game.db');
 
 // JWT secret
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this';
+
+// Function to generate device fingerprint
+function generateDeviceFingerprint(req) {
+    const ipAddress = req.ip || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket?.remoteAddress;
+    const userAgent = req.headers['user-agent'] || '';
+    const acceptHeaders = req.headers['accept'] || '';
+    const acceptLanguage = req.headers['accept-language'] || '';
+    const acceptEncoding = req.headers['accept-encoding'] || '';
+    
+    // Combine all device characteristics
+    const deviceString = `${ipAddress}|${userAgent}|${acceptHeaders}|${acceptLanguage}|${acceptEncoding}`;
+    
+    // Generate SHA256 hash
+    const fingerprint = crypto.createHash('sha256').update(deviceString).digest('hex');
+    
+    console.log(`🔍 Generated device fingerprint: ${fingerprint.substring(0, 16)}... for IP: ${ipAddress}`);
+    
+    return fingerprint;
+}
 
 // Register new user
 router.post('/register', async (req, res) => {
@@ -62,10 +82,11 @@ router.post('/register', async (req, res) => {
                 // Create user
                 const userId = uuidv4();
                 const ipAddress = req.ip || req.connection.remoteAddress;
+                const deviceFingerprint = generateDeviceFingerprint(req);
 
                 db.run(
-                    'INSERT INTO users (id, username, email, password_hash, registration_ip) VALUES (?, ?, ?, ?, ?)',
-                    [userId, username, email || null, passwordHash, ipAddress],
+                    'INSERT INTO users (id, username, email, password_hash, registration_ip, device_fingerprint) VALUES (?, ?, ?, ?, ?, ?)',
+                    [userId, username, email || null, passwordHash, ipAddress, deviceFingerprint],
                     function(err) {
                         if (err) {
                             return res.status(500).json({ error: 'Failed to create user' });
@@ -160,11 +181,12 @@ router.post('/login', async (req, res) => {
                 { expiresIn: '7d' }
             );
 
-            // Update last login
+            // Update last login and device fingerprint
             const ipAddress = req.ip || req.connection.remoteAddress;
+            const deviceFingerprint = generateDeviceFingerprint(req);
             db.run(
-                'UPDATE users SET last_login = CURRENT_TIMESTAMP, last_login_ip = ? WHERE id = ?',
-                [ipAddress, user.id]
+                'UPDATE users SET last_login = CURRENT_TIMESTAMP, last_login_ip = ?, device_fingerprint = ? WHERE id = ?',
+                [ipAddress, deviceFingerprint, user.id]
             );
 
             // Log security action
