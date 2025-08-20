@@ -263,7 +263,7 @@ grow-your-garden/
 ### 🎮 Potential Additions
 - **More Plant Types**: Additional seasonal and special plants
 - **Pets**: Garden pets that provide bonuses
--**More Soon!**
+- **More Soon**: There are going to be more features added to make the game better! If you have an idea just contact us or go to the issues page to tell us.
 
 ## 🤝 Contributing
 
