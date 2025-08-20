@@ -1144,11 +1144,22 @@ class GardenGame {
             this.multiplayer.getFriends().then(friends => {
                 console.log('🔍 Friends data received:', friends);
                 
-                // Remove duplicates based on user ID
-                const uniqueFriends = friends.filter((friend, index, self) => 
-                    index === self.findIndex(f => f.id === friend.id || f.user_id === friend.user_id)
-                );
+                // Remove duplicates based on user ID AND status/request_type
+                // This ensures we don't lose pending requests when we have accepted friends for the same user
+                const uniqueFriends = friends.filter((friend, index, self) => {
+                    const friendKey = `${friend.id || friend.user_id}-${friend.status}-${friend.request_type}`;
+                    return index === self.findIndex(f => {
+                        const fKey = `${f.id || f.user_id}-${f.status}-${f.request_type}`;
+                        return fKey === friendKey;
+                    });
+                });
                 console.log('🔍 Unique friends after deduplication:', uniqueFriends);
+                
+                // Debug: Log all friends with their status and request_type
+                console.log('🔍 All friends with status details:');
+                uniqueFriends.forEach(friend => {
+                    console.log(`  - ${friend.username}: status=${friend.status}, request_type=${friend.request_type}, online=${friend.online}`);
+                });
                 console.log('🔍 Current user ID:', this.multiplayer?.currentUser?.id);
                 
                 // Debug each friend's online status
@@ -1165,8 +1176,15 @@ class GardenGame {
                 
                 // Show accepted friends
                 const acceptedFriends = uniqueFriends.filter(friend => {
-                    return (friend.status === 'accepted') || (friend.request_type === 'accepted');
+                    const isAccepted = (friend.status === 'accepted') || (friend.request_type === 'accepted');
+                    console.log(`🔍 Friend ${friend.username} accepted check:`, {
+                        status: friend.status,
+                        request_type: friend.request_type,
+                        isAccepted: isAccepted
+                    });
+                    return isAccepted;
                 });
+                console.log('🔍 Accepted friends found:', acceptedFriends.length, acceptedFriends);
                 if (acceptedFriends.length > 0) {
                     // Separate online and offline friends
                     const onlineFriends = acceptedFriends.filter(friend => {
@@ -1233,8 +1251,15 @@ class GardenGame {
                 // Show pending friend requests (only received requests, not sent ones)
                 const pendingRequests = uniqueFriends.filter(friend => {
                     // Only show received requests, not sent ones
-                    return friend.status === 'pending' && friend.request_type === 'received';
+                    const isPendingReceived = friend.status === 'pending' && friend.request_type === 'received';
+                    console.log(`🔍 Friend ${friend.username} pending check:`, {
+                        status: friend.status,
+                        request_type: friend.request_type,
+                        isPendingReceived: isPendingReceived
+                    });
+                    return isPendingReceived;
                 });
+                console.log('🔍 Pending requests found:', pendingRequests.length, pendingRequests);
                 if (pendingRequests.length > 0) {
                     friendsHtml += '<h4>⏳ Pending Requests</h4>';
                     pendingRequests.forEach(friend => {

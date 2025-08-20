@@ -2,6 +2,19 @@
 
 This document contains every single update, bug fix, and change made to Grow Your Garden, including detailed technical information.
 
+## 🆕 Latest Updates (v1.7.6)
+
+### 🔧 FIXED: Friend Request Visibility Issue
+- **Issue**: When a user already has an accepted friend, new pending friend requests were not visible
+- **Root Cause**: The deduplication logic in `loadFriendsList()` was removing pending requests when an accepted friend relationship already existed for the same user
+- **Solution**: Modified deduplication logic to consider both user ID AND status/request_type, preventing loss of pending requests
+- **Technical Implementation**:
+  - Changed deduplication key from just user ID to `userID-status-requestType` combination
+  - This ensures that pending requests and accepted friends for the same user are treated as separate entries
+  - Added comprehensive debugging logs to track friend data processing
+- **Files Modified**: `game.js`
+- **Result**: Pending friend requests are now visible even when users already have accepted friends
+
 ## 🆕 Latest Updates (v1.7.5)
 
 ### 🔧 FIXED: Friend System Issues (Online Status & Unfriend Notifications)

@@ -859,6 +859,8 @@ app.get('/api/users/:userId/friends', (req, res) => {
             };
         });
         
+        console.log(`🔍 Server: Friends data for user ${userId}:`, friendsWithRealTimeStatus);
+        
         res.json(friendsWithRealTimeStatus);
     });
 });
