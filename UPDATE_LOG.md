@@ -1,6 +1,25 @@
 # Update Log
 
-## v1.7.1 - Menu Button UI & Authentication Fixes
+## v1.7.2 - Account Settings Redesign
+
+### 🎨 REDESIGNED: Account Settings Interface
+- **Request**: User requested "change everything in there because the enable notifications arent a thing and the other things you can do in a garden. can you make it so you can change your account information and other important things?"
+- **Solution**: Completely redesigned account settings modal with proper account management features
+- **New Features**:
+  - **📋 Account Information**: Shows username, account status, member since date, and last login date
+  - **📧 Email Settings**: View and update email address with validation
+  - **🔐 Password Management**: Secure password change with current password verification
+  - **🎮 Game Settings**: Simplified to just sound effects toggle (removed irrelevant notifications)
+  - **💾 Data Management**: Export and import game data with better organization
+  - **⚠️ Account Actions**: Logout and delete account options
+- **Technical Implementation**:
+  - Added `loadAccountInfo()` function to fetch real account data from `/auth/profile` endpoint
+  - Added `updateEmail()` function using `/auth/profile` PUT endpoint
+  - Added `changePassword()` function using `/auth/change-password` endpoint
+  - Removed irrelevant "Enable Notifications" option
+  - Enhanced UI with organized sections, better styling, and proper validation
+  - Added real-time account data loading and refresh functionality
+- **Result**: Account settings now provide proper account management capabilities with real server integration
 
 ### 🔧 FIXED: Menu Button Layout
 - **Issue**: Account, support, and logout buttons were stacked vertically in the main menu

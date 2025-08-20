@@ -6749,7 +6749,7 @@ class MenuSystem {
             background: white;
             padding: 30px;
             border-radius: 15px;
-            max-width: 500px;
+            max-width: 600px;
             width: 90%;
             max-height: 80vh;
             overflow-y: auto;
@@ -6758,30 +6758,86 @@ class MenuSystem {
         
         content.innerHTML = `
             <h2 style="margin-bottom: 20px; color: #2c3e50;">👤 Account Settings</h2>
-            <div style="margin-bottom: 20px;">
-                <p><strong>Username:</strong> ${username}</p>
-                <p><strong>Account Status:</strong> <span style="color: #27ae60;">Active</span></p>
+            
+            <!-- Account Information Section -->
+            <div style="margin-bottom: 25px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                <h3 style="margin-bottom: 15px; color: #2c3e50;">📋 Account Information</h3>
+                <div id="accountInfo" style="margin-bottom: 15px;">
+                    <p><strong>Username:</strong> ${username}</p>
+                    <p><strong>Account Status:</strong> <span style="color: #27ae60;">Active</span></p>
+                    <p><strong>Member Since:</strong> <span id="memberSince">Loading...</span></p>
+                    <p><strong>Last Login:</strong> <span id="lastLogin">Loading...</span></p>
+                </div>
+                <button id="refreshInfoBtn" style="background: #3498db; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 14px;">
+                    🔄 Refresh Info
+                </button>
             </div>
-            <div style="margin-bottom: 20px;">
-                <h3 style="margin-bottom: 10px;">Game Settings</h3>
+            
+            <!-- Email Settings Section -->
+            <div style="margin-bottom: 25px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                <h3 style="margin-bottom: 15px; color: #2c3e50;">📧 Email Settings</h3>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Current Email:</label>
+                    <input type="email" id="emailInput" placeholder="Enter your email address" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 10px;">
+                </div>
+                <button id="updateEmailBtn" style="background: #27ae60; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer;">
+                    💾 Update Email
+                </button>
+            </div>
+            
+            <!-- Password Change Section -->
+            <div style="margin-bottom: 25px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                <h3 style="margin-bottom: 15px; color: #2c3e50;">🔐 Change Password</h3>
+                <div style="margin-bottom: 10px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Current Password:</label>
+                    <input type="password" id="currentPassword" placeholder="Enter current password" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 10px;">
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">New Password:</label>
+                    <input type="password" id="newPassword" placeholder="Enter new password (min 6 characters)" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 10px;">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Confirm New Password:</label>
+                    <input type="password" id="confirmPassword" placeholder="Confirm new password" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                </div>
+                <button id="changePasswordBtn" style="background: #e74c3c; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer;">
+                    🔒 Change Password
+                </button>
+            </div>
+            
+            <!-- Game Settings Section -->
+            <div style="margin-bottom: 25px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                <h3 style="margin-bottom: 15px; color: #2c3e50;">🎮 Game Settings</h3>
                 <label style="display: block; margin-bottom: 10px;">
                     <input type="checkbox" id="soundToggle" ${this.soundEnabled ? 'checked' : ''} style="margin-right: 8px;">
-                    Enable Sound Effects
-                </label>
-                <label style="display: block; margin-bottom: 10px;">
-                    <input type="checkbox" id="notificationsToggle" checked style="margin-right: 8px;">
-                    Enable Notifications
+                    🔊 Enable Sound Effects
                 </label>
             </div>
-            <div style="margin-bottom: 20px;">
-                <h3 style="margin-bottom: 10px;">Data Management</h3>
-                <button id="exportDataBtn" style="background: #3498db; color: white; border: none; padding: 10px 15px; border-radius: 5px; margin-right: 10px; cursor: pointer;">
-                    📤 Export Game Data
+            
+            <!-- Data Management Section -->
+            <div style="margin-bottom: 25px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                <h3 style="margin-bottom: 15px; color: #2c3e50;">💾 Data Management</h3>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button id="exportDataBtn" style="background: #3498db; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer;">
+                        📤 Export Game Data
+                    </button>
+                    <button id="importDataBtn" style="background: #e67e22; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer;">
+                        📥 Import Game Data
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Account Actions Section -->
+            <div style="margin-bottom: 25px; padding: 15px; background: #fff3cd; border-radius: 8px; border-left: 4px solid #ffc107;">
+                <h3 style="margin-bottom: 15px; color: #856404;">⚠️ Account Actions</h3>
+                <button id="logoutBtn" style="background: #95a5a6; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; margin-right: 10px;">
+                    🚪 Logout
                 </button>
-                <button id="importDataBtn" style="background: #e67e22; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer;">
-                    📥 Import Game Data
+                <button id="deleteAccountBtn" style="background: #e74c3c; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer;">
+                    🗑️ Delete Account
                 </button>
             </div>
+            
             <div style="text-align: center;">
                 <button id="closeAccountBtn" style="background: #95a5a6; color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-size: 16px;">
                     Close
@@ -6792,14 +6848,34 @@ class MenuSystem {
         modal.appendChild(content);
         document.body.appendChild(modal);
         
+        // Load account information
+        this.loadAccountInfo(token);
+        
         // Add event listeners
         const closeBtn = content.querySelector('#closeAccountBtn');
+        const refreshInfoBtn = content.querySelector('#refreshInfoBtn');
+        const updateEmailBtn = content.querySelector('#updateEmailBtn');
+        const changePasswordBtn = content.querySelector('#changePasswordBtn');
         const soundToggle = content.querySelector('#soundToggle');
         const exportBtn = content.querySelector('#exportDataBtn');
         const importBtn = content.querySelector('#importDataBtn');
+        const logoutBtn = content.querySelector('#logoutBtn');
+        const deleteAccountBtn = content.querySelector('#deleteAccountBtn');
         
         closeBtn.addEventListener('click', () => {
             document.body.removeChild(modal);
+        });
+        
+        refreshInfoBtn.addEventListener('click', () => {
+            this.loadAccountInfo(token);
+        });
+        
+        updateEmailBtn.addEventListener('click', () => {
+            this.updateEmail(token, content);
+        });
+        
+        changePasswordBtn.addEventListener('click', () => {
+            this.changePassword(token, content);
         });
         
         soundToggle.addEventListener('change', (e) => {
@@ -6823,11 +6899,142 @@ class MenuSystem {
             }
         });
         
+        logoutBtn.addEventListener('click', () => {
+            this.logout();
+            document.body.removeChild(modal);
+        });
+        
+        deleteAccountBtn.addEventListener('click', () => {
+            if (confirm('⚠️ WARNING: This action cannot be undone! Are you sure you want to delete your account? This will permanently remove all your data.')) {
+                alert('Account deletion feature is not yet implemented. Please contact support for assistance.');
+            }
+        });
+        
         // Close modal when clicking outside
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {
                 document.body.removeChild(modal);
             }
+        });
+    }
+    
+    loadAccountInfo(token) {
+        fetch('/auth/profile', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                console.error('Error loading account info:', data.error);
+                document.getElementById('memberSince').textContent = 'Error loading data';
+                document.getElementById('lastLogin').textContent = 'Error loading data';
+                return;
+            }
+            
+            // Format dates
+            const createdDate = data.created_at ? new Date(data.created_at).toLocaleDateString() : 'Unknown';
+            const lastLoginDate = data.last_login ? new Date(data.last_login).toLocaleDateString() : 'Never';
+            
+            document.getElementById('memberSince').textContent = createdDate;
+            document.getElementById('lastLogin').textContent = lastLoginDate;
+            
+            // Set email if available
+            if (data.email) {
+                document.getElementById('emailInput').value = data.email;
+            }
+        })
+        .catch(error => {
+            console.error('Error loading account info:', error);
+            document.getElementById('memberSince').textContent = 'Error loading data';
+            document.getElementById('lastLogin').textContent = 'Error loading data';
+        });
+    }
+    
+    updateEmail(token, modalContent) {
+        const email = modalContent.querySelector('#emailInput').value.trim();
+        
+        if (!email) {
+            alert('Please enter a valid email address.');
+            return;
+        }
+        
+        if (!email.includes('@')) {
+            alert('Please enter a valid email address.');
+            return;
+        }
+        
+        fetch('/auth/profile', {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email: email })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert('Error updating email: ' + data.error);
+            } else {
+                alert('Email updated successfully!');
+            }
+        })
+        .catch(error => {
+            console.error('Error updating email:', error);
+            alert('Error updating email. Please try again.');
+        });
+    }
+    
+    changePassword(token, modalContent) {
+        const currentPassword = modalContent.querySelector('#currentPassword').value;
+        const newPassword = modalContent.querySelector('#newPassword').value;
+        const confirmPassword = modalContent.querySelector('#confirmPassword').value;
+        
+        if (!currentPassword || !newPassword || !confirmPassword) {
+            alert('Please fill in all password fields.');
+            return;
+        }
+        
+        if (newPassword.length < 6) {
+            alert('New password must be at least 6 characters long.');
+            return;
+        }
+        
+        if (newPassword !== confirmPassword) {
+            alert('New passwords do not match.');
+            return;
+        }
+        
+        fetch('/auth/change-password', {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                currentPassword: currentPassword,
+                newPassword: newPassword
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert('Error changing password: ' + data.error);
+            } else {
+                alert('Password changed successfully!');
+                // Clear password fields
+                modalContent.querySelector('#currentPassword').value = '';
+                modalContent.querySelector('#newPassword').value = '';
+                modalContent.querySelector('#confirmPassword').value = '';
+            }
+        })
+        .catch(error => {
+            console.error('Error changing password:', error);
+            alert('Error changing password. Please try again.');
         });
     }
     

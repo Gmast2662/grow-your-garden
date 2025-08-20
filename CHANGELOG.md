@@ -2,6 +2,32 @@
 
 This document contains every single update, bug fix, and change made to Grow Your Garden, including detailed technical information.
 
+## 🆕 Latest Updates (v1.7.2)
+
+### 🎨 REDESIGNED: Account Settings Interface
+- **Account Settings Complete Redesign**: Transformed account settings from game-focused to proper account management
+- **Request**: User requested "change everything in there because the enable notifications arent a thing and the other things you can do in a garden. can you make it so you can change your account information and other important things?"
+- **Solution**: Completely redesigned account settings modal with comprehensive account management features
+- **New Account Management Features**:
+  - **📋 Account Information Section**: Real-time display of username, account status, member since date, and last login date
+  - **📧 Email Settings Section**: View and update email address with proper validation and server integration
+  - **🔐 Password Management Section**: Secure password change with current password verification and confirmation
+  - **🎮 Game Settings Section**: Simplified to just sound effects toggle (removed irrelevant "Enable Notifications")
+  - **💾 Data Management Section**: Export and import game data with better organization and layout
+  - **⚠️ Account Actions Section**: Logout and delete account options with proper warnings
+- **Technical Implementation**:
+  - **Server Integration**: Added `loadAccountInfo()` function to fetch real account data from `/auth/profile` endpoint
+  - **Email Management**: Added `updateEmail()` function using `/auth/profile` PUT endpoint with validation
+  - **Password Security**: Added `changePassword()` function using `/auth/change-password` endpoint with proper verification
+  - **UI Enhancement**: Enhanced modal with organized sections, better styling, and proper form validation
+  - **Real-time Updates**: Added account data loading and refresh functionality
+  - **Error Handling**: Comprehensive error handling and user feedback for all operations
+- **Removed Irrelevant Features**:
+  - Removed "Enable Notifications" option that wasn't functional
+  - Removed garden-specific settings that don't belong in account management
+  - Simplified interface to focus on actual account management capabilities
+- **Result**: Account settings now provide proper account management capabilities with real server integration and user-friendly interface
+
 ## 🆕 Latest Updates (v1.7.1)
 
 ### 🔧 FIXED: Admin Panel Duplication
