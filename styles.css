@@ -187,7 +187,7 @@ body {
     margin-bottom: 15px;
 }
 
-.menu-btn, .save-btn, .expand-btn, .admin-btn, .sound-btn, .account-btn, .support-btn, .logout-btn {
+.menu-btn, .save-btn, .expand-btn, .admin-btn, .sound-btn {
     padding: 10px 20px;
     border: none;
     border-radius: 8px;
@@ -265,6 +265,63 @@ body {
 .logout-btn:hover {
     background: #c0392b;
     transform: translateY(-2px);
+}
+
+/* Menu Buttons */
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: 20px 0;
+    width: 100%;
+    max-width: 300px;
+}
+
+.menu-buttons .account-btn,
+.menu-buttons .support-btn,
+.menu-buttons .logout-btn {
+    padding: 15px 25px;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1.1rem;
+    text-align: center;
+    width: 100%;
+}
+
+.menu-buttons .account-btn {
+    background: #3498db;
+    color: white;
+}
+
+.menu-buttons .account-btn:hover {
+    background: #2980b9;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+}
+
+.menu-buttons .support-btn {
+    background: #e67e22;
+    color: white;
+}
+
+.menu-buttons .support-btn:hover {
+    background: #d35400;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(230, 126, 34, 0.3);
+}
+
+.menu-buttons .logout-btn {
+    background: #e74c3c;
+    color: white;
+}
+
+.menu-buttons .logout-btn:hover {
+    background: #c0392b;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
 }
 
 .stats {

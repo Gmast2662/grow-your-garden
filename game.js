@@ -7223,6 +7223,29 @@ document.addEventListener('DOMContentLoaded', () => {
             // Make menuSystem globally accessible for admin functions
             window.menuSystem = menuSystem;
             console.log('MenuSystem added to window object');
+            
+            // Add event listeners for menu buttons
+            const accountBtn = document.getElementById('accountBtn');
+            const supportBtn = document.getElementById('supportBtn');
+            const logoutBtn = document.getElementById('logoutBtn');
+            
+            if (accountBtn) {
+                accountBtn.addEventListener('click', () => {
+                    menuSystem.showAccountSettings();
+                });
+            }
+            
+            if (supportBtn) {
+                supportBtn.addEventListener('click', () => {
+                    menuSystem.showSupport();
+                });
+            }
+            
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', () => {
+                    menuSystem.logout();
+                });
+            }
         } catch (error) {
             console.error('Error creating MenuSystem:', error);
             alert('Error initializing game. Please refresh the page.');

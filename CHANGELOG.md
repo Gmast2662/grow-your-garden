@@ -162,9 +162,9 @@ This document contains every single update, bug fix, and change made to Grow You
   - Temporary mutes continue to work as expected
 
 ### 🎮 ENHANCED: Main Game UI Improvements
-- **Main Game UI Enhancement**: Complete redesign of game header with new navigation buttons
+- **Main Game UI Enhancement**: Moved account, support, and logout buttons to main menu for better accessibility
 - **Request**: User requested to move logout button to menu and add account settings and support buttons
-- **Solution**: Completely redesigned game header with new navigation buttons and modal interfaces
+- **Solution**: Moved account, support, and logout buttons to the main menu with proper event handling
 - **New Features**:
   - **Account Settings Button**: Opens modal with user info, game settings, and data management options
     - Shows username and account status
@@ -182,19 +182,19 @@ This document contains every single update, bug fix, and change made to Grow You
     - Clears all authentication tokens and localStorage
     - Redirects to login page
 - **UI Improvements**:
-  - Added new buttons to game header alongside existing menu, admin, save, expand, and sound buttons
-  - Consistent button styling with hover effects
+  - Moved account, support, and logout buttons to the main menu for better accessibility
+  - Added dedicated menu-buttons section with vertical layout
+  - Enhanced button styling with hover effects and shadows
   - Blue color scheme for account button, orange for support, red for logout
   - Responsive design that works on all screen sizes
 - **Technical Implementation**:
-  - Removed old dynamic logout button creation code from `game.js`
-  - Added event listeners for new buttons in game initialization
-  - Created `showAccountSettings()`, `showSupport()`, and `logout()` functions
+  - Moved buttons from header to main menu in `index.html` for better accessibility
+  - Added event listeners for menu buttons in DOMContentLoaded event in `game.js`
+  - Created `showAccountSettings()`, `showSupport()`, and `logout()` functions in MenuSystem class
   - Proper modal management with click-outside-to-close functionality
   - Integration with existing game save system
-  - Updated `index.html` to include new buttons in header
-  - Enhanced `styles.css` with new button styles and hover effects
-- **Result**: Professional game interface with easy access to account management, support, and logout functionality
+  - Updated `styles.css` with dedicated menu button styles and enhanced hover effects
+- **Result**: Professional game interface with account management, support, and logout functionality accessible from the main menu
 
 ## 🆕 Latest Updates (v1.6.26)
 

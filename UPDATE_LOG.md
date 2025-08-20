@@ -118,7 +118,7 @@
 
 ### 🎮 ENHANCED: Main Game UI Improvements
 - **Request**: User requested to move logout button to menu and add account settings and support buttons
-- **Solution**: Completely redesigned game header with new navigation buttons
+- **Solution**: Moved account, support, and logout buttons to the main menu for better accessibility
 - **New Features**:
   - **Account Settings Button**: Opens modal with user info, game settings, and data management options
     - Shows username and account status
@@ -136,17 +136,18 @@
     - Clears all authentication tokens and localStorage
     - Redirects to login page
 - **UI Improvements**:
-  - Added new buttons to game header alongside existing menu, admin, save, expand, and sound buttons
-  - Consistent button styling with hover effects
+  - Moved account, support, and logout buttons to the main menu for better accessibility
+  - Added dedicated menu-buttons section with vertical layout
+  - Enhanced button styling with hover effects and shadows
   - Blue color scheme for account button, orange for support, red for logout
   - Responsive design that works on all screen sizes
 - **Technical Implementation**:
-  - Removed old dynamic logout button creation code
-  - Added event listeners for new buttons in game initialization
+  - Moved buttons from header to main menu for better accessibility
+  - Added event listeners for menu buttons in DOMContentLoaded event
   - Created `showAccountSettings()`, `showSupport()`, and `logout()` functions
   - Proper modal management with click-outside-to-close functionality
   - Integration with existing game save system
-- **Result**: Professional game interface with easy access to account management, support, and logout functionality
+- **Result**: Professional game interface with account management, support, and logout functionality accessible from the main menu
 
 ## [1.6.26] - 2025-08-19
 
