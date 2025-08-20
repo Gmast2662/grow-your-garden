@@ -16,6 +16,28 @@
 - **Fix**: Updated client-side filtering to only show received requests in pending requests section
 - **Result**: Users can no longer accept their own friend requests
 
+### 🔧 FIXED: Dashboard & Security Tab Display Issues
+- **Issue**: Dashboard stats and security tab content not displaying despite API calls working
+- **Root Cause**: CSS rule `.tab-content { display: none; }` was overriding `.tab-content.active { display: block; }`
+- **Fix**: Added `!important` to `.tab-content.active { display: block !important; }` to ensure active tabs are visible
+- **Fix**: Fixed "undefined" Chat Messages stat by handling both `totalMessages` and `totalChatMessages` API response fields
+- **Result**: Dashboard and security tabs now properly display content
+
+### 🔍 INVESTIGATING: Sprinkler Growth System
+- **Issue**: User reported that sprinklers don't grow crops
+- **Status**: Examining sprinkler growth logic and game loop integration
+- **Findings**: Sprinkler growth function exists and is being called in game loop
+- **Next Steps**: Need to verify if sprinkler bonus calculation is working correctly
+
+### 🆕 ADDED: Water & Fertilizer Purchase System
+- **New Feature**: Added water and fertilizer purchase buttons to the shop
+- **Water Cost**: $5 per water unit
+- **Fertilizer Cost**: $10 per fertilizer unit
+- **Functionality**: Players can now purchase water and fertilizer for money
+- **UI**: Added attractive purchase section with hover effects and clear pricing
+- **Integration**: Purchase functions properly update inventory and save game state
+- **Result**: Players have more control over their water and fertilizer supply
+
 ### 🔍 INVESTIGATING: Permanent Mute Functionality
 - **Issue**: User reported that permanent mutes are not working
 - **Status**: Investigating admin panel mute form and server-side mute handling

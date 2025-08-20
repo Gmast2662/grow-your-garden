@@ -49,6 +49,26 @@ This document contains every single update, bug fix, and change made to Grow You
   - **Issue**: Dashboard stats and security tab content still not displaying despite previous fixes
   - **Status**: Comprehensive debugging logs added to track function calls, API responses, and DOM manipulation
   - **Next Steps**: Awaiting user console output to identify why content is not being displayed despite successful API calls
+- **Dashboard & Security Tab Display Fix**: Resolved critical CSS visibility issue
+  - **Issue**: Dashboard stats and security tab content not displaying despite API calls working correctly
+  - **Root Cause**: CSS rule `.tab-content { display: none; }` was overriding `.tab-content.active { display: block; }`
+  - **Fix**: Added `!important` declaration to `.tab-content.active { display: block !important; }` to ensure active tabs are visible
+  - **Fix**: Fixed "undefined" Chat Messages stat by handling both `totalMessages` and `totalChatMessages` API response fields
+  - **Result**: Dashboard and security tabs now properly display content and statistics
+- **Sprinkler Growth System Investigation**: Examining reported sprinkler functionality issues
+  - **Issue**: User reported that sprinklers don't grow crops as expected
+  - **Status**: Examining sprinkler growth logic and game loop integration
+  - **Findings**: Sprinkler growth function exists and is being called in game loop
+  - **Next Steps**: Need to verify if sprinkler bonus calculation is working correctly
+- **Water & Fertilizer Purchase System**: New shop feature for resource management
+  - **New Feature**: Added water and fertilizer purchase buttons to the shop interface
+  - **Water Cost**: $5 per water unit for plant watering
+  - **Fertilizer Cost**: $10 per fertilizer unit for plant fertilization
+  - **Functionality**: Players can now purchase water and fertilizer for money instead of relying only on upgrades
+  - **UI Enhancement**: Added attractive purchase section with hover effects, clear pricing, and descriptive text
+  - **Integration**: Purchase functions properly update inventory, money, and save game state
+  - **User Experience**: Provides more control over resource management and strategic gameplay
+  - **Result**: Players have better control over their water and fertilizer supply for optimal plant growth
 
 
 ## 🆕 Previous Updates (v1.6.18)

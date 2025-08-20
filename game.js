@@ -1956,6 +1956,37 @@ class GardenGame {
             this.saveGame();
         };
         
+        // Purchase functions
+        window.buyWater = () => {
+            const waterCost = 5;
+            if (this.money >= waterCost) {
+                this.money -= waterCost;
+                this.waterInventory += 1;
+                this.updateUI();
+                this.showMessage('💧 Water purchased! You can now water your plants.', 'success');
+                this.playSound('success');
+                this.saveGame();
+            } else {
+                this.showMessage('Not enough money to buy water!', 'error');
+                this.playSound('error');
+            }
+        };
+        
+        window.buyFertilizer = () => {
+            const fertilizerCost = 10;
+            if (this.money >= fertilizerCost) {
+                this.money -= fertilizerCost;
+                this.fertilizerInventory += 1;
+                this.updateUI();
+                this.showMessage('🌱 Fertilizer purchased! You can now fertilize your plants.', 'success');
+                this.playSound('success');
+                this.saveGame();
+            } else {
+                this.showMessage('Not enough money to buy fertilizer!', 'error');
+                this.playSound('error');
+            }
+        };
+        
         // Weather functions
         window.setWeather = () => {
             const weather = document.getElementById('weatherSelect').value;
@@ -5272,6 +5303,36 @@ class GardenGame {
                 }
             }
         }, 100);
+    }
+    
+    buyWater() {
+        const waterCost = 5;
+        if (this.money >= waterCost) {
+            this.money -= waterCost;
+            this.waterInventory += 1;
+            this.updateUI();
+            this.showMessage('💧 Water purchased! You can now water your plants.', 'success');
+            this.playSound('success');
+            this.saveGame();
+        } else {
+            this.showMessage('Not enough money to buy water!', 'error');
+            this.playSound('error');
+        }
+    }
+    
+    buyFertilizer() {
+        const fertilizerCost = 10;
+        if (this.money >= fertilizerCost) {
+            this.money -= fertilizerCost;
+            this.fertilizerInventory += 1;
+            this.updateUI();
+            this.showMessage('🌱 Fertilizer purchased! You can now fertilize your plants.', 'success');
+            this.playSound('success');
+            this.saveGame();
+        } else {
+            this.showMessage('Not enough money to buy fertilizer!', 'error');
+            this.playSound('error');
+        }
     }
     
     placeSprinkler(row, col) {

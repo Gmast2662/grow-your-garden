@@ -1084,6 +1084,83 @@ body {
     .progress-text {
         font-size: 0.8rem;
     }
+    
+    /* Purchase section styles */
+    .purchase-section {
+        margin: 20px 0;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        border: 2px solid #e1e5e9;
+    }
+    
+    .purchase-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px;
+        margin-bottom: 10px;
+        background: white;
+        border-radius: 8px;
+        border: 1px solid #e1e5e9;
+        transition: all 0.3s ease;
+    }
+    
+    .purchase-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .purchase-info {
+        flex: 1;
+        margin-right: 15px;
+    }
+    
+    .purchase-name {
+        display: block;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 5px;
+    }
+    
+    .purchase-price {
+        display: block;
+        font-size: 1rem;
+        color: #28a745;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+    
+    .purchase-description {
+        display: block;
+        font-size: 0.9rem;
+        color: #666;
+        line-height: 1.4;
+    }
+    
+    .purchase-btn {
+        padding: 10px 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+    }
+    
+    .purchase-btn:hover {
+        background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+    }
+    
+    .purchase-btn:active {
+        transform: translateY(0);
+    }
     .seed-shop h3,
     .sprinkler-shop h3,
     .tools h3,

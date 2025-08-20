@@ -266,7 +266,7 @@
         }
 
         .tab-content.active {
-            display: block;
+            display: block !important;
         }
 
         /* Ensure chat filter tab content is visible when active */
@@ -1040,7 +1040,7 @@
                             <p>Muted Users</p>
                         </div>
                         <div class="stat-card">
-                            <h3>${stats.totalChatMessages}</h3>
+                            <h3>${stats.totalMessages || stats.totalChatMessages || 0}</h3>
                             <p>Chat Messages</p>
                         </div>
                     `;
