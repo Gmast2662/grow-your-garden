@@ -1,5 +1,23 @@
 # Update Log
 
+## v1.7.3 - Account Settings Refinements & Bug Fixes
+
+### 🔧 FIXED: Account Settings Data Loading
+- **Issue**: "Error loading data" for member since and last login dates in account settings
+- **Root Cause**: Incorrect API endpoint paths (`/auth/profile` instead of `/api/auth/profile`)
+- **Solution**: Updated all account settings API calls to use correct `/api/auth/` prefix
+- **Files Modified**: `game.js` - Fixed `loadAccountInfo()`, `updateEmail()`, and `changePassword()` functions
+- **Result**: Account information now loads correctly with proper dates and data
+
+### 🎨 REFINED: Account Settings Interface
+- **Request**: User feedback to remove logout button and sound effects from account settings, and improve delete account functionality
+- **Changes Made**:
+  - **Removed**: Logout button from account settings modal (logout is available in main menu)
+  - **Removed**: Sound effects toggle from account settings (moved to game settings elsewhere)
+  - **Improved**: Delete account functionality now directs users to contact support at gardengamemain@gmail.com
+  - **Simplified**: Account settings now focuses purely on account management features
+- **Result**: Cleaner, more focused account settings interface
+
 ## v1.7.2 - Account Settings Redesign
 
 ### 🎨 REDESIGNED: Account Settings Interface

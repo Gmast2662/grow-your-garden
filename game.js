@@ -6805,14 +6805,7 @@ class MenuSystem {
                 </button>
             </div>
             
-            <!-- Game Settings Section -->
-            <div style="margin-bottom: 25px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
-                <h3 style="margin-bottom: 15px; color: #2c3e50;">🎮 Game Settings</h3>
-                <label style="display: block; margin-bottom: 10px;">
-                    <input type="checkbox" id="soundToggle" ${this.soundEnabled ? 'checked' : ''} style="margin-right: 8px;">
-                    🔊 Enable Sound Effects
-                </label>
-            </div>
+
             
             <!-- Data Management Section -->
             <div style="margin-bottom: 25px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
@@ -6830,9 +6823,6 @@ class MenuSystem {
             <!-- Account Actions Section -->
             <div style="margin-bottom: 25px; padding: 15px; background: #fff3cd; border-radius: 8px; border-left: 4px solid #ffc107;">
                 <h3 style="margin-bottom: 15px; color: #856404;">⚠️ Account Actions</h3>
-                <button id="logoutBtn" style="background: #95a5a6; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; margin-right: 10px;">
-                    🚪 Logout
-                </button>
                 <button id="deleteAccountBtn" style="background: #e74c3c; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer;">
                     🗑️ Delete Account
                 </button>
@@ -6856,10 +6846,8 @@ class MenuSystem {
         const refreshInfoBtn = content.querySelector('#refreshInfoBtn');
         const updateEmailBtn = content.querySelector('#updateEmailBtn');
         const changePasswordBtn = content.querySelector('#changePasswordBtn');
-        const soundToggle = content.querySelector('#soundToggle');
         const exportBtn = content.querySelector('#exportDataBtn');
         const importBtn = content.querySelector('#importDataBtn');
-        const logoutBtn = content.querySelector('#logoutBtn');
         const deleteAccountBtn = content.querySelector('#deleteAccountBtn');
         
         closeBtn.addEventListener('click', () => {
@@ -6878,11 +6866,6 @@ class MenuSystem {
             this.changePassword(token, content);
         });
         
-        soundToggle.addEventListener('change', (e) => {
-            this.soundEnabled = e.target.checked;
-            localStorage.setItem('garden_game_sound_enabled', this.soundEnabled);
-        });
-        
         exportBtn.addEventListener('click', () => {
             if (this.currentGame) {
                 this.currentGame.exportSaveData();
@@ -6899,14 +6882,9 @@ class MenuSystem {
             }
         });
         
-        logoutBtn.addEventListener('click', () => {
-            this.logout();
-            document.body.removeChild(modal);
-        });
-        
         deleteAccountBtn.addEventListener('click', () => {
             if (confirm('⚠️ WARNING: This action cannot be undone! Are you sure you want to delete your account? This will permanently remove all your data.')) {
-                alert('Account deletion feature is not yet implemented. Please contact support for assistance.');
+                alert('To delete your account, please contact support at gardengamemain@gmail.com with your username and reason for deletion.');
             }
         });
         
@@ -6919,7 +6897,7 @@ class MenuSystem {
     }
     
     loadAccountInfo(token) {
-        fetch('/auth/profile', {
+        fetch('/api/auth/profile', {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -6967,7 +6945,7 @@ class MenuSystem {
             return;
         }
         
-        fetch('/auth/profile', {
+        fetch('/api/auth/profile', {
             method: 'PUT',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -7009,7 +6987,7 @@ class MenuSystem {
             return;
         }
         
-        fetch('/auth/change-password', {
+        fetch('/api/auth/change-password', {
             method: 'PUT',
             headers: {
                 'Authorization': `Bearer ${token}`,

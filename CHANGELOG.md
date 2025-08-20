@@ -2,6 +2,29 @@
 
 This document contains every single update, bug fix, and change made to Grow Your Garden, including detailed technical information.
 
+## 🆕 Latest Updates (v1.7.3)
+
+### 🔧 FIXED: Account Settings Data Loading
+- **Issue**: "Error loading data" for member since and last login dates in account settings modal
+- **Root Cause**: Incorrect API endpoint paths in `game.js` - functions were calling `/auth/profile` instead of `/api/auth/profile`
+- **Solution**: Updated all account settings API calls to use correct `/api/auth/` prefix
+- **Files Modified**: 
+  - `game.js` - Fixed `loadAccountInfo()` function (line 6921)
+  - `game.js` - Fixed `updateEmail()` function (line 6969) 
+  - `game.js` - Fixed `changePassword()` function (line 7020)
+- **Technical Details**: Server routes are mounted at `/api/auth` but client was calling `/auth`, causing 404 errors
+- **Result**: Account information now loads correctly with proper member since and last login dates
+
+### 🎨 REFINED: Account Settings Interface
+- **Request**: User feedback to remove logout button and sound effects from account settings, and improve delete account functionality
+- **Changes Made**:
+  - **Removed**: Logout button from account settings modal (logout is available in main menu)
+  - **Removed**: Sound effects toggle from account settings (moved to game settings elsewhere)
+  - **Improved**: Delete account functionality now directs users to contact support at gardengamemain@gmail.com
+  - **Simplified**: Account settings now focuses purely on account management features
+- **Files Modified**: `game.js` - Removed logout button HTML, sound effects section, and related event listeners
+- **Result**: Cleaner, more focused account settings interface that focuses on account management
+
 ## 🆕 Latest Updates (v1.7.2)
 
 ### 🎨 REDESIGNED: Account Settings Interface
