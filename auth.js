@@ -129,7 +129,7 @@ router.post('/login', async (req, res) => {
                    um.muted_until, um.mute_reason
             FROM users u
             LEFT JOIN user_mutes um ON u.id = um.user_id 
-                AND (um.muted_until IS NULL OR um.muted_until > datetime('now'))
+                AND (um.muted_until IS NULL OR um.muted_until > datetime('now', 'localtime'))
             WHERE u.username = ?
         `, [username], async (err, user) => {
             if (err) {

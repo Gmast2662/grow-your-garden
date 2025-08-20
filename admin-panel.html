@@ -739,13 +739,7 @@
                     </div>
                 </div>
                 
-                <!-- Security Logs Section -->
-                <div class="admin-section">
-                    <h4>📋 Security Logs</h4>
-                    <div id="newSecurityLogsList" class="admin-list">
-                        <div class="loading">Loading...</div>
-                    </div>
-                </div>
+
             </div>
 
         </div>
@@ -1714,12 +1708,7 @@
                     console.error('Error loading banned devices:', error);
                 }
                 
-                try {
-                    await loadSecurityLogs();
-                    console.log('Security logs loaded successfully');
-                } catch (error) {
-                    console.error('Error loading security logs:', error);
-                }
+
                 
                 console.log('Security data loading completed');
             } catch (error) {
@@ -1829,50 +1818,7 @@
             }
         }
 
-        // Load security logs
-        async function loadSecurityLogs() {
-            if (!adminToken) {
-                return;
-            }
-            try {
-                const response = await fetch('/api/admin/security-logs?limit=50', {
-                    headers: { 'Authorization': `Bearer ${adminToken}` }
-                });
-                const result = await response.json();
-                
-                if (response.ok) {
-                    const securityLogsList = document.getElementById('securityLogsList');
-                    if (!securityLogsList) {
-                        showAlert('Error: securityLogsList element not found', 'error');
-                        return;
-                    }
-                    if (result.securityLogs.length === 0) {
-                        securityLogsList.innerHTML = '<p>No security logs</p>';
-                    } else {
-                        let html = '';
-                        result.securityLogs.forEach(log => {
-                            html += `
-                                <div class="admin-item">
-                                    <div class="item-info">
-                                        <strong>${log.username || 'Unknown'}</strong>
-                                        <span class="item-meta">Action: ${log.action}</span>
-                                        <span class="item-meta">IP: ${log.ip_address || 'Unknown'}</span>
-                                        <span class="item-meta">Date: ${formatLocalTime(log.created_at)}</span>
-                                        ${log.details ? `<span class="item-meta">Details: ${log.details}</span>` : ''}
-                                    </div>
-                                </div>
-                            `;
-                        });
-                        securityLogsList.innerHTML = html;
-                    }
-                } else {
-                    showAlert('Failed to load security logs: ' + result.error, 'error');
-                }
-            } catch (error) {
-                console.error('Error loading security logs:', error);
-                showAlert('Error loading security logs: ' + error.message, 'error');
-            }
-        }
+
 
         // Ban IP address
         async function banIP() {
@@ -2103,8 +2049,7 @@
                 // Load all sections
                 await Promise.all([
                     newLoadBannedIPs(),
-                    newLoadBannedDevices(),
-                    newLoadSecurityLogs()
+                    newLoadBannedDevices()
                 ]);
                 
                 console.log('New security data loading completed');
@@ -2243,67 +2188,7 @@
             }
         }
 
-        // New Load Security Logs
-        async function newLoadSecurityLogs() {
-            console.log('newLoadSecurityLogs called');
-            if (!adminToken) {
-                console.warn('No admin token available for newLoadSecurityLogs');
-                return;
-            }
-            
-            try {
-                console.log('Fetching security logs from /api/admin/security-logs');
-                const response = await fetch('/api/admin/security-logs?limit=50', {
-                    headers: { 'Authorization': `Bearer ${adminToken}` }
-                });
-                console.log('Security logs response status:', response.status);
-                const result = await response.json();
-                console.log('Security logs response:', result);
-                
-                const securityLogsList = document.getElementById('newSecurityLogsList');
-                console.log('newSecurityLogsList element found:', securityLogsList);
-                
-                if (!securityLogsList) {
-                    console.error('Error: newSecurityLogsList element not found');
-                    showAlert('Error: newSecurityLogsList element not found', 'error');
-                    return;
-                }
-                
-                if (response.ok) {
-                    console.log('Setting new security logs content, count:', result.securityLogs.length);
-                    if (result.securityLogs.length === 0) {
-                        securityLogsList.innerHTML = '<p>No security logs</p>';
-                        console.log('Set empty new security logs list');
-                    } else {
-                        let html = '';
-                        result.securityLogs.forEach(log => {
-                            html += `
-                                <div class="admin-item">
-                                    <div class="item-info">
-                                        <strong>${log.username || 'Unknown'}</strong>
-                                        <span class="item-meta">Action: ${log.action}</span>
-                                        <span class="item-meta">IP: ${log.ip_address || 'Unknown'}</span>
-                                        <span class="item-meta">Date: ${formatLocalTime(log.created_at)}</span>
-                                        ${log.details ? `<span class="item-meta">Details: ${log.details}</span>` : ''}
-                                    </div>
-                                </div>
-                            `;
-                        });
-                        securityLogsList.innerHTML = html;
-                        console.log('Set new security logs list with', result.securityLogs.length, 'items');
-                    }
-                } else {
-                    console.error('Failed to load security logs:', result.error);
-                    securityLogsList.innerHTML = '<p>Error loading security logs: ' + result.error + '</p>';
-                }
-            } catch (error) {
-                console.error('Error loading security logs:', error);
-                const securityLogsList = document.getElementById('newSecurityLogsList');
-                if (securityLogsList) {
-                    securityLogsList.innerHTML = '<p>Error loading security logs: ' + error.message + '</p>';
-                }
-            }
-        }
+
 
         // New Ban IP
         async function newBanIP() {

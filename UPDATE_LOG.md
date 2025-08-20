@@ -1,5 +1,33 @@
 # Update Log
 
+## [1.6.25] - 2025-08-19
+
+### 🔧 FIXED: Ban and Mute Reason Requirements
+- **Issue**: Ban endpoint required a reason even when UI indicated it was optional
+- **Issue**: Permanent mutes were not being enforced due to SQL query logic error
+- **Ban Fix**: Modified `/api/admin/users/:userId/ban` endpoint to make reason optional
+  - Changed `if (!reason) return error` to `const banReason = reason || 'No reason provided'`
+  - Updated all references to use `banReason` instead of `reason`
+- **Mute Fix**: Fixed SQL queries that were incorrectly filtering out permanent mutes
+  - Updated queries in `server.js`, `admin.js`, and `auth.js` to use `datetime('now', 'localtime')`
+  - Fixed the logic that was preventing permanent mutes (where `muted_until` is NULL) from being detected
+- **Result**: 
+  - Ban reasons are now truly optional as indicated in the UI
+  - Permanent mutes now work correctly whether a reason is provided or not
+  - Temporary mutes continue to work as expected
+
+## [1.6.24] - 2025-08-19
+
+### 🧹 CLEANUP: Removed Redundant Security Logs Section
+- **Issue**: Security tab contained a "Security Logs" section that was redundant with the general "Logs" tab
+- **Analysis**: Both sections were querying the same `admin_logs` table and showing essentially the same information
+- **Solution**: Removed the Security Logs section from the Security tab to eliminate redundancy
+- **Cleanup**: 
+  - Removed Security Logs HTML section from Security tab
+  - Removed `loadSecurityLogs()` and `newLoadSecurityLogs()` JavaScript functions
+  - Removed security logs loading from `newLoadSecurityData()` function
+- **Result**: Cleaner Security tab focused on IP and Device management, with logs available in the dedicated Logs tab
+
 ## [1.6.23] - 2025-08-19
 
 ### 🔄 RESTORED: User Account Ban Functionality

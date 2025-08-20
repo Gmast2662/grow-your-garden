@@ -475,9 +475,8 @@ router.post('/users/:userId/ban', authenticateAdmin, (req, res) => {
     const { userId } = req.params;
     const { reason, banType = 'user', banIP = false, banDevice = false, ipAddress } = req.body;
     
-    if (!reason) {
-        return res.status(400).json({ error: 'Ban reason required' });
-    }
+    // Reason is now optional
+    const banReason = reason || 'No reason provided';
     
     // Determine ban options based on banType
     let shouldBanUser = false;
@@ -517,7 +516,7 @@ router.post('/users/:userId/ban', authenticateAdmin, (req, res) => {
         if (shouldBanUser) {
             db.run(
                 'UPDATE users SET is_banned = 1, ban_reason = ? WHERE id = ?',
-                [reason, userId],
+                [banReason, userId],
                 function(err) {
                     if (err) {
                         return res.status(500).json({ error: 'Database error' });
@@ -545,7 +544,7 @@ router.post('/users/:userId/ban', authenticateAdmin, (req, res) => {
             'banned user',
             userId,
             targetUser.username,
-            `Reason: ${reason} | Types: ${banDetails.join(', ')}`,
+            `Reason: ${banReason} | Types: ${banDetails.join(', ')}`,
             req.ip
         );
         
@@ -555,7 +554,7 @@ router.post('/users/:userId/ban', authenticateAdmin, (req, res) => {
             if (ipToBan) {
                 db.run(
                     'INSERT OR REPLACE INTO banned_ips (ip_address, reason, banned_by_admin_id, banned_by_admin_username) VALUES (?, ?, ?, ?)',
-                    [ipToBan, `User ban: ${reason}`, req.user.id, req.user.username]
+                    [ipToBan, `User ban: ${banReason}`, req.user.id, req.user.username]
                 );
             }
         }
@@ -564,7 +563,7 @@ router.post('/users/:userId/ban', authenticateAdmin, (req, res) => {
         if (shouldBanDevice && targetUser.device_fingerprint) {
             db.run(
                 'INSERT OR REPLACE INTO banned_devices (device_fingerprint, reason, banned_by_admin_id, banned_by_admin_username) VALUES (?, ?, ?, ?)',
-                [targetUser.device_fingerprint, `User ban: ${reason}`, req.user.id, req.user.username]
+                [targetUser.device_fingerprint, `User ban: ${banReason}`, req.user.id, req.user.username]
             );
         }
         
@@ -934,7 +933,7 @@ router.get('/stats', authenticateAdmin, (req, res) => {
             });
         }),
         new Promise((resolve, reject) => {
-            db.get('SELECT COUNT(*) as muted_users FROM user_mutes WHERE muted_until IS NULL OR muted_until > datetime("now")', (err, result) => {
+            db.get('SELECT COUNT(*) as muted_users FROM user_mutes WHERE muted_until IS NULL OR muted_until > datetime("now", "localtime")', (err, result) => {
                 if (err) reject(err);
                 else resolve(result.muted_users);
             });

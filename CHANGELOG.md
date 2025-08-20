@@ -2,6 +2,46 @@
 
 This document contains every single update, bug fix, and change made to Grow Your Garden, including detailed technical information.
 
+## 🆕 Latest Updates (v1.6.25)
+
+### 🔧 FIXED: Ban and Mute Reason Requirements
+- **Ban Endpoint Issue**: The `/api/admin/users/:userId/ban` endpoint was requiring a reason even when the UI indicated it was optional
+  - **Root Cause**: Server-side validation `if (!reason) return error` was blocking requests without reasons
+  - **Solution**: Modified endpoint to accept optional reasons with fallback to "No reason provided"
+  - **Code Changes**: 
+    - `admin.js` line 477: Replaced `if (!reason) return error` with `const banReason = reason || 'No reason provided'`
+    - Updated all database operations to use `banReason` instead of `reason`
+- **Permanent Mute Issue**: Permanent mutes were not being enforced due to SQL query logic errors
+  - **Root Cause**: SQL queries using `datetime('now')` without timezone specification and incorrect NULL handling
+  - **Solution**: Updated all mute-related queries to use `datetime('now', 'localtime')` and fixed NULL logic
+  - **Code Changes**:
+    - `server.js` line 471: Updated chat message mute check query
+    - `admin.js` line 935: Updated muted users count query  
+    - `auth.js` line 131: Updated login mute check query
+- **Technical Details**:
+  - The original query `(muted_until IS NULL OR muted_until > datetime('now'))` failed for permanent mutes
+  - When `muted_until` is NULL, the condition `muted_until > datetime('now')` evaluates to NULL
+  - `NULL OR NULL` is still NULL (falsy), so permanent mutes were not detected
+  - Using `datetime('now', 'localtime')` ensures proper timezone handling
+- **Result**: 
+  - Ban reasons are now truly optional as indicated in the UI
+  - Permanent mutes now work correctly whether a reason is provided or not
+  - Temporary mutes continue to work as expected
+  - All mute enforcement is now consistent across login, chat, and admin functions
+
+## 🆕 Latest Updates (v1.6.24)
+
+### 🧹 CLEANUP: Removed Redundant Security Logs Section
+- **Security Logs Redundancy Removal**: Eliminated duplicate logging functionality between Security and Logs tabs
+  - **Issue**: Security tab contained a "Security Logs" section that was redundant with the general "Logs" tab
+  - **Analysis**: Both sections were querying the same `admin_logs` table and showing essentially the same information
+  - **Solution**: Removed the Security Logs section from the Security tab to eliminate redundancy
+  - **Cleanup**: 
+    - Removed Security Logs HTML section from Security tab
+    - Removed `loadSecurityLogs()` and `newLoadSecurityLogs()` JavaScript functions
+    - Removed security logs loading from `newLoadSecurityData()` function
+  - **Result**: Cleaner Security tab focused on IP and Device management, with logs available in the dedicated Logs tab
+
 ## 🆕 Latest Updates (v1.6.23)
 
 ### 🔄 RESTORED: User Account Ban Functionality
