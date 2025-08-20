@@ -1,5 +1,21 @@
 # Update Log
 
+## v1.7.5 - Online Status & Unfriend Notification Fixes
+
+### 🔧 FIXED: Friend System Issues (Online Status & Unfriend Notifications)
+- **Issue 1**: Only one friend was showing as online even when multiple friends were online
+- **Root Cause**: The `updateMultiplayerUI()` function only refreshed the friends list when it was visible, causing online status updates to be missed
+- **Fix**: Modified `updateMultiplayerUI()` in `game.js` to always refresh the friends list when friend online/offline events occur
+- **Issue 2**: Users were not notified when someone unfriended them
+- **Root Cause**: Missing client-side handler for the `user_unfriended` event
+- **Fix**: Added `user_unfriended` event handler in `multiplayer.js` to show notifications and refresh friends list
+- **Technical Implementation**:
+  - Enhanced `updateMultiplayerUI()` to always call `loadFriendsList()` for real-time status updates
+  - Added `user_unfriended` event listener in `multiplayer.js` with proper notification display
+  - Added debugging logs to track online status detection for troubleshooting
+- **Files Modified**: `multiplayer.js`, `game.js`
+- **Result**: All online friends now display correctly and users receive notifications when unfriended
+
 ## v1.7.4 - Friend System Targeted Fixes
 
 ### 🔧 FIXED: Friend System Issues (Targeted Fixes)

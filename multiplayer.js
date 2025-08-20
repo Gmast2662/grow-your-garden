@@ -17,7 +17,8 @@ class MultiplayerManager {
             'friend_offline': [],
             'garden_update': [],
             'chat_message': [],
-            'friend_request': []
+            'friend_request': [],
+            'user_unfriended': [] // Added for unfriended event
         };
     }
 
@@ -100,6 +101,26 @@ class MultiplayerManager {
             // Update UI if game is available
             if (window.game && window.game.updateMultiplayerUI) {
                 window.game.updateMultiplayerUI();
+            }
+        });
+
+        // Handle when user is unfriended by someone else
+        this.socket.on('user_unfriended', (data) => {
+            console.log(`😢 ${data.byName} unfriended you`);
+            this.emit('user_unfriended', data);
+            
+            // Show notification to user
+            if (window.game && window.game.showMessage) {
+                window.game.showMessage(`😢 ${data.byName} unfriended you.`, 'info');
+            } else {
+                alert(`😢 ${data.byName} unfriended you.`);
+            }
+            
+            // Refresh friends list to remove the unfriended user
+            if (window.game && window.game.loadFriendsList) {
+                setTimeout(() => {
+                    window.game.loadFriendsList();
+                }, 1000);
             }
         });
 

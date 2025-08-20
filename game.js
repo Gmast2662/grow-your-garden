@@ -1065,11 +1065,9 @@ class GardenGame {
             }
         }
         
-        // Refresh friends list if it's currently visible
-        const friendsList = document.getElementById('friendsList');
-        if (friendsList && friendsList.style.display !== 'none') {
-            this.loadFriendsList();
-        }
+        // Always refresh friends list to ensure online status is up to date
+        // This ensures that when friends come online/offline, the status is immediately reflected
+        this.loadFriendsList();
     }
     
     toggleFriendsList() {
@@ -1174,10 +1172,17 @@ class GardenGame {
                     const onlineFriends = acceptedFriends.filter(friend => {
                         // Don't show current user in friends list
                         if (friend.id === this.multiplayer?.currentUser?.id) {
+                            console.log(`🔍 Skipping current user: ${friend.username}`);
                             return false;
                         }
                         // Check real-time online status
-                        return friend.online === true || friend.isOnline === true;
+                        const isOnline = friend.online === true || friend.isOnline === true;
+                        console.log(`🔍 Friend ${friend.username} online status:`, {
+                            online: friend.online,
+                            isOnline: friend.isOnline,
+                            result: isOnline
+                        });
+                        return isOnline;
                     });
                     
                     const offlineFriends = acceptedFriends.filter(friend => {
@@ -1186,7 +1191,8 @@ class GardenGame {
                             return false;
                         }
                         // Check real-time online status
-                        return !(friend.online === true || friend.isOnline === true);
+                        const isOnline = friend.online === true || friend.isOnline === true;
+                        return !isOnline;
                     });
                     
                     // Show online friends first
