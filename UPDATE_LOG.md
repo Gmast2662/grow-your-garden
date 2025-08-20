@@ -1,5 +1,32 @@
 # Update Log
 
+## [1.6.23] - 2025-08-19
+
+### 🔄 RESTORED: User Account Ban Functionality
+- **Issue**: User requested to keep "normal ban" functionality for user accounts
+- **Solution**: Re-introduced ban/unban buttons and modal to User tab
+- **Features**: 
+  - Ban button for non-banned users, Unban button for banned users
+  - Ban modal with optional reason field
+  - Proper form handling and API integration
+  - Success/error feedback and automatic user list refresh
+- **Result**: Admins can now ban user accounts directly from User tab while still having IP/device banning in Security tab
+
+### 📚 ADDED: Device Fingerprint Hash Explanation
+- **Feature**: Provided detailed explanation of device fingerprint hashing
+- **Purpose**: Helps admins understand what device fingerprinting means in the Security tab
+- **Explanation**: Device fingerprint combines browser details, system info, hardware characteristics, and network info to create unique device identifiers
+
+### 🔍 ADDED: Device Fingerprint Viewing in User Tab
+- **Feature**: Added "View Device" button to user table in admin panel
+- **Purpose**: Allows admins to easily view and copy device fingerprints for banning
+- **Implementation**: 
+  - New "View Device" button next to "View IPs" button
+  - `showUserDeviceFingerprint()` function displays device fingerprint in alert dialog
+  - Shows full device fingerprint hash for copying to Security tab
+  - Handles cases where device fingerprint is not recorded
+- **Result**: Admins can now easily obtain device fingerprints from the User tab to use in the Security tab for device banning
+
 ## [1.6.22] - 2025-08-19
 
 ### 🔧 FIXED: Permanent Mute Issue & User Tab Cleanup

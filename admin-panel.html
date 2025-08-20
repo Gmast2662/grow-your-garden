@@ -768,9 +768,25 @@
         </div>
     </div>
 
+    <div id="banModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('banModal')">&times;</span>
+            <h3>Ban User</h3>
+            <form id="banForm">
+                <div class="form-group">
+                    <label for="banReason">Reason (optional):</label>
+                    <input type="text" id="banReason" name="reason" placeholder="Reason for ban">
+                </div>
+                <button type="submit" class="btn btn-danger">Ban User</button>
+                <button type="button" class="btn" onclick="closeModal('banModal')">Cancel</button>
+            </form>
+        </div>
+    </div>
+
     <script>
         let adminToken = null;
         let currentUserId = null;
+        let currentUsername = null;
 
         // Utility function to convert dates to local time
         function formatLocalTime(dateString) {
@@ -846,6 +862,37 @@
                 }
             } catch (error) {
                 showAlert('Password reset failed: ' + error.message, 'error');
+            }
+        });
+
+        // Ban form handler
+        document.getElementById('banForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const reason = formData.get('reason');
+
+            try {
+                const response = await fetch(`/api/admin/users/${currentUserId}/ban`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify({ reason })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showAlert('User banned successfully!', 'success');
+                    closeModal('banModal');
+                    loadUsers();
+                    loadStats();
+                } else {
+                    showAlert(result.error, 'error');
+                }
+            } catch (error) {
+                showAlert('Ban failed: ' + error.message, 'error');
             }
         });
 
@@ -1106,9 +1153,14 @@
                                         `<button class="btn" onclick="makeAdmin('${user.id}')">Make Admin</button>` :
                                         `<button class="btn btn-warning" onclick="removeAdmin('${user.id}')">Remove Admin</button>`
                                     }
+                                    ${!user.is_banned ? 
+                                        `<button class="btn btn-danger" onclick="banUser('${user.id}', '${user.username}')">Ban</button>` :
+                                        `<button class="btn btn-success" onclick="unbanUser('${user.id}', '${user.username}')">Unban</button>`
+                                    }
                                     <button class="btn btn-warning" onclick="clearUserGardens('${user.id}')">Clear Gardens</button>
                                     <button class="btn btn-danger" onclick="deleteUser('${user.id}')">Delete</button>
                                     <button class="btn btn-info" onclick="showUserIPs('${user.id}', '${user.username}', '${user.registration_ip || ''}', '${user.last_login_ip || ''}')">View IPs</button>
+                                    <button class="btn btn-info" onclick="showUserDeviceFingerprint('${user.id}', '${user.username}', '${user.device_fingerprint || ''}')">View Device</button>
                                 </td>
                             </tr>
                         `;
@@ -1142,6 +1194,20 @@
             ipInfo += `\nYou can use these IPs in the Security tab to ban them if needed.`;
             
             alert(ipInfo);
+        }
+
+        function showUserDeviceFingerprint(userId, username, deviceFingerprint) {
+            let deviceInfo = `User: ${username} (ID: ${userId})\n\n`;
+            
+            if (deviceFingerprint) {
+                deviceInfo += `Device Fingerprint: ${deviceFingerprint}\n`;
+                deviceInfo += `\nYou can copy this device fingerprint and use it in the Security tab to ban this device.`;
+            } else {
+                deviceInfo += `Device Fingerprint: Not recorded\n`;
+                deviceInfo += `\nThis user's device fingerprint has not been recorded yet.`;
+            }
+            
+            alert(deviceInfo);
         }
 
         function resetPassword(userId) {
@@ -1237,6 +1303,32 @@
                     console.error('Clear gardens error:', error);
                     showAlert('Clear gardens failed: ' + error.message, 'error');
                 });
+            }
+        }
+
+        function banUser(userId, username) {
+            currentUserId = userId;
+            currentUsername = username;
+            document.getElementById('banModal').style.display = 'block';
+        }
+
+        function unbanUser(userId, username) {
+            if (confirm(`Are you sure you want to unban ${username}?`)) {
+                fetch(`/api/admin/users/${userId}/unban`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.message) {
+                        showAlert('User unbanned successfully!', 'success');
+                        loadUsers();
+                        loadStats();
+                    } else {
+                        showAlert(result.error, 'error');
+                    }
+                })
+                .catch(error => showAlert('Unban failed: ' + error.message, 'error'));
             }
         }
 
