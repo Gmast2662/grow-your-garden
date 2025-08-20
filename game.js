@@ -1004,8 +1004,7 @@ class GardenGame {
         // Add multiplayer button event listeners
         this.addMultiplayerEventListeners();
         
-        // Add logout button
-        this.addLogoutButton();
+        // Logout button is now in the header
         
         // Periodically update multiplayer UI to ensure status is current
         setInterval(() => {
@@ -1050,35 +1049,7 @@ class GardenGame {
         });
     }
     
-    // Add logout button
-    addLogoutButton() {
-        // Create logout button
-        const logoutBtn = document.createElement('button');
-        logoutBtn.textContent = 'Logout';
-        logoutBtn.className = 'logout-btn';
-        logoutBtn.style.cssText = `
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            padding: 8px 16px;
-            background: #ff4444;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            z-index: 1000;
-        `;
-        
-        logoutBtn.addEventListener('click', () => {
-            // Clear token
-            localStorage.removeItem('garden_game_token');
-            // Redirect to login
-            window.location.href = '/login';
-        });
-        
-        document.body.appendChild(logoutBtn);
-    }
+    // Logout button is now handled in the header
     
     updateMultiplayerUI() {
         if (!this.multiplayer) return;
@@ -1122,8 +1093,41 @@ class GardenGame {
             chatPanel.style.display = 'block';
             friendsList.style.display = 'none';
             this.loadChatMessages();
+            
+            // Start auto-refresh timer for chat (every 5 seconds)
+            this.startChatAutoRefresh();
         } else {
             chatPanel.style.display = 'none';
+            // Stop auto-refresh when chat is closed
+            this.stopChatAutoRefresh();
+        }
+    }
+    
+    startChatAutoRefresh() {
+        // Clear any existing timer
+        this.stopChatAutoRefresh();
+        
+        // Start new timer that refreshes chat every 5 seconds
+        this.chatRefreshTimer = setInterval(() => {
+            // Only refresh if chat panel is visible and user is not typing
+            const chatPanel = document.getElementById('chatPanel');
+            const chatInput = document.getElementById('chatInput');
+            
+            if (chatPanel && chatPanel.style.display !== 'none') {
+                // Check if user is currently typing (input has focus and value)
+                const isTyping = chatInput && document.activeElement === chatInput && chatInput.value.length > 0;
+                
+                if (!isTyping) {
+                    this.loadChatMessages();
+                }
+            }
+        }, 5000); // 5 seconds
+    }
+    
+    stopChatAutoRefresh() {
+        if (this.chatRefreshTimer) {
+            clearInterval(this.chatRefreshTimer);
+            this.chatRefreshTimer = null;
         }
     }
     
@@ -1162,7 +1166,7 @@ class GardenGame {
                 let friendsHtml = '';
                 
                 // Show accepted friends
-                const acceptedFriends = uniqueFriends.filter(friend => friend.status === 'accepted');
+                const acceptedFriends = uniqueFriends.filter(friend => friend.status === 'accepted' && friend.request_type === 'accepted');
                 if (acceptedFriends.length > 0) {
                     // Separate online and offline friends
                     const onlineFriends = acceptedFriends.filter(friend => {
@@ -1218,8 +1222,11 @@ class GardenGame {
                     }
                 }
                 
-                // Show pending friend requests
-                const pendingRequests = uniqueFriends.filter(friend => friend.status === 'pending');
+                // Show pending friend requests (only received requests, not sent ones)
+                const pendingRequests = uniqueFriends.filter(friend => {
+                    // Only show received requests, not sent ones
+                    return friend.status === 'pending' && friend.request_type === 'received';
+                });
                 if (pendingRequests.length > 0) {
                     friendsHtml += '<h4>⏳ Pending Requests</h4>';
                     pendingRequests.forEach(friend => {
@@ -1367,12 +1374,20 @@ class GardenGame {
             // Display recent chat messages
             const messages = this.multiplayer.chatMessages || [];
             if (messages.length > 0) {
-                const messagesHtml = messages.map(msg => 
-                    `<div class="chat-message">
-                        <span class="chat-username">${msg.senderName || msg.username}:</span>
+                const messagesHtml = messages.map(msg => {
+                    // Add [DEV] tag for AviDev only
+                    let displayName = msg.senderName || msg.username;
+                    let isDev = false;
+                    if (displayName === 'AviDev') {
+                        displayName = `[DEV] ${displayName}`;
+                        isDev = true;
+                    }
+                    
+                    return `<div class="chat-message">
+                        <span class="chat-username ${isDev ? 'dev-username' : ''}">${displayName}:</span>
                         <span class="chat-text">${msg.message}</span>
-                    </div>`
-                ).join('');
+                    </div>`;
+                }).join('');
                 chatMessagesDiv.innerHTML = messagesHtml;
                 chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
             } else {
@@ -1910,6 +1925,37 @@ class GardenGame {
             this.updateSprinklerDisplay();
             this.showMessage('All sprinklers cleared!', 'success');
             this.saveGame();
+        };
+        
+        // Purchase functions
+        window.buyWater = () => {
+            const waterCost = 5;
+            if (this.money >= waterCost) {
+                this.money -= waterCost;
+                this.water += 1;
+                this.updateUI();
+                this.showMessage('💧 Water purchased! You can now water your plants.', 'success');
+                this.playSound('success');
+                this.saveGame();
+            } else {
+                this.showMessage('Not enough money to buy water!', 'error');
+                this.playSound('error');
+            }
+        };
+        
+        window.buyFertilizer = () => {
+            const fertilizerCost = 10;
+            if (this.money >= fertilizerCost) {
+                this.money -= fertilizerCost;
+                this.fertilizer += 1;
+                this.updateUI();
+                this.showMessage('🌱 Fertilizer purchased! You can now fertilize your plants.', 'success');
+                this.playSound('success');
+                this.saveGame();
+            } else {
+                this.showMessage('Not enough money to buy fertilizer!', 'error');
+                this.playSound('error');
+            }
         };
         
         // Weather functions
@@ -2524,7 +2570,9 @@ class GardenGame {
                 this.currentSeason = season;
                 this.seasonDay = 1;
                 this.updateSeasonMultiplier();
+                this.updateSeasonDisplay(); // Force immediate season display update
                 this.updateUI();
+                this.saveGame(); // Save the season change
                 this.showMessage(`Season set to ${season}!`, 'success');
             } else {
                 this.showMessage('Invalid season!', 'error');
@@ -3131,6 +3179,15 @@ class GardenGame {
                     this.updateUI();
                     this.draw(); // Force immediate redraw to show growth
                 }
+            }
+        }
+    }
+    
+    // Check sprinkler growth for all plants in the garden
+    checkAllSprinklerGrowth() {
+        for (let row = 0; row < this.gridSize; row++) {
+            for (let col = 0; col < this.gridSize; col++) {
+                this.checkSprinklerGrowth(row, col);
             }
         }
     }
@@ -3998,6 +4055,9 @@ class GardenGame {
             const seasonText = seasonEmojis[this.currentSeason] + ' ' + this.currentSeason.charAt(0).toUpperCase() + this.currentSeason.slice(1) + ' (Day ' + this.seasonDay + ')';
             seasonTextElement.textContent = seasonText;
             
+            // Force a reflow to ensure the DOM updates
+            seasonTextElement.offsetHeight;
+            
             // Update growth multiplier display
             if (this.seasonMultiplier !== 1.0) {
                 const multiplierText = 'Growth: ' + (this.seasonMultiplier > 1 ? '+' : '') + Math.round((this.seasonMultiplier - 1) * 100) + '%';
@@ -4007,6 +4067,9 @@ class GardenGame {
             } else {
                 growthMultiplierElement.style.display = 'none';
             }
+            
+            // Force a reflow for the multiplier element too
+            growthMultiplierElement.offsetHeight;
         }
     }
     
@@ -4427,6 +4490,9 @@ class GardenGame {
         this.checkAutoSave();
         this.checkAchievements();
             this.generateChallenges();
+            
+            // Check sprinkler growth for all plants
+            this.checkAllSprinklerGrowth();
             
             // Note: updateShopDisplay is now only called when needed, not in the game loop
             
@@ -5026,6 +5092,9 @@ class GardenGame {
             // Add event listeners to the new elements
             const newMenuBtn = document.getElementById('menuBtn');
             const newSaveBtn = document.getElementById('saveBtn');
+            const accountBtn = document.getElementById('accountBtn');
+            const supportBtn = document.getElementById('supportBtn');
+            const logoutBtn = document.getElementById('logoutBtn');
             
             if (newMenuBtn) {
                 newMenuBtn.addEventListener('click', () => {
@@ -5038,6 +5107,24 @@ class GardenGame {
                     this.currentGame.saveGame();
                     this.currentGame.showMessage('Game saved manually!', 'success');
                     this.updateSaveSlots();
+                });
+            }
+            
+            if (accountBtn) {
+                accountBtn.addEventListener('click', () => {
+                    this.showAccountSettings();
+                });
+            }
+            
+            if (supportBtn) {
+                supportBtn.addEventListener('click', () => {
+                    this.showSupport();
+                });
+            }
+            
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', () => {
+                    this.logout();
                 });
             }
             
@@ -5228,6 +5315,36 @@ class GardenGame {
                 }
             }
         }, 100);
+    }
+    
+    buyWater() {
+        const waterCost = 5;
+        if (this.money >= waterCost) {
+            this.money -= waterCost;
+            this.water += 1;
+            this.updateUI();
+            this.showMessage('💧 Water purchased! You can now water your plants.', 'success');
+            this.playSound('success');
+            this.saveGame();
+        } else {
+            this.showMessage('Not enough money to buy water!', 'error');
+            this.playSound('error');
+        }
+    }
+    
+    buyFertilizer() {
+        const fertilizerCost = 10;
+        if (this.money >= fertilizerCost) {
+            this.money -= fertilizerCost;
+            this.fertilizer += 1;
+            this.updateUI();
+            this.showMessage('🌱 Fertilizer purchased! You can now fertilize your plants.', 'success');
+            this.playSound('success');
+            this.saveGame();
+        } else {
+            this.showMessage('Not enough money to buy fertilizer!', 'error');
+            this.playSound('error');
+        }
     }
     
     placeSprinkler(row, col) {
@@ -6587,6 +6704,236 @@ class MenuSystem {
         this.updateSaveSlots();
     }
     
+    showAccountSettings() {
+        // Get current user info from localStorage
+        const token = localStorage.getItem('garden_game_token');
+        const username = localStorage.getItem('garden_game_username');
+        
+        // Add debugging
+        console.log('showAccountSettings called');
+        console.log('Token from localStorage:', token ? 'Present' : 'Missing');
+        console.log('Username from localStorage:', username || 'Missing');
+        
+        if (!token || !username) {
+            console.log('Authentication check failed - token or username missing');
+            alert('You must be logged in to access account settings.');
+            return;
+        }
+        
+        // Additional check - verify token is valid by checking if it's not empty/null
+        if (token === 'null' || token === 'undefined' || token.trim() === '') {
+            console.log('Token is invalid (null/undefined/empty)');
+            alert('You must be logged in to access account settings.');
+            return;
+        }
+        
+        console.log('Authentication check passed, showing account settings modal');
+        
+        // Create account settings modal
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        `;
+        
+        const content = document.createElement('div');
+        content.style.cssText = `
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        `;
+        
+        content.innerHTML = `
+            <h2 style="margin-bottom: 20px; color: #2c3e50;">👤 Account Settings</h2>
+            <div style="margin-bottom: 20px;">
+                <p><strong>Username:</strong> ${username}</p>
+                <p><strong>Account Status:</strong> <span style="color: #27ae60;">Active</span></p>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <h3 style="margin-bottom: 10px;">Game Settings</h3>
+                <label style="display: block; margin-bottom: 10px;">
+                    <input type="checkbox" id="soundToggle" ${this.soundEnabled ? 'checked' : ''} style="margin-right: 8px;">
+                    Enable Sound Effects
+                </label>
+                <label style="display: block; margin-bottom: 10px;">
+                    <input type="checkbox" id="notificationsToggle" checked style="margin-right: 8px;">
+                    Enable Notifications
+                </label>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <h3 style="margin-bottom: 10px;">Data Management</h3>
+                <button id="exportDataBtn" style="background: #3498db; color: white; border: none; padding: 10px 15px; border-radius: 5px; margin-right: 10px; cursor: pointer;">
+                    📤 Export Game Data
+                </button>
+                <button id="importDataBtn" style="background: #e67e22; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer;">
+                    📥 Import Game Data
+                </button>
+            </div>
+            <div style="text-align: center;">
+                <button id="closeAccountBtn" style="background: #95a5a6; color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-size: 16px;">
+                    Close
+                </button>
+            </div>
+        `;
+        
+        modal.appendChild(content);
+        document.body.appendChild(modal);
+        
+        // Add event listeners
+        const closeBtn = content.querySelector('#closeAccountBtn');
+        const soundToggle = content.querySelector('#soundToggle');
+        const exportBtn = content.querySelector('#exportDataBtn');
+        const importBtn = content.querySelector('#importDataBtn');
+        
+        closeBtn.addEventListener('click', () => {
+            document.body.removeChild(modal);
+        });
+        
+        soundToggle.addEventListener('change', (e) => {
+            this.soundEnabled = e.target.checked;
+            localStorage.setItem('garden_game_sound_enabled', this.soundEnabled);
+        });
+        
+        exportBtn.addEventListener('click', () => {
+            if (this.currentGame) {
+                this.currentGame.exportSaveData();
+            } else {
+                alert('No active game to export.');
+            }
+        });
+        
+        importBtn.addEventListener('click', () => {
+            if (this.currentGame) {
+                this.currentGame.importSaveData();
+            } else {
+                alert('No active game to import data into.');
+            }
+        });
+        
+        // Close modal when clicking outside
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                document.body.removeChild(modal);
+            }
+        });
+    }
+    
+    showSupport() {
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        `;
+        
+        const content = document.createElement('div');
+        content.style.cssText = `
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        `;
+        
+        content.innerHTML = `
+            <h2 style="margin-bottom: 20px; color: #2c3e50;">📧 Support</h2>
+            <div style="margin-bottom: 20px;">
+                <p style="margin-bottom: 15px;">Need help with your garden? We're here to assist you!</p>
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <h3 style="margin-bottom: 10px; color: #2c3e50;">📧 Contact Support</h3>
+                    <p style="margin-bottom: 10px;"><strong>Email:</strong> <a href="mailto:gardengamemain@gmail.com" style="color: #3498db; text-decoration: none;">gardengamemain@gmail.com</a></p>
+                    <p style="margin-bottom: 10px;"><strong>Response Time:</strong> Usually within 24 hours</p>
+                </div>
+                <div style="background: #e8f5e8; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <h3 style="margin-bottom: 10px; color: #27ae60;">❓ Common Issues</h3>
+                    <ul style="margin-left: 20px;">
+                        <li>Plants not growing properly</li>
+                        <li>Game not saving progress</li>
+                        <li>Multiplayer connection issues</li>
+                        <li>Account-related problems</li>
+                    </ul>
+                </div>
+                <div style="background: #fff3cd; padding: 15px; border-radius: 8px;">
+                    <h3 style="margin-bottom: 10px; color: #856404;">💡 Tips</h3>
+                    <p>When contacting support, please include:</p>
+                    <ul style="margin-left: 20px;">
+                        <li>Your username</li>
+                        <li>Description of the issue</li>
+                        <li>Steps to reproduce the problem</li>
+                        <li>Browser and device information</li>
+                    </ul>
+                </div>
+            </div>
+            <div style="text-align: center;">
+                <button id="closeSupportBtn" style="background: #95a5a6; color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-size: 16px;">
+                    Close
+                </button>
+            </div>
+        `;
+        
+        modal.appendChild(content);
+        document.body.appendChild(modal);
+        
+        // Add event listeners
+        const closeBtn = content.querySelector('#closeSupportBtn');
+        
+        closeBtn.addEventListener('click', () => {
+            document.body.removeChild(modal);
+        });
+        
+        // Close modal when clicking outside
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                document.body.removeChild(modal);
+            }
+        });
+    }
+    
+    logout() {
+        // Show confirmation dialog
+        const confirmed = confirm('Are you sure you want to logout? Your current game progress will be saved automatically.');
+        
+        if (confirmed) {
+            // Save current game if active
+            if (this.currentGame) {
+                this.currentGame.saveGame();
+            }
+            
+            // Clear authentication tokens
+            localStorage.removeItem('garden_game_token');
+            localStorage.removeItem('garden_game_username');
+            
+            // Clear any other game-related localStorage items
+            localStorage.removeItem('garden_game_sound_enabled');
+            
+            // Redirect to login page
+            window.location.href = '/login';
+        }
+    }
+    
     clearUIState() {
         // Reset all UI elements to default/zero values
         if (document.getElementById('money')) {
@@ -6891,6 +7238,29 @@ document.addEventListener('DOMContentLoaded', () => {
             // Make menuSystem globally accessible for admin functions
             window.menuSystem = menuSystem;
             console.log('MenuSystem added to window object');
+            
+            // Add event listeners for menu buttons
+            const accountBtn = document.getElementById('accountBtn');
+            const supportBtn = document.getElementById('supportBtn');
+            const logoutBtn = document.getElementById('logoutBtn');
+            
+            if (accountBtn) {
+                accountBtn.addEventListener('click', () => {
+                    menuSystem.showAccountSettings();
+                });
+            }
+            
+            if (supportBtn) {
+                supportBtn.addEventListener('click', () => {
+                    menuSystem.showSupport();
+                });
+            }
+            
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', () => {
+                    menuSystem.logout();
+                });
+            }
         } catch (error) {
             console.error('Error creating MenuSystem:', error);
             alert('Error initializing game. Please refresh the page.');

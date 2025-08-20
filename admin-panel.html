@@ -50,8 +50,8 @@
         }
 
         .admin-section {
-            display: none;
             padding: 40px;
+            display: none; /* Hide by default */
         }
 
         .form-group {
@@ -266,7 +266,7 @@
         }
 
         .tab-content.active {
-            display: block;
+            display: block !important;
         }
 
         /* Ensure chat filter tab content is visible when active */
@@ -472,6 +472,65 @@
             background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
             color: #212529;
         }
+
+        /* Security tab styles */
+        .admin-input-group {
+            margin-bottom: 15px;
+        }
+
+        .admin-input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .admin-input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e1e5e9;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .admin-list {
+            margin-top: 20px;
+        }
+
+        .admin-list h5 {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 1.1rem;
+        }
+
+        .admin-item {
+            background: white;
+            border: 1px solid #e1e5e9;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+
+        .item-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .item-info strong {
+            color: #333;
+            font-size: 1rem;
+        }
+
+        .item-meta {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .loading {
+            color: #666;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -502,6 +561,12 @@
 
         <!-- Admin Section -->
         <div id="adminSection" class="admin-section">
+            <!-- Admin Header with Logout -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>Welcome, Admin!</h2>
+                <button class="btn btn-danger" onclick="logout()">🚪 Logout</button>
+            </div>
+            
             <!-- Tab Navigation -->
             <div class="tab-nav">
                 <button class="tab-btn active" onclick="showTab('dashboard')">📊 Dashboard</button>
@@ -513,8 +578,8 @@
                 <button class="tab-btn" onclick="showTab('logs')">📝 Logs</button>
             </div>
 
-            <!-- Statistics Tab -->
-            <div id="statsTab" class="tab-content active">
+            <!-- Dashboard Tab -->
+            <div id="dashboardTab" class="tab-content active">
                 <h2>Server Statistics</h2>
                 <div id="statsGrid" class="stats-grid">
                     <!-- Stats will be loaded here -->
@@ -630,24 +695,25 @@
             </div>
 
             <!-- Security Tab -->
-            <div class="admin-tab-content" id="securityTab">
-                <h3>🔒 Security Management</h3>
+            <div class="tab-content" id="securityTab">
+                <h2>🔒 Security Management</h2>
+                <button class="btn" onclick="newLoadSecurityData()">🔄 Refresh Security Data</button>
                 
                 <!-- IP Banning Section -->
                 <div class="admin-section">
                     <h4>🌐 IP Address Management</h4>
                     <div class="admin-input-group">
                         <label>IP Address:</label>
-                        <input type="text" id="ipAddressInput" placeholder="192.168.1.1">
+                        <input type="text" id="newIpAddressInput" placeholder="192.168.1.1">
                     </div>
                     <div class="admin-input-group">
                         <label>Reason:</label>
-                        <input type="text" id="ipBanReasonInput" placeholder="Reason for IP ban">
+                        <input type="text" id="newIpBanReasonInput" placeholder="Reason for IP ban">
                     </div>
-                    <button class="btn btn-danger" onclick="banIP()">Ban IP Address</button>
-                    <button class="btn btn-warning" onclick="unbanIP()">Unban IP Address</button>
+                    <button class="btn btn-danger" onclick="newBanIP()">Ban IP Address</button>
+                    <button class="btn btn-warning" onclick="newUnbanIP()">Unban IP Address</button>
                     
-                    <div id="bannedIPsList" class="admin-list">
+                    <div id="newBannedIPsList" class="admin-list">
                         <h5>Banned IP Addresses</h5>
                         <div class="loading">Loading...</div>
                     </div>
@@ -658,48 +724,28 @@
                     <h4>📱 Device Management</h4>
                     <div class="admin-input-group">
                         <label>Device Fingerprint:</label>
-                        <input type="text" id="deviceFingerprintInput" placeholder="Device fingerprint hash">
+                        <input type="text" id="newDeviceFingerprintInput" placeholder="Device fingerprint hash">
                     </div>
                     <div class="admin-input-group">
                         <label>Reason:</label>
-                        <input type="text" id="deviceBanReasonInput" placeholder="Reason for device ban">
+                        <input type="text" id="newDeviceBanReasonInput" placeholder="Reason for device ban">
                     </div>
-                    <button class="btn btn-danger" onclick="banDevice()">Ban Device</button>
-                    <button class="btn btn-warning" onclick="unbanDevice()">Unban Device</button>
+                    <button class="btn btn-danger" onclick="newBanDevice()">Ban Device</button>
+                    <button class="btn btn-warning" onclick="newUnbanDevice()">Unban Device</button>
                     
-                    <div id="bannedDevicesList" class="admin-list">
+                    <div id="newBannedDevicesList" class="admin-list">
                         <h5>Banned Devices</h5>
                         <div class="loading">Loading...</div>
                     </div>
                 </div>
                 
-                <!-- Security Logs Section -->
-                <div class="admin-section">
-                    <h4>📋 Security Logs</h4>
-                    <div id="securityLogsList" class="admin-list">
-                        <div class="loading">Loading...</div>
-                    </div>
-                </div>
+
             </div>
 
         </div>
     </div>
 
     <!-- Modals -->
-    <div id="banModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('banModal')">&times;</span>
-            <h3>Ban User</h3>
-            <form id="banForm">
-                <div class="form-group">
-                    <label for="banReason">Ban Reason:</label>
-                    <textarea id="banReason" name="reason" rows="3" required></textarea>
-                </div>
-                <button type="submit" class="btn btn-danger">Ban User</button>
-                <button type="button" class="btn" onclick="closeModal('banModal')">Cancel</button>
-            </form>
-        </div>
-    </div>
 
     <div id="resetPasswordModal" class="modal">
         <div class="modal-content">
@@ -716,9 +762,36 @@
         </div>
     </div>
 
+    <div id="banModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('banModal')">&times;</span>
+            <h3>Ban User</h3>
+            <form id="banForm">
+                <div class="form-group">
+                    <label for="banReason">Reason (optional):</label>
+                    <input type="text" id="banReason" name="reason" placeholder="Reason for ban">
+                </div>
+                <button type="submit" class="btn btn-danger">Ban User</button>
+                <button type="button" class="btn" onclick="closeModal('banModal')">Cancel</button>
+            </form>
+        </div>
+    </div>
+
     <script>
         let adminToken = null;
         let currentUserId = null;
+        let currentUsername = null;
+
+        // Utility function to convert dates to local time
+        function formatLocalTime(dateString) {
+            if (!dateString) return 'Never';
+            try {
+                const date = new Date(dateString);
+                return date.toLocaleString();
+            } catch (error) {
+                return dateString; // Return original if parsing fails
+            }
+        }
 
         // Login form handler
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
@@ -740,6 +813,7 @@
 
                 if (response.ok) {
                     adminToken = result.token;
+                    localStorage.setItem('adminToken', adminToken);
                     showAdminSection();
                     loadStats();
                     loadUsers();
@@ -753,6 +827,37 @@
         });
 
 
+
+
+
+        // Reset password form handler
+        document.getElementById('resetPasswordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const password = formData.get('password');
+
+            try {
+                const response = await fetch(`/api/admin/users/${currentUserId}/reset-password`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify({ newPassword: password })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showAlert('Password reset successfully!', 'success');
+                    closeModal('resetPasswordModal');
+                } else {
+                    showAlert(result.error, 'error');
+                }
+            } catch (error) {
+                showAlert('Password reset failed: ' + error.message, 'error');
+            }
+        });
 
         // Ban form handler
         document.getElementById('banForm').addEventListener('submit', async (e) => {
@@ -782,35 +887,6 @@
                 }
             } catch (error) {
                 showAlert('Ban failed: ' + error.message, 'error');
-            }
-        });
-
-        // Reset password form handler
-        document.getElementById('resetPasswordForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const password = formData.get('password');
-
-            try {
-                const response = await fetch(`/api/admin/users/${currentUserId}/reset-password`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${adminToken}`
-                    },
-                    body: JSON.stringify({ newPassword: password })
-                });
-
-                const result = await response.json();
-
-                if (response.ok) {
-                    showAlert('Password reset successfully!', 'success');
-                    closeModal('resetPasswordModal');
-                } else {
-                    showAlert(result.error, 'error');
-                }
-            } catch (error) {
-                showAlert('Password reset failed: ' + error.message, 'error');
             }
         });
 
@@ -845,24 +921,30 @@
         });
 
         function showAdminSection() {
+            console.log('showAdminSection called');
             document.getElementById('loginSection').style.display = 'none';
             document.getElementById('adminSection').style.display = 'block';
-            loadStats();
-            loadUsers();
-            loadLogs();
-            loadMutedUsers();
-            loadFilterWords();
             
-            // Set up automatic stats refresh every 30 seconds
-            if (window.adminStatsInterval) {
-                clearInterval(window.adminStatsInterval);
-            }
-            window.adminStatsInterval = setInterval(() => {
-                loadStats();
-            }, 30000); // Refresh stats every 30 seconds
+            // Ensure dashboard tab is active by default
+            showTab('dashboard');
+                
+                // Set up automatic stats refresh every 30 seconds
+                if (window.adminStatsInterval) {
+                    clearInterval(window.adminStatsInterval);
+                }
+                window.adminStatsInterval = setInterval(() => {
+                    loadStats();
+                }, 30000); // Refresh stats every 30 seconds
         }
 
         function showTab(tabName) {
+            console.log('showTab called with:', tabName);
+            // Only show tabs if we have a valid token
+            if (!adminToken) {
+                showAlert('Please log in first', 'error');
+                return;
+            }
+            
             // Hide all tabs
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
@@ -875,8 +957,10 @@
                 targetTabId = 'chatFilterTab'; // Remove hyphen for chat filter
             }
             
+            console.log('Looking for tab with ID:', targetTabId);
             const targetTab = document.getElementById(targetTabId);
             if (targetTab) {
+                console.log('Found target tab, adding active class');
                 targetTab.classList.add('active');
                 
                 // Load data for specific tabs
@@ -889,12 +973,22 @@
                 } else if (tabName === 'mutes') {
                     loadMutedUsers();
                 } else if (tabName === 'logs') {
-                    loadAdminLogs();
+                    loadLogs();
+                    startLogsAutoRefresh();
                 } else if (tabName === 'dashboard') {
+                    console.log('Loading dashboard stats');
                     loadStats();
                 } else if (tabName === 'security') {
-                    loadSecurityData();
+                    console.log('Loading new security data');
+                    setTimeout(() => {
+                        newLoadSecurityData();
+                    }, 100); // Small delay to ensure tab is visible
+                } else {
+                    // Stop auto-refresh for other tabs
+                    stopLogsAutoRefresh();
                 }
+            } else {
+                console.error('Tab not found:', targetTabId);
             }
             
             // Find and activate the correct tab button
@@ -906,16 +1000,24 @@
         }
 
         async function loadStats() {
+            console.log('loadStats called, adminToken:', adminToken ? 'present' : 'missing');
+            if (!adminToken) {
+                console.warn('No admin token available for loadStats');
+                return;
+            }
             try {
+                console.log('Fetching stats from /api/admin/stats');
                 const response = await fetch('/api/admin/stats', {
                     headers: { 'Authorization': `Bearer ${adminToken}` }
                 });
-
+                console.log('Stats response status:', response.status);
                 const result = await response.json();
+                console.log('Stats response:', result);
 
                 if (response.ok) {
                     const stats = result.stats;
-                    document.getElementById('statsGrid').innerHTML = `
+                    console.log('Stats data received:', stats);
+                    const statsHTML = `
                         <div class="stat-card">
                             <h3>${stats.totalUsers}</h3>
                             <p>Total Users</p>
@@ -932,10 +1034,13 @@
                             <h3>${stats.bannedUsers}</h3>
                             <p>Banned Users</p>
                         </div>
-
                         <div class="stat-card">
-                            <h3>${stats.totalMessages}</h3>
-                            <p>Total Messages</p>
+                            <h3>${stats.mutedUsers}</h3>
+                            <p>Muted Users</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${stats.totalMessages || stats.totalChatMessages || 0}</h3>
+                            <p>Chat Messages</p>
                         </div>
                         <div class="stat-card">
                             <h3>${stats.totalFriends}</h3>
@@ -947,7 +1052,7 @@
                         </div>
                         <div class="stat-card">
                             <h3>${stats.totalAnnouncements}</h3>
-                            <p>Total Announcements</p>
+                            <p>Announcements</p>
                         </div>
                         <div class="stat-card">
                             <h3>${stats.adminUsers}</h3>
@@ -959,30 +1064,67 @@
                         </div>
                         <div class="stat-card">
                             <h3>${stats.todayUsers}</h3>
-                            <p>New Users Today</p>
+                            <p>Today's Users</p>
                         </div>
                         <div class="stat-card">
                             <h3>${stats.todayMessages}</h3>
-                            <p>Messages Today</p>
-                        </div>
-                        <div class="stat-card">
-                            <h3>${stats.mutedUsers}</h3>
-                            <p>Muted Users</p>
+                            <p>Today's Messages</p>
                         </div>
                         <div class="stat-card">
                             <h3>${stats.totalFilterWords}</h3>
-                            <p>Filtered Words</p>
+                            <p>Filter Words</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${stats.bannedIPs}</h3>
+                            <p>Banned IPs</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${stats.bannedDevices}</h3>
+                            <p>Banned Devices</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${stats.securityLogs}</h3>
+                            <p>Security Logs</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${stats.activeAnnouncements}</h3>
+                            <p>Active Announcements</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${stats.weekUsers}</h3>
+                            <p>New Users (7 days)</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${stats.weekMessages}</h3>
+                            <p>Messages (7 days)</p>
                         </div>
                     `;
+                    console.log('Setting statsGrid innerHTML:', statsHTML);
+                    const statsGrid = document.getElementById('statsGrid');
+                    console.log('statsGrid element found:', statsGrid);
+                    if (statsGrid) {
+                        statsGrid.innerHTML = statsHTML;
+                        console.log('Stats HTML set successfully');
+                        console.log('statsGrid display style:', statsGrid.style.display);
+                        console.log('statsGrid computed display:', window.getComputedStyle(statsGrid).display);
+                        console.log('statsGrid parent display:', window.getComputedStyle(statsGrid.parentElement).display);
+                    } else {
+                        console.error('statsGrid element not found!');
+                    }
                 } else {
-                    showAlert(result.error, 'error');
+                    showAlert('Failed to load stats: ' + result.error, 'error');
                 }
             } catch (error) {
-                showAlert('Failed to load stats: ' + error.message, 'error');
+                console.error('Error in loadStats:', error);
+                showAlert('Error loading stats: ' + error.message, 'error');
             }
         }
 
         async function loadUsers() {
+            if (!adminToken) {
+                console.warn('No admin token available for loadUsers');
+                return;
+            }
             try {
                 const response = await fetch('/api/admin/users', {
                     headers: { 'Authorization': `Bearer ${adminToken}` }
@@ -1021,20 +1163,22 @@
                                 <td>${user.username}</td>
                                 <td>${user.email || '-'}</td>
                                 <td>${status.join(' ')}</td>
-                                <td>${new Date(user.created_at).toLocaleDateString()}</td>
-                                <td>${user.last_login ? new Date(user.last_login).toLocaleString() : 'Never'}</td>
+                                                                  <td>${formatLocalTime(user.created_at)}</td>
+                                <td>${formatLocalTime(user.last_login)}</td>
                                 <td>
-                                    ${user.is_banned ? 
-                                        `<button class="btn btn-success" onclick="unbanUser('${user.id}')">Unban</button>` :
-                                        `<button class="btn btn-danger" onclick="banUser('${user.id}')">Ban</button>`
-                                    }
                                     <button class="btn btn-warning" onclick="resetPassword('${user.id}')">Reset Password</button>
                                     ${!user.is_admin ? 
                                         `<button class="btn" onclick="makeAdmin('${user.id}')">Make Admin</button>` :
                                         `<button class="btn btn-warning" onclick="removeAdmin('${user.id}')">Remove Admin</button>`
                                     }
+                                    ${!user.is_banned ? 
+                                        `<button class="btn btn-danger" onclick="banUser('${user.id}', '${user.username}')">Ban</button>` :
+                                        `<button class="btn btn-success" onclick="unbanUser('${user.id}', '${user.username}')">Unban</button>`
+                                    }
                                     <button class="btn btn-warning" onclick="clearUserGardens('${user.id}')">Clear Gardens</button>
                                     <button class="btn btn-danger" onclick="deleteUser('${user.id}')">Delete</button>
+                                    <button class="btn btn-info" onclick="showUserIPs('${user.id}', '${user.username}', '${user.registration_ip || ''}', '${user.last_login_ip || ''}')">View IPs</button>
+                                    <button class="btn btn-info" onclick="showUserDeviceFingerprint('${user.id}', '${user.username}', '${user.device_fingerprint || ''}')">View Device</button>
                                 </td>
                             </tr>
                         `;
@@ -1050,29 +1194,38 @@
             }
         }
 
-        function banUser(userId) {
-            currentUserId = userId;
-            document.getElementById('banModal').style.display = 'block';
+        function showUserIPs(userId, username, registrationIP, lastLoginIP) {
+            let ipInfo = `User: ${username} (ID: ${userId})\n\n`;
+            
+            if (registrationIP) {
+                ipInfo += `Registration IP: ${registrationIP}\n`;
+            } else {
+                ipInfo += `Registration IP: Not recorded\n`;
+            }
+            
+            if (lastLoginIP) {
+                ipInfo += `Last Login IP: ${lastLoginIP}\n`;
+            } else {
+                ipInfo += `Last Login IP: Not recorded\n`;
+            }
+            
+            ipInfo += `\nYou can use these IPs in the Security tab to ban them if needed.`;
+            
+            alert(ipInfo);
         }
 
-        function unbanUser(userId) {
-            if (confirm('Are you sure you want to unban this user?')) {
-                fetch(`/api/admin/users/${userId}/unban`, {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${adminToken}` }
-                })
-                .then(response => response.json())
-                .then(result => {
-                    if (result.message) {
-                        showAlert('User unbanned successfully!', 'success');
-                        loadUsers();
-                        loadStats();
-                    } else {
-                        showAlert(result.error, 'error');
-                    }
-                })
-                .catch(error => showAlert('Unban failed: ' + error.message, 'error'));
+        function showUserDeviceFingerprint(userId, username, deviceFingerprint) {
+            let deviceInfo = `User: ${username} (ID: ${userId})\n\n`;
+            
+            if (deviceFingerprint) {
+                deviceInfo += `Device Fingerprint: ${deviceFingerprint}\n`;
+                deviceInfo += `\nYou can copy this device fingerprint and use it in the Security tab to ban this device.`;
+                } else {
+                deviceInfo += `Device Fingerprint: Not recorded\n`;
+                deviceInfo += `\nThis user's device fingerprint has not been recorded yet.`;
             }
+            
+            alert(deviceInfo);
         }
 
         function resetPassword(userId) {
@@ -1139,22 +1292,61 @@
         }
 
         function clearUserGardens(userId) {
+            if (!adminToken) {
+                showAlert('No admin token available. Please log in again.', 'error');
+                return;
+            }
+            
             if (confirm('Are you sure you want to clear all gardens for this user? This action cannot be undone!')) {
                 fetch(`/api/admin/users/${userId}/clear-gardens`, {
                     method: 'POST',
                     headers: { 'Authorization': `Bearer ${adminToken}` }
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
                 .then(result => {
                     if (result.message) {
                         showAlert(`All gardens cleared successfully! (${result.gardensCleared} garden(s) cleared)`, 'success');
                         loadUsers();
                         loadStats();
                     } else {
+                        showAlert(result.error || 'Unknown error occurred', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Clear gardens error:', error);
+                    showAlert('Clear gardens failed: ' + error.message, 'error');
+                });
+            }
+        }
+
+        function banUser(userId, username) {
+            currentUserId = userId;
+            currentUsername = username;
+            document.getElementById('banModal').style.display = 'block';
+        }
+
+        function unbanUser(userId, username) {
+            if (confirm(`Are you sure you want to unban ${username}?`)) {
+                fetch(`/api/admin/users/${userId}/unban`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.message) {
+                        showAlert('User unbanned successfully!', 'success');
+                        loadUsers();
+                        loadStats();
+                    } else {
                         showAlert(result.error, 'error');
                     }
                 })
-                .catch(error => showAlert('Clear gardens failed: ' + error.message, 'error'));
+                .catch(error => showAlert('Unban failed: ' + error.message, 'error'));
             }
         }
 
@@ -1178,6 +1370,10 @@
         }
 
         async function loadAnnouncements() {
+            if (!adminToken) {
+                console.warn('No admin token available for loadAnnouncements');
+                return;
+            }
             try {
                 const response = await fetch('/api/admin/announcements', {
                     headers: { 'Authorization': `Bearer ${adminToken}` }
@@ -1199,7 +1395,7 @@
                                         <div>
                                             <span class="announcement-admin">${announcement.admin_username}</span>
                                         </div>
-                                        <span class="announcement-time">${new Date(announcement.created_at).toLocaleString()}</span>
+                                        <span class="announcement-time">${formatLocalTime(announcement.created_at)}</span>
                                     </div>
                                     <div class="announcement-message">${announcement.message}</div>
                                 </div>
@@ -1217,6 +1413,10 @@
         }
 
         async function loadLogs() {
+            if (!adminToken) {
+                console.warn('No admin token available for loadLogs');
+                return;
+            }
             try {
                 const filter = document.getElementById('logFilter').value;
                 const url = filter ? `/api/admin/logs?limit=100&filter=${encodeURIComponent(filter)}` : '/api/admin/logs?limit=100';
@@ -1248,7 +1448,7 @@
                                             <span class="log-action">${log.action}</span>
                                             ${log.target_username ? `<span class="log-target">→ ${log.target_username}</span>` : ''}
                                         </div>
-                                        <span class="log-time">${new Date(log.created_at).toLocaleString()}</span>
+                                        <span class="log-time">${formatLocalTime(log.created_at)}</span>
                                     </div>
                                     ${log.details ? `<div class="log-details">${log.details}</div>` : ''}
                                     ${log.ip_address ? `<div class="log-ip">IP: ${log.ip_address}</div>` : ''}
@@ -1263,6 +1463,26 @@
                 }
             } catch (error) {
                 showAlert('Failed to load logs: ' + error.message, 'error');
+            }
+        }
+
+        // Auto-refresh logs every 10 seconds when logs tab is active
+        let logsRefreshInterval;
+        function startLogsAutoRefresh() {
+            if (logsRefreshInterval) {
+                clearInterval(logsRefreshInterval);
+            }
+            logsRefreshInterval = setInterval(() => {
+                if (document.getElementById('logsTab').classList.contains('active')) {
+                    loadLogs();
+                }
+            }, 10000); // Refresh every 10 seconds
+        }
+
+        function stopLogsAutoRefresh() {
+            if (logsRefreshInterval) {
+                clearInterval(logsRefreshInterval);
+                logsRefreshInterval = null;
             }
         }
 
@@ -1334,6 +1554,10 @@
         });
 
         async function loadMutedUsers() {
+            if (!adminToken) {
+                console.warn('No admin token available for loadMutedUsers');
+                return;
+            }
             try {
                 const response = await fetch('/api/admin/muted-users', {
                     headers: { 'Authorization': `Bearer ${adminToken}` }
@@ -1361,12 +1585,12 @@
                                             <span class="muted-user-name">${user.username}</span>
                                             <span class="muted-user-status ${statusClass}">${statusText}</span>
                                         </div>
-                                        <span class="muted-user-time">${new Date(user.created_at).toLocaleString()}</span>
+                                        <span class="muted-user-time">${formatLocalTime(user.created_at)}</span>
                                     </div>
                                     <div class="muted-user-details">
                                         <div><strong>User ID:</strong> ${user.user_id}</div>
                                         <div><strong>Muted by:</strong> ${user.muted_by_admin_username}</div>
-                                        ${user.muted_until ? `<div><strong>Until:</strong> ${user.muted_until}</div>` : ''}
+                                        ${user.muted_until ? `<div><strong>Until:</strong> ${formatLocalTime(user.muted_until)}</div>` : ''}
                                         ${user.mute_reason ? `<div><strong>Reason:</strong> ${user.mute_reason}</div>` : ''}
                                     </div>
                                     ${user.status === 'active' || user.status === 'permanent' ? 
@@ -1412,6 +1636,10 @@
         }
 
         async function loadFilterWords() {
+            if (!adminToken) {
+                console.warn('No admin token available for loadFilterWords');
+                return;
+            }
             try {
                 const response = await fetch('/api/admin/chat-filter/words', {
                     headers: { 'Authorization': `Bearer ${adminToken}` }
@@ -1433,7 +1661,7 @@
                                         <div>
                                             <span class="filter-word-text">"${word.word}"</span>
                                         </div>
-                                        <span class="filter-word-time">${new Date(word.created_at).toLocaleString()}</span>
+                                        <span class="filter-word-time">${formatLocalTime(word.created_at)}</span>
                                     </div>
                                     <div class="filter-word-details">
                                         <div><strong>Added by:</strong> ${word.added_by_admin_username}</div>
@@ -1481,25 +1709,67 @@
 
         // Load security data
         async function loadSecurityData() {
-            await Promise.all([
-                loadBannedIPs(),
-                loadBannedDevices(),
-                loadSecurityLogs()
-            ]);
+            console.log('loadSecurityData called, adminToken:', adminToken ? 'present' : 'missing');
+            if (!adminToken) {
+                showAlert('No admin token available. Please log in again.', 'error');
+                return;
+            }
+            try {
+                console.log('Loading security data...');
+                
+                // Load each section individually with better error handling
+                try {
+                    await loadBannedIPs();
+                    console.log('Banned IPs loaded successfully');
+                } catch (error) {
+                    console.error('Error loading banned IPs:', error);
+                }
+                
+                try {
+                    await loadBannedDevices();
+                    console.log('Banned devices loaded successfully');
+                } catch (error) {
+                    console.error('Error loading banned devices:', error);
+                }
+                
+
+                
+                console.log('Security data loading completed');
+            } catch (error) {
+                console.error('Error loading security data:', error);
+                showAlert('Failed to load security data: ' + error.message, 'error');
+            }
         }
 
         // Load banned IPs
         async function loadBannedIPs() {
+            console.log('loadBannedIPs called');
+            if (!adminToken) {
+                console.warn('No admin token available for loadBannedIPs');
+                return;
+            }
             try {
+                console.log('Fetching banned IPs from /api/admin/banned-ips');
                 const response = await fetch('/api/admin/banned-ips', {
                     headers: { 'Authorization': `Bearer ${adminToken}` }
                 });
+                console.log('Banned IPs response status:', response.status);
                 const result = await response.json();
+                console.log('Banned IPs response:', result);
                 
                 if (response.ok) {
                     const bannedIPsList = document.getElementById('bannedIPsList');
+                    console.log('bannedIPsList element found:', bannedIPsList);
+                    if (!bannedIPsList) {
+                        console.error('Error: bannedIPsList element not found');
+                        showAlert('Error: bannedIPsList element not found', 'error');
+                        return;
+                    }
+                    
+                    console.log('Setting banned IPs content, count:', result.bannedIPs.length);
                     if (result.bannedIPs.length === 0) {
                         bannedIPsList.innerHTML = '<h5>Banned IP Addresses</h5><p>No banned IP addresses</p>';
+                        console.log('Set empty banned IPs list');
                     } else {
                         let html = '<h5>Banned IP Addresses</h5>';
                         result.bannedIPs.forEach(ip => {
@@ -1508,22 +1778,30 @@
                                     <div class="item-info">
                                         <strong>${ip.ip_address}</strong>
                                         <span class="item-meta">Banned by: ${ip.banned_by_admin_username}</span>
-                                        <span class="item-meta">Date: ${new Date(ip.created_at).toLocaleString()}</span>
+                                        <span class="item-meta">Date: ${formatLocalTime(ip.created_at)}</span>
                                         ${ip.reason ? `<span class="item-meta">Reason: ${ip.reason}</span>` : ''}
                                     </div>
                                 </div>
                             `;
                         });
                         bannedIPsList.innerHTML = html;
+                        console.log('Set banned IPs list with', result.bannedIPs.length, 'items');
                     }
+                } else {
+                    console.error('Failed to load banned IPs:', result.error);
+                    showAlert('Failed to load banned IPs: ' + result.error, 'error');
                 }
             } catch (error) {
                 console.error('Error loading banned IPs:', error);
+                showAlert('Error loading banned IPs: ' + error.message, 'error');
             }
         }
 
         // Load banned devices
         async function loadBannedDevices() {
+            if (!adminToken) {
+                return;
+            }
             try {
                 const response = await fetch('/api/admin/banned-devices', {
                     headers: { 'Authorization': `Bearer ${adminToken}` }
@@ -1532,6 +1810,10 @@
                 
                 if (response.ok) {
                     const bannedDevicesList = document.getElementById('bannedDevicesList');
+                    if (!bannedDevicesList) {
+                        showAlert('Error: bannedDevicesList element not found', 'error');
+                        return;
+                    }
                     if (result.bannedDevices.length === 0) {
                         bannedDevicesList.innerHTML = '<h5>Banned Devices</h5><p>No banned devices</p>';
                     } else {
@@ -1542,7 +1824,7 @@
                                     <div class="item-info">
                                         <strong>${device.device_fingerprint.substring(0, 16)}...</strong>
                                         <span class="item-meta">Banned by: ${device.banned_by_admin_username}</span>
-                                        <span class="item-meta">Date: ${new Date(device.created_at).toLocaleString()}</span>
+                                        <span class="item-meta">Date: ${formatLocalTime(device.created_at)}</span>
                                         ${device.reason ? `<span class="item-meta">Reason: ${device.reason}</span>` : ''}
                                     </div>
                                 </div>
@@ -1550,49 +1832,24 @@
                         });
                         bannedDevicesList.innerHTML = html;
                     }
+                } else {
+                    console.error('Failed to load banned devices:', result.error);
+                    showAlert('Failed to load banned devices: ' + result.error, 'error');
                 }
             } catch (error) {
                 console.error('Error loading banned devices:', error);
+                showAlert('Error loading banned devices: ' + error.message, 'error');
             }
         }
 
-        // Load security logs
-        async function loadSecurityLogs() {
-            try {
-                const response = await fetch('/api/admin/security-logs?limit=50', {
-                    headers: { 'Authorization': `Bearer ${adminToken}` }
-                });
-                const result = await response.json();
-                
-                if (response.ok) {
-                    const securityLogsList = document.getElementById('securityLogsList');
-                    if (result.securityLogs.length === 0) {
-                        securityLogsList.innerHTML = '<p>No security logs</p>';
-                    } else {
-                        let html = '';
-                        result.securityLogs.forEach(log => {
-                            html += `
-                                <div class="admin-item">
-                                    <div class="item-info">
-                                        <strong>${log.username || 'Unknown'}</strong>
-                                        <span class="item-meta">Action: ${log.action}</span>
-                                        <span class="item-meta">IP: ${log.ip_address || 'Unknown'}</span>
-                                        <span class="item-meta">Date: ${new Date(log.created_at).toLocaleString()}</span>
-                                        ${log.details ? `<span class="item-meta">Details: ${log.details}</span>` : ''}
-                                    </div>
-                                </div>
-                            `;
-                        });
-                        securityLogsList.innerHTML = html;
-                    }
-                }
-            } catch (error) {
-                console.error('Error loading security logs:', error);
-            }
-        }
+
 
         // Ban IP address
         async function banIP() {
+            if (!adminToken) {
+                showAlert('No admin token available. Please log in again.', 'error');
+                return;
+            }
             const ipAddress = document.getElementById('ipAddressInput').value.trim();
             const reason = document.getElementById('ipBanReasonInput').value.trim();
             
@@ -1628,6 +1885,10 @@
 
         // Unban IP address
         async function unbanIP() {
+            if (!adminToken) {
+                showAlert('No admin token available. Please log in again.', 'error');
+                return;
+            }
             const ipAddress = document.getElementById('ipAddressInput').value.trim();
             
             if (!ipAddress) {
@@ -1662,6 +1923,10 @@
 
         // Ban device
         async function banDevice() {
+            if (!adminToken) {
+                showAlert('No admin token available. Please log in again.', 'error');
+                return;
+            }
             const deviceFingerprint = document.getElementById('deviceFingerprintInput').value.trim();
             const reason = document.getElementById('deviceBanReasonInput').value.trim();
             
@@ -1697,6 +1962,10 @@
 
         // Unban device
         async function unbanDevice() {
+            if (!adminToken) {
+                showAlert('No admin token available. Please log in again.', 'error');
+                return;
+            }
             const deviceFingerprint = document.getElementById('deviceFingerprintInput').value.trim();
             
             if (!deviceFingerprint) {
@@ -1742,6 +2011,382 @@
                 clearInterval(window.adminStatsInterval);
             }
         });
+        
+        // Initialize dashboard when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check if we have a stored admin token
+            const storedToken = localStorage.getItem('adminToken');
+            if (storedToken) {
+                adminToken = storedToken;
+                showAdminSection();
+            } else {
+                // Ensure login page is shown if no token
+                document.getElementById('loginSection').style.display = 'block';
+                document.getElementById('adminSection').style.display = 'none';
+            }
+        });
+
+        // Function to handle logout
+        function logout() {
+            adminToken = null;
+            localStorage.removeItem('adminToken');
+            document.getElementById('adminSection').style.display = 'none';
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('loginForm').reset();
+            
+            // Clear any intervals
+            if (window.adminStatsInterval) {
+                clearInterval(window.adminStatsInterval);
+            }
+            if (logsRefreshInterval) {
+                clearInterval(logsRefreshInterval);
+            }
+        }
+
+        // ===== NEW SECURITY FUNCTIONS =====
+        
+        // New Load Security Data
+        async function newLoadSecurityData() {
+            console.log('newLoadSecurityData called, adminToken:', adminToken ? 'present' : 'missing');
+            if (!adminToken) {
+                showAlert('No admin token available. Please log in again.', 'error');
+                return;
+            }
+            
+            // First, let's test if the tab content is visible
+            const securityTab = document.getElementById('securityTab');
+            console.log('Security tab element:', securityTab);
+            console.log('Security tab display style:', securityTab ? securityTab.style.display : 'element not found');
+            console.log('Security tab classes:', securityTab ? securityTab.className : 'element not found');
+            
+            // Test if the admin sections are visible
+            const adminSections = securityTab ? securityTab.querySelectorAll('.admin-section') : [];
+            console.log('Found admin sections:', adminSections.length);
+            adminSections.forEach((section, index) => {
+                console.log(`Admin section ${index} display:`, section.style.display);
+                console.log(`Admin section ${index} classes:`, section.className);
+            });
+            
+            try {
+                console.log('Loading new security data...');
+                
+                // Load all sections
+                await Promise.all([
+                    newLoadBannedIPs(),
+                    newLoadBannedDevices()
+                ]);
+                
+                console.log('New security data loading completed');
+                
+                // Force show all admin sections
+                const adminSections = securityTab.querySelectorAll('.admin-section');
+                adminSections.forEach((section, index) => {
+                    section.style.display = 'block';
+                    console.log(`Forced display block on admin section ${index}`);
+                });
+            } catch (error) {
+                console.error('Error loading new security data:', error);
+                showAlert('Failed to load security data: ' + error.message, 'error');
+            }
+        }
+
+        // New Load Banned IPs
+        async function newLoadBannedIPs() {
+            console.log('newLoadBannedIPs called');
+            if (!adminToken) {
+                console.warn('No admin token available for newLoadBannedIPs');
+                return;
+            }
+            
+            try {
+                console.log('Fetching banned IPs from /api/admin/banned-ips');
+                const response = await fetch('/api/admin/banned-ips', {
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+                console.log('Banned IPs response status:', response.status);
+                const result = await response.json();
+                console.log('Banned IPs response:', result);
+                
+                const bannedIPsList = document.getElementById('newBannedIPsList');
+                console.log('newBannedIPsList element found:', bannedIPsList);
+                
+                if (!bannedIPsList) {
+                    console.error('Error: newBannedIPsList element not found');
+                    showAlert('Error: newBannedIPsList element not found', 'error');
+                    return;
+                }
+                
+                if (response.ok) {
+                    console.log('Setting new banned IPs content, count:', result.bannedIPs.length);
+                    if (result.bannedIPs.length === 0) {
+                        bannedIPsList.innerHTML = '<h5>Banned IP Addresses</h5><p>No banned IP addresses</p>';
+                        console.log('Set empty new banned IPs list');
+                    } else {
+                        let html = '<h5>Banned IP Addresses</h5>';
+                        result.bannedIPs.forEach(ip => {
+                            html += `
+                                <div class="admin-item">
+                                    <div class="item-info">
+                                        <strong>${ip.ip_address}</strong>
+                                        <span class="item-meta">Banned by: ${ip.banned_by_admin_username}</span>
+                                        <span class="item-meta">Date: ${formatLocalTime(ip.created_at)}</span>
+                                        ${ip.reason ? `<span class="item-meta">Reason: ${ip.reason}</span>` : ''}
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        bannedIPsList.innerHTML = html;
+                        console.log('Set new banned IPs list with', result.bannedIPs.length, 'items');
+                    }
+                } else {
+                    console.error('Failed to load banned IPs:', result.error);
+                    bannedIPsList.innerHTML = '<h5>Banned IP Addresses</h5><p>Error loading banned IPs: ' + result.error + '</p>';
+                }
+            } catch (error) {
+                console.error('Error loading banned IPs:', error);
+                const bannedIPsList = document.getElementById('newBannedIPsList');
+                if (bannedIPsList) {
+                    bannedIPsList.innerHTML = '<h5>Banned IP Addresses</h5><p>Error loading banned IPs: ' + error.message + '</p>';
+                }
+            }
+        }
+
+        // New Load Banned Devices
+        async function newLoadBannedDevices() {
+            console.log('newLoadBannedDevices called');
+            if (!adminToken) {
+                console.warn('No admin token available for newLoadBannedDevices');
+                return;
+            }
+            
+            try {
+                console.log('Fetching banned devices from /api/admin/banned-devices');
+                const response = await fetch('/api/admin/banned-devices', {
+                    headers: { 'Authorization': `Bearer ${adminToken}` }
+                });
+                console.log('Banned devices response status:', response.status);
+                const result = await response.json();
+                console.log('Banned devices response:', result);
+                
+                const bannedDevicesList = document.getElementById('newBannedDevicesList');
+                console.log('newBannedDevicesList element found:', bannedDevicesList);
+                
+                if (!bannedDevicesList) {
+                    console.error('Error: newBannedDevicesList element not found');
+                    showAlert('Error: newBannedDevicesList element not found', 'error');
+                    return;
+                }
+                
+                if (response.ok) {
+                    console.log('Setting new banned devices content, count:', result.bannedDevices.length);
+                    if (result.bannedDevices.length === 0) {
+                        bannedDevicesList.innerHTML = '<h5>Banned Devices</h5><p>No banned devices</p>';
+                        console.log('Set empty new banned devices list');
+                    } else {
+                        let html = '<h5>Banned Devices</h5>';
+                        result.bannedDevices.forEach(device => {
+                            html += `
+                                <div class="admin-item">
+                                    <div class="item-info">
+                                        <strong>${device.device_fingerprint.substring(0, 16)}...</strong>
+                                        <span class="item-meta">Banned by: ${device.banned_by_admin_username}</span>
+                                        <span class="item-meta">Date: ${formatLocalTime(device.created_at)}</span>
+                                        ${device.reason ? `<span class="item-meta">Reason: ${device.reason}</span>` : ''}
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        bannedDevicesList.innerHTML = html;
+                        console.log('Set new banned devices list with', result.bannedDevices.length, 'items');
+                    }
+                } else {
+                    console.error('Failed to load banned devices:', result.error);
+                    bannedDevicesList.innerHTML = '<h5>Banned Devices</h5><p>Error loading banned devices: ' + result.error + '</p>';
+                }
+            } catch (error) {
+                console.error('Error loading banned devices:', error);
+                const bannedDevicesList = document.getElementById('newBannedDevicesList');
+                if (bannedDevicesList) {
+                    bannedDevicesList.innerHTML = '<h5>Banned Devices</h5><p>Error loading banned devices: ' + error.message + '</p>';
+                }
+            }
+        }
+
+
+
+        // New Ban IP
+        async function newBanIP() {
+            console.log('newBanIP called');
+            if (!adminToken) {
+                showAlert('No admin token available. Please log in again.', 'error');
+                return;
+            }
+            
+            const ipAddress = document.getElementById('newIpAddressInput').value.trim();
+            const reason = document.getElementById('newIpBanReasonInput').value.trim();
+            
+            if (!ipAddress) {
+                showAlert('IP address is required', 'error');
+                return;
+            }
+            
+            try {
+                console.log('Banning IP:', ipAddress, 'Reason:', reason);
+                const response = await fetch('/api/admin/ban-ip', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify({ ipAddress, reason })
+                });
+                
+                const result = await response.json();
+                console.log('Ban IP response:', result);
+                
+                if (response.ok) {
+                    showAlert('IP address banned successfully', 'success');
+                    document.getElementById('newIpAddressInput').value = '';
+                    document.getElementById('newIpBanReasonInput').value = '';
+                    await newLoadBannedIPs();
+                } else {
+                    showAlert(result.error || 'Failed to ban IP address', 'error');
+                }
+            } catch (error) {
+                console.error('Error banning IP:', error);
+                showAlert('Failed to ban IP address: ' + error.message, 'error');
+            }
+        }
+
+        // New Unban IP
+        async function newUnbanIP() {
+            console.log('newUnbanIP called');
+            if (!adminToken) {
+                showAlert('No admin token available. Please log in again.', 'error');
+                return;
+            }
+            
+            const ipAddress = document.getElementById('newIpAddressInput').value.trim();
+            
+            if (!ipAddress) {
+                showAlert('IP address is required', 'error');
+                return;
+            }
+            
+            try {
+                console.log('Unbanning IP:', ipAddress);
+                const response = await fetch('/api/admin/unban-ip', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify({ ipAddress })
+                });
+                
+                const result = await response.json();
+                console.log('Unban IP response:', result);
+                
+                if (response.ok) {
+                    showAlert('IP address unbanned successfully', 'success');
+                    document.getElementById('newIpAddressInput').value = '';
+                    document.getElementById('newIpBanReasonInput').value = '';
+                    await newLoadBannedIPs();
+                } else {
+                    showAlert(result.error || 'Failed to unban IP address', 'error');
+                }
+            } catch (error) {
+                console.error('Error unbanning IP:', error);
+                showAlert('Failed to unban IP address: ' + error.message, 'error');
+            }
+        }
+
+        // New Ban Device
+        async function newBanDevice() {
+            console.log('newBanDevice called');
+            if (!adminToken) {
+                showAlert('No admin token available. Please log in again.', 'error');
+                return;
+            }
+            
+            const deviceFingerprint = document.getElementById('newDeviceFingerprintInput').value.trim();
+            const reason = document.getElementById('newDeviceBanReasonInput').value.trim();
+            
+            if (!deviceFingerprint) {
+                showAlert('Device fingerprint is required', 'error');
+                return;
+            }
+            
+            try {
+                console.log('Banning device:', deviceFingerprint, 'Reason:', reason);
+                const response = await fetch('/api/admin/ban-device', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify({ deviceFingerprint, reason })
+                });
+                
+                const result = await response.json();
+                console.log('Ban device response:', result);
+                
+                if (response.ok) {
+                    showAlert('Device banned successfully', 'success');
+                    document.getElementById('newDeviceFingerprintInput').value = '';
+                    document.getElementById('newDeviceBanReasonInput').value = '';
+                    await newLoadBannedDevices();
+                } else {
+                    showAlert(result.error || 'Failed to ban device', 'error');
+                }
+            } catch (error) {
+                console.error('Error banning device:', error);
+                showAlert('Failed to ban device: ' + error.message, 'error');
+            }
+        }
+
+        // New Unban Device
+        async function newUnbanDevice() {
+            console.log('newUnbanDevice called');
+            if (!adminToken) {
+                showAlert('No admin token available. Please log in again.', 'error');
+                return;
+            }
+            
+            const deviceFingerprint = document.getElementById('newDeviceFingerprintInput').value.trim();
+            
+            if (!deviceFingerprint) {
+                showAlert('Device fingerprint is required', 'error');
+                return;
+            }
+            
+            try {
+                console.log('Unbanning device:', deviceFingerprint);
+                const response = await fetch('/api/admin/unban-device', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify({ deviceFingerprint })
+                });
+                
+                const result = await response.json();
+                console.log('Unban device response:', result);
+                
+                if (response.ok) {
+                    showAlert('Device unbanned successfully', 'success');
+                    document.getElementById('newDeviceFingerprintInput').value = '';
+                    document.getElementById('newDeviceBanReasonInput').value = '';
+                    await newLoadBannedDevices();
+                } else {
+                    showAlert(result.error || 'Failed to unban device', 'error');
+                }
+            } catch (error) {
+                console.error('Error unbanning device:', error);
+                showAlert('Failed to unban device: ' + error.message, 'error');
+            }
+        }
     </script>
 </body>
 </html>

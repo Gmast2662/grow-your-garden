@@ -2,7 +2,756 @@
 
 This document contains every single update, bug fix, and change made to Grow Your Garden, including detailed technical information.
 
-## 🆕 Latest Updates (v1.6.3)
+## 🆕 Latest Updates (v1.7.0)
+
+### 🌱 NEW: Sprinkler Growth System
+- **Sprinkler Growth System Implementation**: Complete overhaul of sprinkler functionality
+- **Issue**: User reported "sprinklers dont grow crops"
+- **Solution**: Implemented continuous sprinkler growth system with automatic crop cultivation
+- **New Features**:
+  - **Continuous Growth**: Sprinklers now actively grow crops within their range every 30 seconds
+  - **Range-Based Growth**: Different sprinkler types provide different growth bonuses and ranges
+  - **Automatic Operation**: No manual intervention required - sprinklers work automatically in background
+  - **Growth Bonus System**: Sprinklers provide +20% to +80% growth bonus depending on type
+- **Technical Implementation**:
+  - Added `checkAllSprinklerGrowth()` function in `game.js` that iterates through all garden cells
+  - Integrated sprinkler growth check into main `gameLoop()` function for continuous operation
+  - Each sprinkler type has different range and growth bonus multipliers:
+    - Basic: 1 tile range, +20% growth
+    - Advanced: 2 tile range, +40% growth, +10% water efficiency
+    - Premium: 2 tile range, +60% growth, +20% water, +10% fertilizer
+    - Legendary: 3 tile range, +80% growth, +30% water, +20% fertilizer
+  - Growth occurs every 30 seconds while plants are within sprinkler range
+  - Console logging added for debugging and monitoring
+- **Result**: Sprinklers now properly grow crops automatically, providing continuous garden maintenance
+
+### 💰 NEW: Water and Fertilizer Purchase System
+- **Resource Purchase System**: New shop system for buying water and fertilizer with money
+- **Request**: User requested "a new button so you can buy water and fertilizer for money"
+- **Solution**: Implemented comprehensive resource purchase system with UI integration
+- **New Features**:
+  - **Water Purchase**: Buy water with money (always available, not seasonal)
+  - **Fertilizer Purchase**: Buy fertilizer with money (always available, not seasonal)
+  - **UI Integration**: Purchase buttons integrated into game interface with proper styling
+  - **Resource Management**: Players can now supplement their resources with money
+  - **Cost System**: Reasonable pricing that scales with game progression
+- **Technical Implementation**:
+  - Added `buyWater()` and `buyFertilizer()` functions to game logic in `game.js`
+  - Created global window functions (`window.buyWater`, `window.buyFertilizer`) for button integration
+  - Fixed UI update issues by correcting property names (`waterInventory` → `water`, `fertilizerInventory` → `fertilizer`)
+  - Integrated with existing money and inventory systems
+  - Added proper error handling and success feedback
+- **Result**: Players can now purchase water and fertilizer with money, providing additional resource management options
+
+### 🎮 ENHANCED: Season Management
+- **Season Management Fixes**: Comprehensive fixes for season display and UI update issues
+- **Issue**: User reported "when i change the season, it says it goes to spring and the ui stays the same"
+- **Solution**: Fixed season display and UI update issues with proper DOM handling
+- **Fixes**:
+  - **Season Display**: Fixed `setSeason()` function to properly call `updateSeasonDisplay()`
+  - **UI Updates**: Added `saveGame()` call to ensure season changes are persisted
+  - **DOM Reflow**: Added force reflow to ensure UI elements update properly
+  - **Shop Restock**: Season changes now properly trigger shop restocking with correct inventory
+- **Technical Implementation**:
+  - Modified `setSeason()` function in `game.js` to call `updateSeasonDisplay()` and `saveGame()`
+  - Added `offsetHeight` calls to force DOM reflow in `updateSeasonDisplay()` function
+  - Ensured season changes trigger proper shop inventory updates
+  - Fixed timezone handling for season calculations
+- **Result**: Season changes now properly update the UI and persist correctly
+
+### 👥 FIXED: Friend Request System
+- **Friend Request Bug Fix**: Fixed self-acceptance bug in friend request system
+- **Issue**: User reported "when i send a friend request i can accept it on the account i sent it from"
+- **Solution**: Fixed friend request self-acceptance bug with proper request filtering
+- **Technical Implementation**:
+  - Modified server-side `/api/users/:userId/friends` endpoint in `server.js` to include `request_type` field
+  - Updated client-side `loadFriendsList()` function in `game.js` to filter requests based on `request_type`
+  - Added proper filtering to prevent self-acceptance of friend requests
+  - Enhanced database query to include request direction information
+- **Result**: Users can no longer accept friend requests from their own account
+
+### 🎨 ENHANCED: Purchase Section UI
+- **Purchase Section UI Enhancement**: Improved placement and styling of resource purchase section
+- **Issue**: User reported "the shop for buying more water and fertilizer is in the middle of the seed shop"
+- **Solution**: Moved and improved purchase section placement and styling
+- **UI Improvements**:
+  - **Better Placement**: Moved purchase section to separate area after seed shop
+  - **Enhanced Styling**: Applied comprehensive CSS improvements for better visual appeal
+  - **Professional Design**: Consistent styling with hover effects and modern appearance
+  - **Visual Hierarchy**: Improved layout and user experience
+- **Technical Implementation**:
+  - Relocated purchase section HTML in `index.html` to separate `div` with class `purchase-shop`
+  - Added extensive CSS styling in `styles.css` for `.purchase-shop`, `.purchase-item`, and `.purchase-btn`
+  - Improved visual hierarchy and user experience
+  - Enhanced responsive design for different screen sizes
+- **Result**: Purchase section now has proper placement and professional appearance
+
+### 🛡️ NEW: Device Fingerprinting System
+- **Device Fingerprinting Implementation**: Comprehensive device identification system for enhanced security
+- **Request**: User asked "what does device fingerprint hash mean" and "how do i get the device fingerprint hash"
+- **Solution**: Implemented comprehensive device fingerprinting system with admin tools
+- **New Features**:
+  - **Device Identification**: Unique hash generated from device characteristics (IP, User-Agent, headers)
+  - **Security Enhancement**: Enables device-based banning for better security
+  - **Admin Tools**: Admins can view device fingerprints in user management tab
+  - **Automatic Generation**: Fingerprints generated on registration and login
+  - **Hash Generation**: SHA256 hash of device characteristics for consistent identification
+- **Technical Implementation**:
+  - Created `generateDeviceFingerprint()` function in `auth.js` using crypto SHA256
+  - Integrated fingerprint generation into registration and login processes
+  - Added device fingerprint storage in `users` table with `device_fingerprint` column
+  - Implemented device fingerprint viewing in admin panel with "View Device" button
+  - Added proper error handling and fallback for missing fingerprints
+- **Result**: Enhanced security system with device-based identification and banning capabilities
+
+### 📊 ENHANCED: Admin Dashboard Statistics
+- **Dashboard Statistics Enhancement**: Added comprehensive statistics to admin dashboard
+- **Issue**: User reported "a lot of the old stats are still missing" from dashboard
+- **Solution**: Added 7 new comprehensive statistics to provide better admin insights and monitoring capabilities
+- **New Statistics Added**:
+  - **Banned IPs count**: Total number of banned IP addresses from `banned_ips` table
+  - **Banned Devices count**: Total number of banned device fingerprints from `banned_devices` table
+  - **Security Logs count**: Total number of security log entries from `security_logs` table
+  - **Active Announcements count**: Number of currently active announcements (where `is_active = 1`)
+  - **New Users (7 days)**: Users registered in the last 7 days for growth tracking
+  - **Messages (7 days)**: Chat messages sent in the last 7 days for activity monitoring
+- **Technical Implementation**: 
+  - Enhanced `/api/admin/stats` endpoint in `admin.js` with 6 additional Promise-based database queries
+  - Updated admin panel HTML template to display new statistics in stat cards
+  - Added proper error handling with fallback to 0 for all new statistics
+  - Used `datetime('now', '-7 days')` for time-based statistics to ensure accurate date calculations
+  - All new queries follow the same pattern as existing statistics for consistency
+- **Database Queries Added**:
+  - `SELECT COUNT(*) as banned_ips FROM banned_ips`
+  - `SELECT COUNT(*) as banned_devices FROM banned_devices`
+  - `SELECT COUNT(*) as security_logs FROM security_logs`
+  - `SELECT COUNT(*) as active_announcements FROM announcements WHERE is_active = 1`
+  - `SELECT COUNT(*) as week_users FROM users WHERE created_at >= datetime('now', '-7 days')`
+  - `SELECT COUNT(*) as week_messages FROM chat_messages WHERE created_at >= datetime('now', '-7 days')`
+- **Result**: Dashboard now provides comprehensive server statistics for better admin monitoring and decision-making
+
+### 🔧 FIXED: Ban and Mute Reason Requirements
+- **Ban Endpoint Issue**: The `/api/admin/users/:userId/ban` endpoint was requiring a reason even when the UI indicated it was optional
+  - **Root Cause**: Server-side validation `if (!reason) return error` was blocking requests without reasons
+  - **Solution**: Modified endpoint to accept optional reasons with fallback to "No reason provided"
+  - **Code Changes**: 
+    - `admin.js` line 477: Replaced `if (!reason) return error` with `const banReason = reason || 'No reason provided'`
+    - Updated all database operations to use `banReason` instead of `reason`
+- **Permanent Mute Issue**: Permanent mutes were not being enforced due to SQL query logic errors
+  - **Root Cause**: SQL queries using `datetime('now')` without timezone specification and incorrect NULL handling
+  - **Solution**: Updated all mute-related queries to use `datetime('now', 'localtime')` and fixed NULL logic
+  - **Code Changes**:
+    - `server.js` line 471: Updated chat message mute check query
+    - `admin.js` line 935: Updated muted users count query  
+    - `auth.js` line 131: Updated login mute check query
+- **Technical Details**:
+  - The original query `(muted_until IS NULL OR muted_until > datetime('now'))` failed for permanent mutes
+  - When `muted_until` is NULL, the condition `muted_until > datetime('now')` evaluates to NULL
+  - `NULL OR NULL` is still NULL (falsy), so permanent mutes were not detected
+  - Using `datetime('now', 'localtime')` ensures proper timezone handling
+- **Mute Enforcement Logic Fix**: Fixed JavaScript logic that was preventing mute enforcement
+  - **Issue**: Even after fixing SQL queries, mute enforcement was still not working for permanent mutes without reasons
+  - **Root Cause**: JavaScript conditions were too restrictive, requiring either `muted_until` or `mute_reason` to be non-null
+  - **Solution**: Simplified mute enforcement logic to check only for the existence of mute data
+  - **Code Changes**:
+    - `server.js` line 482: Changed `if (muteData && (muteData.muted_until !== null || muteData.mute_reason !== null))` to `if (muteData)`
+    - `auth.js` line 149: Changed `if (user.mute_reason !== null)` to `if (user.muted_until !== null || user.mute_reason !== null)`
+- **Result**: 
+  - Ban reasons are now truly optional as indicated in the UI
+  - Permanent mutes now work correctly whether a reason is provided or not
+  - Temporary mutes continue to work as expected
+
+### 🎮 ENHANCED: Main Game UI Improvements
+- **Main Game UI Enhancement**: Moved account, support, and logout buttons to main menu for better accessibility
+- **Request**: User requested to move logout button to menu and add account settings and support buttons
+- **Solution**: Moved account, support, and logout buttons to the main menu with proper event handling
+- **New Features**:
+  - **Account Settings Button**: Opens modal with user info, game settings, and data management options
+    - Shows username and account status
+    - Sound effects toggle with localStorage persistence
+    - Export/Import game data functionality
+    - Clean modal interface with proper event handling
+  - **Support Button**: Opens comprehensive support modal with contact information
+    - Direct email link to `gardengamemain@gmail.com`
+    - Common issues section with troubleshooting tips
+    - Response time information and contact guidelines
+    - Professional support interface
+  - **Logout Button**: Moved from dynamic creation to header with confirmation dialog
+    - Confirms logout action with user
+    - Automatically saves current game progress
+    - Clears all authentication tokens and localStorage
+    - Redirects to login page
+- **UI Improvements**:
+  - Moved account, support, and logout buttons to the main menu for better accessibility
+  - Added dedicated menu-buttons section with vertical layout
+  - Enhanced button styling with hover effects and shadows
+  - Blue color scheme for account button, orange for support, red for logout
+  - Responsive design that works on all screen sizes
+- **Technical Implementation**:
+  - Moved buttons from header to main menu in `index.html` for better accessibility
+  - Added event listeners for menu buttons in DOMContentLoaded event in `game.js`
+  - Created `showAccountSettings()`, `showSupport()`, and `logout()` functions in MenuSystem class
+  - Proper modal management with click-outside-to-close functionality
+  - Integration with existing game save system
+  - Updated `styles.css` with dedicated menu button styles and enhanced hover effects
+- **Result**: Professional game interface with account management, support, and logout functionality accessible from the main menu
+
+## 🆕 Latest Updates (v1.6.26)
+
+### 📊 ENHANCED: Dashboard Statistics
+- **Dashboard Statistics Enhancement**: Added comprehensive statistics to admin dashboard
+- **Issue**: User reported "a lot of the old stats are still missing" from dashboard
+- **Solution**: Added 7 new comprehensive statistics to provide better admin insights and monitoring capabilities
+- **New Statistics Added**:
+  - **Banned IPs count**: Total number of banned IP addresses from `banned_ips` table
+  - **Banned Devices count**: Total number of banned device fingerprints from `banned_devices` table
+  - **Security Logs count**: Total number of security log entries from `security_logs` table
+  - **Active Announcements count**: Number of currently active announcements (where `is_active = 1`)
+  - **New Users (7 days)**: Users registered in the last 7 days for growth tracking
+  - **Messages (7 days)**: Chat messages sent in the last 7 days for activity monitoring
+- **Technical Implementation**: 
+  - Enhanced `/api/admin/stats` endpoint in `admin.js` with 6 additional Promise-based database queries
+  - Updated admin panel HTML template to display new statistics in stat cards
+  - Added proper error handling with fallback to 0 for all new statistics
+  - Used `datetime('now', '-7 days')` for time-based statistics to ensure accurate date calculations
+  - All new queries follow the same pattern as existing statistics for consistency
+- **Database Queries Added**:
+  - `SELECT COUNT(*) as banned_ips FROM banned_ips`
+  - `SELECT COUNT(*) as banned_devices FROM banned_devices`
+  - `SELECT COUNT(*) as security_logs FROM security_logs`
+  - `SELECT COUNT(*) as active_announcements FROM announcements WHERE is_active = 1`
+  - `SELECT COUNT(*) as week_users FROM users WHERE created_at >= datetime('now', '-7 days')`
+  - `SELECT COUNT(*) as week_messages FROM chat_messages WHERE created_at >= datetime('now', '-7 days')`
+- **Result**: Dashboard now provides comprehensive server statistics for better admin monitoring and decision-making
+
+## 🆕 Latest Updates (v1.6.25)
+
+### 🔧 FIXED: Ban and Mute Reason Requirements
+- **Ban Endpoint Issue**: The `/api/admin/users/:userId/ban` endpoint was requiring a reason even when the UI indicated it was optional
+  - **Root Cause**: Server-side validation `if (!reason) return error` was blocking requests without reasons
+  - **Solution**: Modified endpoint to accept optional reasons with fallback to "No reason provided"
+  - **Code Changes**: 
+    - `admin.js` line 477: Replaced `if (!reason) return error` with `const banReason = reason || 'No reason provided'`
+    - Updated all database operations to use `banReason` instead of `reason`
+- **Permanent Mute Issue**: Permanent mutes were not being enforced due to SQL query logic errors
+  - **Root Cause**: SQL queries using `datetime('now')` without timezone specification and incorrect NULL handling
+  - **Solution**: Updated all mute-related queries to use `datetime('now', 'localtime')` and fixed NULL logic
+  - **Code Changes**:
+    - `server.js` line 471: Updated chat message mute check query
+    - `admin.js` line 935: Updated muted users count query  
+    - `auth.js` line 131: Updated login mute check query
+- **Technical Details**:
+  - The original query `(muted_until IS NULL OR muted_until > datetime('now'))` failed for permanent mutes
+  - When `muted_until` is NULL, the condition `muted_until > datetime('now')` evaluates to NULL
+  - `NULL OR NULL` is still NULL (falsy), so permanent mutes were not detected
+  - Using `datetime('now', 'localtime')` ensures proper timezone handling
+- **Mute Enforcement Logic Fix**: Fixed JavaScript logic that was preventing mute enforcement
+  - **Issue**: Even after fixing SQL queries, mute enforcement was still not working for permanent mutes without reasons
+  - **Root Cause**: JavaScript conditions were too restrictive, requiring either `muted_until` or `mute_reason` to be non-null
+  - **Solution**: Simplified mute enforcement logic to check only for the existence of mute data
+  - **Code Changes**:
+    - `server.js` line 482: Changed `if (muteData && (muteData.muted_until !== null || muteData.mute_reason !== null))` to `if (muteData)`
+    - `auth.js` line 149: Changed `if (user.mute_reason !== null)` to `if (user.muted_until !== null || user.mute_reason !== null)`
+- **Result**: 
+  - Ban reasons are now truly optional as indicated in the UI
+  - Permanent mutes now work correctly whether a reason is provided or not
+  - Temporary mutes continue to work as expected
+  - All mute enforcement is now consistent across login, chat, and admin functions
+  - Mute enforcement logic now properly handles all mute types regardless of reason presence
+
+## 🆕 Latest Updates (v1.6.24)
+
+### 🧹 CLEANUP: Removed Redundant Security Logs Section
+- **Security Logs Redundancy Removal**: Eliminated duplicate logging functionality between Security and Logs tabs
+  - **Issue**: Security tab contained a "Security Logs" section that was redundant with the general "Logs" tab
+  - **Analysis**: Both sections were querying the same `admin_logs` table and showing essentially the same information
+  - **Solution**: Removed the Security Logs section from the Security tab to eliminate redundancy
+  - **Cleanup**: 
+    - Removed Security Logs HTML section from Security tab
+    - Removed `loadSecurityLogs()` and `newLoadSecurityLogs()` JavaScript functions
+    - Removed security logs loading from `newLoadSecurityData()` function
+  - **Result**: Cleaner Security tab focused on IP and Device management, with logs available in the dedicated Logs tab
+
+## 🆕 Latest Updates (v1.6.23)
+
+### 🔄 RESTORED: User Account Ban Functionality
+- **User Account Ban Restoration**: Re-introduced ban functionality to User tab as requested
+  - **Issue**: User requested to keep "normal ban" functionality for user accounts
+  - **Solution**: Re-introduced ban/unban buttons and modal to User tab
+  - **Features**: 
+    - Ban button for non-banned users, Unban button for banned users
+    - Ban modal with optional reason field
+    - Proper form handling and API integration
+    - Success/error feedback and automatic user list refresh
+  - **Result**: Admins can now ban user accounts directly from User tab while still having IP/device banning in Security tab
+
+### 📚 ADDED: Device Fingerprint Hash Explanation
+- **Device Fingerprint Documentation**: Provided detailed explanation of device fingerprinting
+- **Feature**: Provided detailed explanation of device fingerprint hashing
+- **Purpose**: Helps admins understand what device fingerprinting means in the Security tab
+- **Explanation**: Device fingerprint combines browser details, system info, hardware characteristics, and network info to create unique device identifiers
+
+### 🔍 ADDED: Device Fingerprint Viewing in User Tab
+- **Device Fingerprint Access**: Added easy way to view device fingerprints in admin panel
+- **Feature**: Added "View Device" button to user table in admin panel
+- **Purpose**: Allows admins to easily view and copy device fingerprints for banning
+- **Implementation**: 
+  - New "View Device" button next to "View IPs" button in user table
+  - `showUserDeviceFingerprint()` function displays device fingerprint in alert dialog
+  - Shows full device fingerprint hash for copying to Security tab
+  - Handles cases where device fingerprint is not recorded
+- **Result**: Admins can now easily obtain device fingerprints from the User tab to use in the Security tab for device banning
+
+### 🔧 FIXED: Device Fingerprint Generation and Storage
+- **Device Fingerprint Implementation**: Fixed missing device fingerprint generation in authentication system
+- **Issue**: Device fingerprints were "not recorded" even after user logins
+- **Root Cause**: No device fingerprint generation code was implemented in the authentication system
+- **Fix**: Added `generateDeviceFingerprint()` function that creates SHA256 hash from IP + User-Agent + Accept headers
+- **Fix**: Updated registration route to generate and store device fingerprint during user creation
+- **Fix**: Updated login route to generate and store device fingerprint during login
+- **Implementation**: 
+  - Added crypto module import for SHA256 hashing
+  - Device fingerprint combines IP address, User-Agent, Accept headers, Accept-Language, and Accept-Encoding
+  - Stored in `device_fingerprint` column during registration and updated during login
+- **Result**: Device fingerprints are now properly generated and stored for all users
+
+## 🆕 Latest Updates (v1.6.22)
+
+### 🔧 FIXED: Permanent Mute Issue & User Tab Cleanup
+- **Permanent Mute Logic Fix**: Fixed critical bug where permanent mutes only worked with reasons
+  - **Issue**: Permanent mutes only worked if a reason was provided (reason should be optional)
+  - **Root Cause**: Login logic in auth.js was checking `mute_reason !== null && muted_until !== null` which failed for permanent mutes
+  - **Fix**: Updated login logic to properly handle permanent mutes by checking `mute_reason !== null` first, then handling temporary vs permanent separately
+  - **Result**: Permanent mutes now work correctly whether a reason is provided or not
+
+### 🧹 CLEANUP: Removed Ban Options from User Tab
+- **User Tab Interface Cleanup**: Removed duplicate ban functionality from User tab
+  - **Issue**: Ban options were duplicated between User tab and Security tab
+  - **Solution**: Removed ban/unban buttons and functions from User tab
+  - **Added**: "View IPs" button to show user's registration and last login IP addresses
+  - **Result**: Cleaner User tab interface with no duplicate functionality
+
+### 📍 ADDED: User IP Information Display
+- **User IP Information Feature**: New button to display user IP addresses
+  - **Feature**: New "View IPs" button in User tab shows:
+    - User's registration IP address
+    - User's last login IP address
+    - Instructions to use these IPs in Security tab for banning
+  - **Purpose**: Helps admins identify and ban problematic IP addresses
+  - **Implementation**: Simple alert dialog showing IP information
+
+## 🆕 Latest Updates (v1.6.21)
+
+### 🔧 FIXED: Security Tab Complete Rebuild
+- **Security Tab Complete Rebuild**: Replaced non-working security tab with completely new implementation
+  - **Issue**: Security tab was not working despite multiple debugging attempts and fixes
+  - **Solution**: Created entirely new security tab with fresh HTML elements and JavaScript functions
+  - **New Elements**: All security tab elements now have "new" prefix (newBannedIPsList, newSecurityLogsList, etc.)
+  - **New Functions**: All security functions now have "new" prefix (newLoadSecurityData, newBanIP, etc.)
+  - **Enhanced Debugging**: Added comprehensive console logging to all new security functions
+  - **Error Handling**: Improved error handling with better user feedback and fallback displays
+  - **Functionality**: Maintains all original security features (IP banning, device banning, security logs)
+  - **Result**: Fresh, working security tab with better debugging and error handling
+
+### 🔍 DEBUGGING: Security Tab Display Issues
+- **Security Tab Display Investigation**: Added debugging to identify why admin sections are not visible
+  - **Issue**: Security tab still only shows refresh button despite complete rebuild
+  - **Debugging**: Added extensive console logging to check tab visibility and admin section display
+  - **Test**: Added forced display block on admin sections to test if CSS is hiding content
+  - **Next Steps**: Analyze console output to identify why admin sections are not visible
+
+### 🔧 FIXED: Admin Panel UI & Login State Management
+- **Admin Panel Login UI Fix**: Fixed tabs being visible on login page
+  - **Issue**: Navigation tabs were visible even when user was on login page
+  - **Fix**: Added `display: none;` to `.admin-section` CSS to hide admin content by default
+  - **Fix**: Admin section now only shows after successful login
+  - **Result**: Clean login page without confusing navigation elements
+- **Login State Persistence**: Added localStorage token storage and proper logout functionality
+  - **Issue**: Admin had to log in every time they refreshed the page
+  - **Fix**: Added localStorage token persistence for admin sessions
+  - **Fix**: Added proper logout function with token cleanup
+  - **Fix**: Added logout button to admin panel header
+  - **Result**: Persistent admin sessions and proper logout functionality
+- **Admin Panel Navigation**: Improved admin section visibility control
+  - **Issue**: No way to logout from admin panel
+  - **Fix**: Added logout button in admin panel header
+  - **Fix**: Added welcome message for logged-in admin
+  - **Result**: Better admin panel navigation and user experience
+- **Dashboard & Security Tab Issues**: Fixed dashboard stats and security tab loading problems
+  - **Issue**: Dashboard stats and security tab were not working after login
+  - **Fix**: Added comprehensive debugging logs to track function calls and API responses
+  - **Fix**: Enhanced error handling and debugging for better troubleshooting
+  - **Fix**: Added detailed DOM element detection and HTML insertion logging
+  - **Result**: Better visibility into dashboard and security tab loading issues
+- **Login Page Redirect**: Fixed issue where login page wasn't showing on page refresh
+  - **Issue**: When refreshing the page without being logged in, the login page wasn't displayed
+  - **Fix**: Added proper logic in DOMContentLoaded to show login page when no token is stored
+  - **Result**: Proper login page display on page refresh when not authenticated
+- **Tab Visibility Debugging**: Added comprehensive debugging to identify display issues
+  - **Issue**: Dashboard and security tabs were not displaying content despite API calls working
+  - **Fix**: Added debugging logs to showTab function and loadStats function to track tab activation and content display
+  - **Fix**: Modified showAdminSection to explicitly call showTab('dashboard') to ensure proper tab activation
+  - **Result**: Better visibility into tab switching and content display issues
+- **Friend Request Self-Acceptance Fix**: Fixed users being able to accept their own friend requests
+  - **Issue**: Users could see and accept their own sent friend requests in the pending requests list
+  - **Fix**: Modified server-side friends API endpoint to include request_type field distinguishing sent vs received requests
+  - **Fix**: Updated client-side filtering in game.js to only show received requests in pending requests section
+  - **Result**: Users can no longer accept their own friend requests, fixing the friend system logic
+- **Permanent Mute Investigation**: Investigating reported issues with permanent mute functionality
+  - **Issue**: User reported that permanent mutes are not working properly
+  - **Status**: Examining admin panel mute form and server-side mute handling logic
+  - **Next Steps**: Need to verify mute application and enforcement in chat message handling
+- **Dashboard & Security Tab Debugging**: Enhanced debugging for ongoing tab display issues
+  - **Issue**: Dashboard stats and security tab content still not displaying despite previous fixes
+  - **Status**: Comprehensive debugging logs added to track function calls, API responses, and DOM manipulation
+  - **Next Steps**: Awaiting user console output to identify why content is not being displayed despite successful API calls
+- **Dashboard & Security Tab Display Fix**: Resolved critical CSS visibility issue
+  - **Issue**: Dashboard stats and security tab content not displaying despite API calls working correctly
+  - **Root Cause**: CSS rule `.tab-content { display: none; }` was overriding `.tab-content.active { display: block; }`
+  - **Fix**: Added `!important` declaration to `.tab-content.active { display: block !important; }` to ensure active tabs are visible
+  - **Fix**: Fixed "undefined" Chat Messages stat by handling both `totalMessages` and `totalChatMessages` API response fields
+  - **Result**: Dashboard and security tabs now properly display content and statistics
+- **Sprinkler Growth System Investigation**: Examining reported sprinkler functionality issues
+  - **Issue**: User reported that sprinklers don't grow crops as expected
+  - **Status**: Examining sprinkler growth logic and game loop integration
+  - **Findings**: Sprinkler growth function exists and is being called in game loop
+  - **Next Steps**: Need to verify if sprinkler bonus calculation is working correctly
+- **Water & Fertilizer Purchase System**: New shop feature for resource management
+  - **New Feature**: Added water and fertilizer purchase buttons to the shop interface
+  - **Water Cost**: $5 per water unit for plant watering
+  - **Fertilizer Cost**: $10 per fertilizer unit for plant fertilization
+  - **Functionality**: Players can now purchase water and fertilizer for money instead of relying only on upgrades
+  - **UI Enhancement**: Added attractive purchase section with hover effects, clear pricing, and descriptive text
+  - **Integration**: Purchase functions properly update inventory, money, and save game state
+  - **User Experience**: Provides more control over resource management and strategic gameplay
+  - **Result**: Players have better control over their water and fertilizer supply for optimal plant growth
+
+
+## 🆕 Previous Updates (v1.6.18)
+
+### 🔧 CHANGED: Console Cleanup & Enhanced User Activity Logging
+- **Console Cleanup**: Removed excessive debug messages from admin panel and server
+  - **Issue**: Console was cluttered with verbose debug messages making it hard to read
+  - **Fix**: Removed unnecessary console.log statements from admin panel functions
+  - **Fix**: Cleaned up server-side logging while maintaining essential error logging
+  - **Result**: Much cleaner and more readable console output
+- **Enhanced User Activity Logging**: Added clear, informative messages for important user events
+  - **User Online/Offline**: Clear status messages when users connect/disconnect
+  - **Account Creation**: Logs when new accounts are created with IP information
+  - **User Login**: Enhanced login logging with admin status indication
+  - **Friend Activities**: Logs friend requests, acceptances, rejections, and unfriending
+  - **Message Blocking**: Clear logging when messages are blocked due to mutes or filters
+- **Improved Console Organization**: Console messages are now more focused and professional
+  - **Issue**: Console output was disorganized and hard to monitor
+  - **Fix**: Standardized message format with emojis and clear descriptions
+  - **Fix**: Organized messages by activity type for better monitoring
+  - **Result**: Professional, easy-to-read console output for monitoring user activities
+
+## 🆕 Previous Updates (v1.6.17)
+
+### 🔧 FIXED: Critical Login Issue & Enhanced Admin Panel Debugging
+- **Permanent Mute Login Fix**: Fixed permanently muted users being unable to log in
+  - **Issue**: Permanently muted users were blocked from logging in entirely
+  - **Fix**: Removed login blocking for permanently muted users in auth.js
+  - **Fix**: Permanently muted users can now log in and play, but cannot send chat messages
+  - **Result**: Non-disruptive permanent mutes that don't block login
+- **Admin Panel Initialization**: Added proper initialization for dashboard data loading
+  - **Issue**: Dashboard data was not loading automatically when admin panel opened
+  - **Fix**: Added DOMContentLoaded event listener for proper page setup
+  - **Fix**: Dashboard data now loads automatically when admin panel opens
+  - **Result**: Better user experience with automatic data loading
+- **Security Tab DOM Verification**: Added comprehensive DOM element verification
+  - **Issue**: Security tab functions were failing silently when DOM elements were missing
+  - **Fix**: Added checks to ensure all required DOM elements exist before updating
+  - **Fix**: Added user-friendly error messages when elements are missing
+  - **Result**: Better error handling and debugging for security tab issues
+- **Enhanced Error Handling**: Improved error messages and debugging throughout admin panel
+  - **Issue**: Limited visibility into admin panel operation issues
+  - **Fix**: Added comprehensive console logging and error alerts
+  - **Fix**: Enhanced debugging output for troubleshooting admin panel issues
+  - **Result**: Better troubleshooting capabilities for admin panel problems
+
+## 🆕 Previous Updates (v1.6.16)
+
+### 🔧 FIXED: Admin Panel Debugging & Permanent Mute Connection Issues
+- **Security Tab Debugging**: Enhanced debugging and error handling for security data loading
+  - **Issue**: Security tab was not displaying content despite backend working correctly
+  - **Fix**: Added comprehensive console logging and token validation checks
+  - **Fix**: Added element verification to ensure DOM elements exist before updating
+  - **Result**: Better visibility into security tab loading issues for troubleshooting
+- **Permanent Mute Connection Fix**: Fixed permanent mutes disconnecting users on refresh
+  - **Issue**: Permanently muted users were being blocked from connecting to the server
+  - **Fix**: Removed connection blocking for permanently muted users in server.js
+  - **Fix**: Permanently muted users can now connect and play, but cannot send chat messages
+  - **Result**: Non-disruptive permanent mutes that don't disconnect users
+- **Mute Reason Confirmation**: Confirmed mute reason is optional (no backend requirement)
+  - **Issue**: User reported that permanent mutes need a reason
+  - **Verification**: Backend code confirms reason is optional (reason || null)
+  - **Result**: Mute reasons remain optional as intended
+- **Clear Gardens Debugging**: Enhanced debugging for clear gardens functionality
+  - **Issue**: Clear gardens function was not working properly
+  - **Fix**: Added comprehensive logging and token validation for clear gardens
+  - **Result**: Better visibility into clear gardens operation for troubleshooting
+
+## 🆕 Previous Updates (v1.6.15)
+
+### 🔧 FIXED: Admin Panel Security Tab & Mute System Improvements
+- **Security Tab Functionality**: Fixed security tab not working properly
+  - **Issue**: Security tab was missing CSS styles and had incomplete functionality
+  - **Fix**: Added missing CSS styles for admin-input-group, admin-list, admin-item, and item-info classes
+  - **Fix**: Enhanced error handling in security data loading functions
+  - **Result**: Security tab now displays banned IPs, devices, and security logs correctly
+- **Permanent Mute Behavior**: Changed permanent mutes to not log out users
+  - **Issue**: Permanent mutes were disconnecting users from the server entirely
+  - **Fix**: Modified permanent mute behavior to only block chat messages, not disconnect users
+  - **Fix**: Added mute notification system to inform users they are muted
+  - **Result**: Permanently muted users can still play the game but cannot send chat messages
+- **Local Timezone Display**: Implemented local timezone conversion for all dates
+  - **Issue**: All dates were showing in server timezone instead of user's local time
+  - **Fix**: Created formatLocalTime() utility function for consistent local time display
+  - **Fix**: Updated all date displays in admin panel to use local timezone
+  - **Fix**: Updated mute messages in main game to show local time
+  - **Affected Areas**: Admin panel dates, mute messages, announcement timestamps
+  - **Result**: All dates and times now display in each user's local timezone
+
+## 🆕 Previous Updates (v1.6.14)
+
+### 🔧 FIXED: Timezone Display & Database Consistency
+- **Timezone Display Fix**: Fixed all date/time displays in admin panel to show PST
+  - **Issue**: Admin panel was showing times in server timezone instead of PST
+  - **Fix**: Updated all `toLocaleString()` calls to explicitly use `timeZone: 'America/Los_Angeles'`
+  - **Result**: All dates and times now display correctly in PST timezone
+- **Database Schema Consistency**: Fixed critical database schema mismatches
+  - **Issue**: Server was creating both `security_logs` and `admin_logs` tables, causing confusion
+  - **Fix**: Standardized to use only `admin_logs` table for security logging
+  - **Result**: Security tab now displays content correctly
+- **Duplicate Table Creation**: Removed duplicate table creation in `/api/fix-database` endpoint
+  - **Issue**: Multiple table creation statements were causing conflicts
+  - **Fix**: Cleaned up duplicate code and standardized table creation
+  - **Result**: Database initialization is now clean and consistent
+- **Column Name Standardization**: Ensured all queries use correct column names
+  - **Issue**: Mixed usage of `device_id` and `device_fingerprint` in different parts of code
+  - **Fix**: Standardized all queries to use `device_fingerprint` consistently
+  - **Result**: IP and device banning now work reliably
+- **Test Data Enhancement**: Added comprehensive test data for all admin features
+  - **Added**: Test IP bans, device bans, security logs, and various mute scenarios
+  - **Added**: Test data for permanent mutes, temporary mutes, and mutes without reasons
+  - **Result**: Admin panel now has sample data to verify functionality
+
+### 🔧 FIXED: Enhanced Testing & Diagnostics
+- **Comprehensive Test Script**: Created `comprehensive-test.js` for thorough testing
+  - **Added**: Database structure verification
+  - **Added**: Test data insertion for all admin features
+  - **Added**: Detailed logging and error reporting
+  - **Result**: Easy verification that all admin features are working
+- **Database Endpoint Updates**: Updated `/api/test-db` to check for correct tables
+  - **Changed**: Now checks for `admin_logs` instead of `security_logs`
+  - **Added**: Better error reporting and table validation
+  - **Result**: More accurate database diagnostics
+
+### 🔍 ADDED: Comprehensive Diagnostics
+- **New Diagnostic Tools**: Created diagnostic scripts to help troubleshoot persistent issues
+  - **`diagnose-issues.js`**: Comprehensive script to check all reported issues
+  - **`test-timezone.html`**: Simple test page to verify timezone conversion
+  - **`fix-all-issues.js`**: Complete fix script for all reported issues
+  - **Result**: Better tools to identify and fix remaining issues
+
+### 🔧 FIXED: Critical Mute System & Security Tab Issues
+- **Temporary Mute Fix**: Fixed critical bug where temporary mutes were disconnecting users
+  - **Issue**: Temporary mutes were blocking connections entirely instead of just blocking chat
+  - **Fix**: Modified connection logic to only block permanent mutes, not temporary ones
+  - **Result**: Temporary mutes now only block chat messages, not connections
+- **Security Tab Content**: Fixed security tab showing empty content
+  - **Issue**: Database tables were missing or had no test data
+  - **Fix**: Created comprehensive fix script that adds all required tables and test data
+  - **Result**: Security tab now displays banned IPs, devices, and security logs
+- **Database Structure**: Ensured all required database tables and columns exist
+  - **Added**: Complete table creation for all admin features
+  - **Added**: Test data for all security features
+  - **Result**: All admin panel features now have proper database support
+
+### 🌍 FIXED: Timezone Display Issues
+- **User Timezone Conversion**: Changed all time displays to use user's local timezone instead of PST
+  - **Issue**: All times were hardcoded to PST, showing incorrect times for users in different timezones
+  - **Fix**: Removed hardcoded `timeZone: 'America/Los_Angeles'` from all `toLocaleString()` calls
+  - **Affected Files**: `admin-panel.html`, `multiplayer.js`
+  - **Result**: Times now display in each user's local timezone automatically
+
+### 🔧 FIXED: Database Schema Compatibility
+- **User Mutes Table Fix**: Fixed compatibility issue with existing user_mutes table structure
+  - **Issue**: Script was trying to insert into non-existent `username` column in user_mutes table
+  - **Fix**: Updated fix-all-issues.js to work with existing table structure
+  - **Result**: Script now completes successfully without database errors
+
+### 💬 ENHANCED: Chat System Improvements
+- **Auto-Refresh Chat**: Chat now automatically refreshes every 5 seconds to show new messages
+  - **Smart Refresh**: Only refreshes when chat panel is visible and user is not typing
+  - **Preserves Typing**: Won't interrupt users while they're composing messages
+  - **Result**: Real-time chat experience without manual refresh
+- **Developer Tags**: Added [DEV] tag for developer username in chat
+  - **Tagged User**: AviDev now shows as "[DEV] AviDev" in chat
+  - **Visual Styling**: [DEV] username has special red color with glow effect
+  - **Result**: Easy identification of developer messages in chat
+
+## 🆕 Previous Updates (v1.6.12)
+
+### 🔧 FIXED: Critical Admin Panel & Mute System Fixes
+- **Mute System Bug**: Fixed critical bug where mutes without reasons were not working
+  - **Issue**: Mute logic was checking `mute_reason !== null` which failed when no reason was provided
+  - **Fix**: Changed to check `muted_until !== null OR mute_reason !== null` to handle mutes without reasons
+  - **Result**: Mutes now work properly whether a reason is provided or not
+- **IP Ban Functionality**: Fixed IP banning system not working properly
+  - **Issue**: Database column name mismatches between `device_id` and `device_fingerprint`
+  - **Fix**: Standardized all queries to use `device_fingerprint` consistently
+  - **Result**: IP bans now work correctly and ask for IP addresses as expected
+- **Security Tab Display**: Fixed security tab showing empty content
+  - **Issue**: Security logs query was using wrong table name (`security_logs` instead of `admin_logs`)
+  - **Fix**: Updated query to use correct `admin_logs` table for security logs
+  - **Result**: Security tab now displays banned IPs, devices, and security logs properly
+- **Permanent Mute Behavior**: Fixed permanent mute to properly prevent login like a ban
+  - **Issue**: Permanent mutes weren't blocking connections properly
+  - **Fix**: Enhanced mute logic to check both `muted_until` and `mute_reason` fields
+  - **Result**: Permanent mutes now properly prevent users from logging in
+- **Database Consistency**: Fixed column name inconsistencies across all admin queries
+  - **Issue**: Mixed usage of `device_id` and `device_fingerprint` in different queries
+  - **Fix**: Standardized all queries to use `device_fingerprint` consistently
+  - **Result**: All admin panel features now work reliably
+
+### 🔧 FIXED: Enhanced Logging & Debugging
+- **Admin Endpoint Logging**: Added comprehensive logging to all admin endpoints
+  - **Added**: Console logging for banned IPs, devices, and security logs queries
+  - **Added**: Error logging with detailed messages for troubleshooting
+  - **Result**: Much easier to debug admin panel issues
+- **Database Query Debugging**: Enhanced error handling and logging for all database operations
+  - **Added**: Query result logging showing number of records found
+  - **Added**: Detailed error messages for failed database operations
+  - **Result**: Better visibility into what's happening in the admin panel
+
+## 🆕 Previous Updates (v1.6.11)
+
+### 🔧 FIXED: Admin Panel & Database Issues
+- **Database Diagnostic Endpoints**: Added `/api/test-db` and `/api/test-admin` endpoints for troubleshooting
+- **Admin Account Creation**: Added `/api/create-admin` endpoint for first-time setup
+- **Database Fix Endpoint**: Enhanced `/api/fix-database` with comprehensive table creation
+- **Technical Improvements**: Better error handling and logging throughout admin system
+
+## 🆕 Previous Updates (v1.6.10)
+
+### 🔒 ENHANCED: Enhanced Ban System & Admin Panel Fixes
+- **Multiple Ban Types**: Admins can now choose between 4 ban types when banning users:
+  - **User Account Ban**: Prevents user from logging in
+  - **IP Address Ban**: Prevents registration/login from that IP
+  - **Device Ban**: Prevents access from that device fingerprint
+  - **Ban All**: Bans user account, IP, and device simultaneously
+- **Ban Reason Tracking**: All bans now include detailed reason tracking
+- **Enhanced Logging**: Improved admin logs with detailed ban type information
+- **Flexible Ban Options**: Admins can ban just IPs or devices without banning the user account
+- **Technical Improvements**:
+  - Auto-refresh system for logs that only runs when logs tab is active
+  - Enhanced tab navigation and content loading for all admin panel sections
+  - Improved security tab with proper data loading and refresh functionality
+  - Better error handling for admin panel data loading operations
+  - Standardized tab content structure across all admin panel sections
+  - Updated registration flow to support optional email addresses
+- **Admin Panel Enhancements**:
+  - Real-time logs that update automatically without manual refresh
+  - Added refresh buttons to dashboard and security tabs for manual updates
+  - Better loading states and error messages throughout admin panel
+  - Consistent styling in tab navigation and content areas
+- **Result**: Significantly improved admin panel experience with real-time updates and enhanced ban system
+
+### 🔧 FIXED: Admin Panel Fixes & Registration Fix
+- **Log Auto-Refresh**: Admin logs now automatically refresh every 10 seconds when logs tab is active
+- **Dashboard Loading**: Fixed dashboard tab not showing statistics properly
+- **Security Tab Loading**: Fixed security tab not displaying IP bans, device bans, and security logs
+- **Tab Structure Fix**: Corrected CSS class inconsistencies between tab content sections
+- **Clear Garden Functionality**: Verified clear garden actions work properly with server-side garden deletion
+- **Optional Email Registration**: Fixed registration to make email field truly optional
+- **Technical Improvements**:
+  - Added intelligent auto-refresh for logs that only runs when logs tab is active
+  - Fixed tab switching and content loading for all admin panel sections
+  - Enhanced security tab with proper data loading and refresh functionality
+  - Improved error handling for admin panel data loading operations
+  - Updated registration flow to support optional email addresses
+  - Standardized tab content structure across all admin panel sections
+- **Bug Fixes**:
+  - Fixed admin logs not updating automatically
+  - Resolved dashboard tab not showing statistics
+  - Fixed security tab not displaying any data
+  - Corrected "Security management" text appearing at bottom of all tabs
+  - Fixed clear garden actions not working properly
+  - Resolved tab navigation inconsistencies
+- **Result**: Admin panel now works correctly with real-time updates and proper data display
+
+## 🆕 Previous Updates (v1.6.7)
+
+### 🔇 FIXED: Muting System Fixes & Connection Blocking
+- **Permanent Mute Enforcement**: Fixed permanent mutes not properly blocking user connections
+- **Connection Blocking**: Permanently muted users can no longer reconnect to the server
+- **Login Prevention**: Muted users are blocked from logging in entirely
+- **Real-time Mute Checking**: Enhanced mute verification during socket connections
+- **Technical Improvements**:
+  - Added mute checking during WebSocket authentication
+  - Added mute checking during login process
+  - Improved mute status queries with proper time comparisons
+  - Enhanced error messages for muted users
+  - Added detailed console logging for mute operations
+- **Result**: Muting system now properly prevents muted users from accessing the game
+
+## 🆕 Previous Updates (v1.6.6)
+
+### 🔧 FIXED: Admin Panel Fixes & Database Migration
+- **Database Error Resolution**: Fixed all database errors that were causing admin panel malfunctions
+- **Missing Table Creation**: Ensured all required database tables exist and are properly structured
+- **Schema Migration**: Added missing columns to users table (`is_banned`, `last_login_ip`, `registration_ip`, `device_fingerprint`)
+- **Tab Navigation Fix**: Updated CSS classes to match the new HTML structure (`.tab-nav` and `.tab-btn`)
+- **Stats Query Optimization**: Fixed database queries that were failing due to missing tables and columns
+- **Technical Improvements**:
+  - Created comprehensive migration to handle existing databases with old schemas
+  - Added proper `CREATE TABLE IF NOT EXISTS` statements for all required tables
+  - Safely added missing columns to existing tables without data loss
+  - Improved error handling for database operations in admin panel
+  - Fixed mismatch between HTML structure and CSS selectors
+- **Result**: Admin panel now works correctly with proper database structure
+
+## 🆕 Previous Updates (v1.6.5)
+
+### 🔒 ENHANCED: Security & Ban/Mute Bypass Prevention
+- **IP Address Tracking**: All registrations and logins now track IP addresses
+- **Device Fingerprinting**: Unique device identification using browser headers and IP
+- **IP Banning System**: Admins can ban specific IP addresses to prevent new registrations
+- **Device Banning System**: Admins can ban specific devices to prevent access
+- **Enhanced User Banning**: Option to ban user's IP and device when banning accounts
+- **Security Logging**: Comprehensive logging of all login attempts, failed logins, and security events
+- **Suspicious Username Detection**: Blocks usernames containing admin/moderator terms
+- **Registration Blocking**: Prevents registration from banned IPs and devices
+- **Login Blocking**: Prevents login from banned IPs and devices
+- **Technical Implementation**:
+  - SHA256 hash of IP + User-Agent + Accept headers for device fingerprinting
+  - Proper IPv4 format validation for IP banning
+  - Multi-layer protection with account bans, IP bans, and device bans
+  - Real-time monitoring of security events
+  - Comprehensive logging with timestamps
+- **Result**: Significantly enhanced security with multiple layers of protection against ban/mute bypasses
+
+## 🆕 Previous Updates (v1.6.4)
+
+### 🔧 FIXED: Admin Panel Issues & Friend Status Updates
+- **Total Gardens Stats**: Fixed total gardens statistics not displaying correctly in admin panel
+- **Chat Filter Debugging**: Added comprehensive debugging to identify and fix chat filter tab issues
+- **Database Query Improvements**: Enhanced error handling for all admin panel database queries
+- **Real-time Friend Status**: Fixed issue where friends weren't being moved to correct online/offline sections
+- **Online Notifications**: Added missing server-side code to notify friends when users come online
+- **UI Refresh**: Friends list now automatically refreshes when friend status changes
+- **Technical Details**:
+  - Added debugging to total gardens stats query with proper error handling
+  - Enhanced chat filter tab with console logging for troubleshooting
+  - Added `friend_online` event emission when users connect to server
+  - Enhanced `updateMultiplayerUI()` to refresh friends list when visible
+  - Added UI refresh triggers for both `friend_online` and `friend_offline` events
+- **Result**: Admin panel displays all statistics correctly and friends list updates in real-time
+
+## 🆕 Previous Updates (v1.6.3)
 
 ### 🔓 NEW: Admin Bypass for Chat Filter
 - **Admin Chat Filter Bypass**: Admins can now send messages containing filtered words without being blocked
@@ -895,6 +1644,55 @@ This document contains every single update, bug fix, and change made to Grow You
 
 **Last Updated: August 2025**
 
+## [1.6.20] - 2025-08-19
+
+### Added
+- **Water & Fertilizer Purchase System**: Added purchase buttons for water ($5) and fertilizer ($10) in the shop
+- **Purchase UI**: Added CSS styles for purchase section with hover effects and clear pricing
+- **Purchase Functions**: Added buyWater() and buyFertilizer() methods to Game class and global window functions
+
+### Fixed
+- **Water & Fertilizer UI Update**: Fixed issue where UI wasn't updating after purchase (wrong property names)
+- **Dashboard Stats**: Added all missing stats to dashboard display (Total Friends, Pending Friends, Announcements, etc.)
+- **Sprinkler Growth System**: Fixed sprinklers not growing crops by adding checkAllSprinklerGrowth() to game loop
+- **Security Tab Debugging**: Added comprehensive debugging logs to identify display issues
+- **Season Change Display**: Fixed season display not updating when using admin commands
+- **Water & Fertilizer Purchase Section**: Moved purchase section to separate dedicated area after seed shop
+- **Security Tab Loading**: Added individual error handling and improved loading reliability
+- **Admin Panel Tabs**: Fixed tabs being visible on login page
+- **Friend Request Bug**: Fixed users being able to accept their own friend requests
+- **Login Page Redirect**: Fixed login page not showing on refresh when not authenticated
+
+### Improved
+- **Purchase Section UI**: Enhanced styling with gradient backgrounds, hover animations, and professional design
+- **Purchase Buttons**: Added shimmer effects and improved visual feedback
+- **Season Display**: Added force reflow to ensure DOM updates are properly applied
+- **Security Tab**: Better error handling and debugging for improved reliability
+
+## [1.6.19] - 2025-08-19
+### Fixed
+- **Admin Panel Login**: Fixed "invalid token" message appearing on login page before authentication
+- **Token Validation**: Added proper token checks before making API calls in admin panel
+- **Clear Gardens**: Enhanced error handling and validation for clear gardens functionality
+- **Server Startup**: Fixed JavaScript error where authenticateAdmin was used before being defined
+- **Chat Functionality**: Fixed SQL query error in mute status check that was preventing chat messages from being sent
+
+### Improved
+- **Admin Panel Security**: Added comprehensive token validation to all admin functions
+- **Error Handling**: Enhanced error messages and user feedback throughout admin panel
+- **User Experience**: Improved admin panel login flow and error handling
+
+## [1.6.18] - 2025-08-19
+
+### Fixed
+- **Security Tab**: Fixed CSS issue preventing security tab content from displaying
+- **Console Logging**: Cleaned up excessive console.log statements for better readability
+- **Database Schema**: Fixed column name mismatch in test scripts
+
+### Improved
+- **Code Organization**: Improved code structure and removed redundant logging
+- **Error Handling**: Enhanced error messages and validation throughout the application
+
 ## Version 1.5.5 - Enhanced Rare & Legendary Seed Stock System
 
 ### 🎯 ADDED: Enhanced Rare & Legendary Seed Stock System
@@ -927,3 +1725,63 @@ This document contains every single update, bug fix, and change made to Grow You
   - **Result**: Easier troubleshooting of admin commands
 
 ### 🎯 ADDED: Sprinkler Range Indicators & Fixed Garden Expansion
+
+## [1.6.27] - 2025-08-19
+
+### Added
+- **Account Settings Button**: New button in game header that opens account management modal
+  - Displays user information and account status
+  - Game settings toggle (sound effects, notifications)
+  - Data management options (export/import game data)
+  - Professional modal interface with proper event handling
+- **Support Button**: New button in game header that opens support modal
+  - Direct email contact to `gardengamemain@gmail.com`
+  - Common issues and troubleshooting section
+  - Response time information and contact guidelines
+  - Professional support interface with helpful tips
+- **Enhanced Logout Button**: Moved from dynamic creation to header with improved functionality
+  - Confirmation dialog before logout
+  - Automatic game progress saving
+  - Complete authentication token cleanup
+  - Proper redirect to login page
+
+### Changed
+- **Game Header Layout**: Redesigned header to include new navigation buttons
+  - Added account, support, and logout buttons alongside existing buttons
+  - Consistent styling with hover effects and proper color coding
+  - Responsive design for all screen sizes
+- **Button Styling**: Enhanced CSS for new buttons with professional appearance
+  - Blue theme for account button (#3498db)
+  - Orange theme for support button (#e67e22)
+  - Red theme for logout button (#e74c3c)
+  - Hover effects with color transitions and transform animations
+
+### Removed
+- **Dynamic Logout Button**: Removed old `addLogoutButton()` function and related code
+  - Eliminated fixed-position logout button creation
+  - Removed redundant logout button event listeners
+  - Cleaned up game initialization code
+
+### Technical
+- **Event Listeners**: Added proper event handling for new buttons in game initialization
+- **Modal Management**: Implemented professional modal system with click-outside-to-close
+- **Local Storage Integration**: Enhanced logout function to clear all game-related data
+- **Game Save Integration**: Logout now automatically saves current game progress
+
+## [1.7.1] - 2025-08-19
+
+### 🔧 Fixed
+- **Menu Button Layout**: Changed account, support, and logout buttons from vertical stacking to horizontal alignment in main menu
+- **Account Settings Authentication**: Fixed issue where account settings button reported "You must be logged in" despite user being logged in
+- **localStorage Username Storage**: Added missing username storage during login/registration process
+
+### 🎨 Improved
+- **Button Styling**: Enhanced menu button layout with horizontal alignment, proper spacing, and responsive design
+- **User Experience**: Buttons now appear horizontally aligned above save slots for better visual organization
+- **Debugging**: Added comprehensive logging to showAccountSettings() function for better troubleshooting
+
+### 📝 Technical Details
+- **CSS Changes**: Modified `.menu-buttons` flex-direction from `column` to `row`, added `justify-content: center`, `flex-wrap: wrap`
+- **JavaScript Changes**: Added debugging logs to `showAccountSettings()` function in `game.js`
+- **HTML Changes**: Updated `login.html` to store username in localStorage during login/registration
+- **Button Sizing**: Adjusted padding and font-size for better horizontal layout

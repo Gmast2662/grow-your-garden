@@ -237,6 +237,96 @@ body {
     transform: translateY(-2px);
 }
 
+.account-btn {
+    background: #3498db;
+    color: white;
+}
+
+.account-btn:hover {
+    background: #2980b9;
+    transform: translateY(-2px);
+}
+
+.support-btn {
+    background: #e67e22;
+    color: white;
+}
+
+.support-btn:hover {
+    background: #d35400;
+    transform: translateY(-2px);
+}
+
+.logout-btn {
+    background: #e74c3c;
+    color: white;
+}
+
+.logout-btn:hover {
+    background: #c0392b;
+    transform: translateY(-2px);
+}
+
+/* Menu Buttons */
+.menu-buttons {
+    display: flex;
+    flex-direction: row; /* Changed from column to row for horizontal alignment */
+    gap: 10px; /* Reduced gap for horizontal layout */
+    margin: 20px 0;
+    width: 100%;
+    max-width: 600px; /* Increased max-width for horizontal layout */
+    justify-content: center; /* Center the buttons */
+    flex-wrap: wrap; /* Allow wrapping if needed */
+}
+
+.menu-buttons .account-btn,
+.menu-buttons .support-btn,
+.menu-buttons .logout-btn {
+    padding: 12px 20px; /* Slightly reduced padding for horizontal layout */
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem; /* Slightly smaller font for horizontal layout */
+    text-align: center;
+    width: auto; /* Changed from 100% to auto for horizontal layout */
+    min-width: 140px; /* Set minimum width for consistency */
+}
+
+.menu-buttons .account-btn {
+    background: #3498db;
+    color: white;
+}
+
+.menu-buttons .account-btn:hover {
+    background: #2980b9;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+}
+
+.menu-buttons .support-btn {
+    background: #e67e22;
+    color: white;
+}
+
+.menu-buttons .support-btn:hover {
+    background: #d35400;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(230, 126, 34, 0.3);
+}
+
+.menu-buttons .logout-btn {
+    background: #e74c3c;
+    color: white;
+}
+
+.menu-buttons .logout-btn:hover {
+    background: #c0392b;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+}
+
 .stats {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -1084,6 +1174,139 @@ body {
     .progress-text {
         font-size: 0.8rem;
     }
+    
+    /* Purchase section styles */
+.purchase-shop {
+    margin: 20px 0;
+    padding: 20px;
+    background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+    border-radius: 15px;
+    border: 2px solid #bbdefb;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.purchase-shop h3 {
+    margin: 0 0 15px 0;
+    color: #1976d2;
+    font-size: 1.4rem;
+    text-align: center;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.purchase-section {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+}
+    
+    .purchase-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 18px;
+        margin-bottom: 12px;
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        border-radius: 12px;
+        border: 2px solid #e3f2fd;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .purchase-item::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #2196f3, #4caf50);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .purchase-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        border-color: #bbdefb;
+    }
+    
+    .purchase-item:hover::before {
+        opacity: 1;
+    }
+    
+    .purchase-info {
+        flex: 1;
+        margin-right: 15px;
+    }
+    
+    .purchase-name {
+        display: block;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 5px;
+    }
+    
+    .purchase-price {
+        display: block;
+        font-size: 1rem;
+        color: #28a745;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+    
+    .purchase-description {
+        display: block;
+        font-size: 0.9rem;
+        color: #666;
+        line-height: 1.4;
+    }
+    
+    .purchase-btn {
+        padding: 12px 24px;
+        background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+        box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .purchase-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s ease;
+    }
+    
+    .purchase-btn:hover {
+        background: linear-gradient(135deg, #45a049 0%, #3d8b40 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(76, 175, 80, 0.4);
+    }
+    
+    .purchase-btn:hover::before {
+        left: 100%;
+    }
+    
+    .purchase-btn:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+    }
     .seed-shop h3,
     .sprinkler-shop h3,
     .tools h3,
@@ -1614,6 +1837,13 @@ body {
     color: #FFD700;
     font-weight: bold;
     margin-right: 5px;
+}
+
+/* Special styling for [DEV] tag */
+.chat-username.dev-username {
+    color: #FF6B6B !important;
+    text-shadow: 0 0 5px rgba(255, 107, 107, 0.5);
+    font-weight: bold;
 }
 
 .chat-text {

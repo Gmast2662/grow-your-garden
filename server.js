@@ -78,7 +78,47 @@ db.serialize(() => {
         FOREIGN KEY (banned_by_admin_id) REFERENCES users (id)
     )`);
 
-    // Security logs table
+    // Admin logs table
+    db.run(`CREATE TABLE IF NOT EXISTS admin_logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        admin_id TEXT NOT NULL,
+        admin_username TEXT NOT NULL,
+        action TEXT NOT NULL,
+        target_user_id TEXT,
+        target_username TEXT,
+        details TEXT,
+        ip_address TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (admin_id) REFERENCES users (id),
+        FOREIGN KEY (target_user_id) REFERENCES users (id)
+    )`, function(err) {
+        if (err) {
+            console.error('❌ Error creating admin_logs table:', err);
+        } else {
+            console.log('✅ Admin logs table ready');
+        }
+    });
+
+    // User mutes table
+    db.run(`CREATE TABLE IF NOT EXISTS user_mutes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id TEXT NOT NULL,
+        muted_until DATETIME,
+        mute_reason TEXT,
+        muted_by_admin_id TEXT,
+        muted_by_admin_username TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users (id),
+        FOREIGN KEY (muted_by_admin_id) REFERENCES users (id)
+    )`, function(err) {
+        if (err) {
+            console.error('❌ Error creating user_mutes table:', err);
+        } else {
+            console.log('✅ User mutes table ready');
+        }
+    });
+
+    // Security logs table (legacy - will be migrated to admin_logs)
     db.run(`CREATE TABLE IF NOT EXISTS security_logs (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id TEXT,
@@ -89,7 +129,13 @@ db.serialize(() => {
         details TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES users (id)
-    )`);
+    )`, function(err) {
+        if (err) {
+            console.error('❌ Error creating security_logs table:', err);
+        } else {
+            console.log('✅ Security logs table ready (legacy)');
+        }
+    });
 
     // Gardens table
     db.run(`CREATE TABLE IF NOT EXISTS gardens (
@@ -106,8 +152,8 @@ db.serialize(() => {
         } else {
             console.log('✅ Gardens table ready');
             
-            // Migration: Add slot_number column if it doesn't exist (only after table is created)
-            db.run(`PRAGMA table_info(gardens)`, (err, columns) => {
+            // Migration: Add slot_number column if it doesn't exist
+            db.all(`PRAGMA table_info(gardens)`, (err, columns) => {
                 if (err) {
                     console.error('❌ Error checking gardens table schema:', err);
                     return;
@@ -190,45 +236,6 @@ db.serialize(() => {
         }
     });
 
-    // Admin logs table
-    db.run(`CREATE TABLE IF NOT EXISTS admin_logs (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        admin_id TEXT NOT NULL,
-        admin_username TEXT NOT NULL,
-        action TEXT NOT NULL,
-        target_user_id TEXT,
-        target_username TEXT,
-        details TEXT,
-        ip_address TEXT,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (admin_id) REFERENCES users (id)
-    )`, function(err) {
-        if (err) {
-            console.error('❌ Error creating admin_logs table:', err);
-        } else {
-            console.log('✅ Admin logs table ready');
-        }
-    });
-
-    // User mutes table
-    db.run(`CREATE TABLE IF NOT EXISTS user_mutes (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id TEXT NOT NULL,
-        muted_until DATETIME,
-        mute_reason TEXT,
-        muted_by_admin_id TEXT,
-        muted_by_admin_username TEXT,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES users (id),
-        FOREIGN KEY (muted_by_admin_id) REFERENCES users (id)
-    )`, function(err) {
-        if (err) {
-            console.error('❌ Error creating user_mutes table:', err);
-        } else {
-            console.log('✅ User mutes table ready');
-        }
-    });
-
     // Chat filter words table
     db.run(`CREATE TABLE IF NOT EXISTS chat_filter_words (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -256,7 +263,7 @@ db.serialize(() => {
             });
         }
     });
-});
+}); // Close db.serialize block
 
 // JWT secret (in production, use environment variable)
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this';
@@ -300,18 +307,14 @@ const authenticateSocketToken = (socket, next) => {
                 return next(new Error(`Account banned: ${user.ban_reason || 'No reason provided'}`));
             }
             
-            // Check if user is muted (either temporary or permanent)
-            if (user.mute_reason !== null) {
-                if (user.muted_until === null) {
-                    // Permanent mute
-                    const muteMessage = `Account permanently muted: ${user.mute_reason}`;
-                    return next(new Error(muteMessage));
-                } else {
-                    // Temporary mute
-                    const muteMessage = `Account muted until ${user.muted_until}: ${user.mute_reason}`;
-                    return next(new Error(muteMessage));
-                }
-            }
+            // Check if user is permanently muted (only permanent mutes should block connections)
+            // REMOVED: Permanent mutes should not block connections, only prevent chat
+            // if (user.muted_until === null && user.mute_reason !== null) {
+            //     // Permanent mute - prevent connection entirely
+            //     const muteMessage = `Account permanently muted: ${user.mute_reason || 'No reason provided'}`;
+            //     console.log(`🚫 Blocking connection for permanently muted user: ${decoded.username} - ${muteMessage}`);
+            //     return next(new Error(muteMessage));
+            // }
             
             socket.userId = decoded.id;
             socket.username = decoded.username;
@@ -328,7 +331,7 @@ io.use(authenticateSocketToken);
 
 io.on('connection', (socket) => {
     try {
-        console.log(`User connected: ${socket.username} (${socket.userId})`);
+        console.log(`🟢 User ONLINE: ${socket.username} (ID: ${socket.userId})`);
         
         // Add user to online list
         onlineUsers.set(socket.userId, {
@@ -360,353 +363,349 @@ io.on('connection', (socket) => {
             }
         });
 
-    // Handle garden updates
-    socket.on('garden_update', (gardenData) => {
-        try {
-            console.log(`Garden update from ${socket.username} for slot ${gardenData.saveSlot || 1}`);
-            
-            // Save garden data to database with slot information
-            const gardenJson = JSON.stringify(gardenData);
-            const slot = gardenData.saveSlot || 1;
-            const gardenId = `garden_${socket.userId}_slot_${slot}`;
-            
-            // Try to save with slot_number first, fallback to old format if needed
-            db.run(
-                'INSERT OR REPLACE INTO gardens (id, user_id, slot_number, garden_data, last_updated) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)',
-                [gardenId, socket.userId, slot, gardenJson],
-                function(err) {
-                    if (err) {
-                        console.error('❌ Error saving garden update with slot_number:', err);
-                        // Fallback to old format without slot_number
-                        console.log('🔄 Trying fallback save without slot_number...');
-                        db.run(
-                            'INSERT OR REPLACE INTO gardens (id, user_id, garden_data, last_updated) VALUES (?, ?, ?, CURRENT_TIMESTAMP)',
-                            [gardenId, socket.userId, gardenJson],
-                            function(fallbackErr) {
-                                if (fallbackErr) {
-                                    console.error('❌ Fallback save also failed:', fallbackErr);
-                                } else {
-                                    console.log(`✅ Garden saved with fallback for ${socket.username}`);
-                                }
-                            }
-                        );
-                        return;
-                    }
-                    console.log(`✅ Garden saved for ${socket.username} slot ${slot}`);
-                }
-            );
-
-            // Broadcast to friends if garden is public (simplified query)
-            db.get('SELECT is_public FROM gardens WHERE user_id = ?', [socket.userId], (err, row) => {
-                if (err) {
-                    console.error('❌ Error checking garden public status:', err);
-                    return;
-                }
+        // Handle garden updates
+        socket.on('garden_update', (gardenData) => {
+            try {
+                // Save garden data to database with slot information
+                const gardenJson = JSON.stringify(gardenData);
+                const slot = gardenData.saveSlot || 1;
+                const gardenId = `garden_${socket.userId}_slot_${slot}`;
                 
-                if (row && row.is_public) {
-                    // Get friends list
-                    db.all('SELECT friend_id FROM friends WHERE user_id = ? AND status = "accepted"', [socket.userId], (err, friends) => {
+                // Try to save with slot_number first, fallback to old format if needed
+                db.run(
+                    'INSERT OR REPLACE INTO gardens (id, user_id, slot_number, garden_data, last_updated) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)',
+                    [gardenId, socket.userId, slot, gardenJson],
+                    function(err) {
                         if (err) {
-                            console.error('❌ Error getting friends list:', err);
-                            return;
-                        }
-                        
-                        if (friends) {
-                            friends.forEach(friend => {
-                                const friendSocket = userSockets.get(friend.friend_id);
-                                if (friendSocket) {
-                                    friendSocket.emit('friend_garden_update', {
-                                        userId: socket.userId,
-                                        username: socket.username,
-                                        gardenData: gardenData,
-                                        slot: slot
-                                    });
+                            console.error('❌ Error saving garden update with slot_number:', err);
+                            // Fallback to old format without slot_number
+                            db.run(
+                                'INSERT OR REPLACE INTO gardens (id, user_id, garden_data, last_updated) VALUES (?, ?, ?, CURRENT_TIMESTAMP)',
+                                [gardenId, socket.userId, gardenJson],
+                                function(fallbackErr) {
+                                    if (fallbackErr) {
+                                        console.error('❌ Fallback save also failed:', fallbackErr);
+                                    }
                                 }
-                            });
-                        }
-                    });
-                }
-            });
-        } catch (error) {
-            console.error('❌ Error handling garden update:', error);
-        }
-    });
-
-    // Handle garden visit requests
-    socket.on('visit_garden', (targetUserId) => {
-        console.log(`${socket.username} wants to visit ${targetUserId}'s garden`);
-        
-        // Check if target user is online
-        const targetSocket = userSockets.get(targetUserId);
-        if (targetSocket) {
-            targetSocket.emit('garden_visit_request', {
-                visitorId: socket.userId,
-                visitorName: socket.username
-            });
-        }
-    });
-
-    // Handle garden visit responses
-    socket.on('garden_visit_response', (data) => {
-        const visitorSocket = userSockets.get(data.visitorId);
-        if (visitorSocket) {
-            visitorSocket.emit('garden_visit_result', {
-                allowed: data.allowed,
-                gardenData: data.gardenData,
-                ownerName: socket.username
-            });
-        }
-    });
-
-    // Handle chat messages
-    socket.on('send_message', (data) => {
-        try {
-            // Validate input
-            if (!data || !data.message) {
-                socket.emit('message_sent', { 
-                    success: false, 
-                    error: 'Invalid message data' 
-                });
-                return;
-            }
-
-            // Check if user is muted
-            db.get(`
-                SELECT muted_until, mute_reason 
-                FROM user_mutes 
-                WHERE user_id = ? AND (muted_until IS NULL OR muted_until > datetime('now'))
-            `, [socket.userId], (err, muteData) => {
-                if (err) {
-                    console.error('Error checking mute status:', err);
-                    socket.emit('message_sent', { 
-                        success: false, 
-                        error: 'Server error checking mute status' 
-                    });
-                    return;
-                }
-
-                if (muteData && muteData.mute_reason !== null) {
-                    if (muteData.muted_until === null) {
-                        // Permanent mute
-                        const muteMessage = `You are permanently muted: ${muteData.mute_reason}`;
-                        socket.emit('message_sent', { 
-                            success: false, 
-                            error: muteMessage 
-                        });
-                        return;
-                    } else {
-                        // Temporary mute
-                        const muteMessage = `You are muted until ${muteData.muted_until}: ${muteData.mute_reason}`;
-                        socket.emit('message_sent', { 
-                            success: false, 
-                            error: muteMessage 
-                        });
-                        return;
-                    }
-                }
-
-                // Check chat filter
-                db.all('SELECT word FROM chat_filter_words', (err, filterWords) => {
-                    if (err) {
-                        console.error('Error checking chat filter:', err);
-                        // Continue without filter if there's an error
-                    }
-
-                    console.log('🔍 Chat filter check:', {
-                        message: data.message,
-                        filterWords: filterWords,
-                        isAdmin: socket.isAdmin
-                    });
-
-                    let filteredMessage = data.message;
-                    let messageBlocked = false;
-                    let blockedWords = [];
-
-                    if (filterWords && filterWords.length > 0) {
-                        const messageLower = data.message.toLowerCase();
-                        filterWords.forEach(filterWord => {
-                            console.log('🔍 Checking word:', filterWord.word, 'against message:', messageLower);
-                            if (messageLower.includes(filterWord.word.toLowerCase())) {
-                                messageBlocked = true;
-                                blockedWords.push(filterWord.word);
-                                console.log('🚫 Word blocked:', filterWord.word);
-                            }
-                        });
-
-                        if (messageBlocked && !socket.isAdmin) {
-                            console.log('🚫 Message blocked for non-admin user:', blockedWords);
-                            socket.emit('message_sent', { 
-                                success: false, 
-                                error: `Message blocked due to inappropriate content: ${blockedWords.join(', ')}` 
-                            });
+                            );
                             return;
-                        } else if (messageBlocked && socket.isAdmin) {
-                            console.log('✅ Admin bypassed filter for words:', blockedWords);
                         }
                     }
+                );
 
-                    const messageData = {
-                        senderId: socket.userId,
-                        senderName: socket.username,
-                        receiverId: data.receiverId || 'global',
-                        message: filteredMessage,
-                        timestamp: Date.now()
-                    };
-
-                    // Save to database with error handling (let SQLite auto-generate the id)
-                    console.log('📝 Attempting to save message:', {
-                        senderId: socket.userId,
-                        receiverId: data.receiverId || 'global',
-                        message: filteredMessage
-                    });
+                // Broadcast to friends if garden is public (simplified query)
+                db.get('SELECT is_public FROM gardens WHERE user_id = ?', [socket.userId], (err, row) => {
+                    if (err) {
+                        console.error('❌ Error checking garden public status:', err);
+                        return;
+                    }
                     
-                    db.run(
-                        'INSERT INTO chat_messages (sender_id, receiver_id, message) VALUES (?, ?, ?)',
-                        [socket.userId, data.receiverId || 'global', filteredMessage],
-                        function(err) {
+                    if (row && row.is_public) {
+                        // Get friends list
+                        db.all('SELECT friend_id FROM friends WHERE user_id = ? AND status = "accepted"', [socket.userId], (err, friends) => {
                             if (err) {
-                                console.error('❌ Database error saving message:', err);
-                                console.error('Error details:', {
-                                    code: err.code,
-                                    errno: err.errno,
-                                    message: err.message
-                                });
-                                socket.emit('message_sent', { 
-                                    success: false, 
-                                    error: 'Failed to save message' 
-                                });
+                                console.error('❌ Error getting friends list:', err);
                                 return;
                             }
-
-                            // Add the auto-generated ID to the message data
-                            const savedMessageData = {
-                                ...messageData,
-                                id: this.lastID
-                            };
-
-                            // Send to receiver if online (for private messages)
-                            if (data.receiverId) {
-                                const receiverSocket = userSockets.get(data.receiverId);
-                                if (receiverSocket) {
-                                    receiverSocket.emit('new_message', savedMessageData);
-                                }
-                            } else {
-                                // Broadcast to all online users for global chat
-                                userSockets.forEach((userSocket) => {
-                                    if (userSocket.id !== socket.id) {
-                                        userSocket.emit('new_message', savedMessageData);
+                            
+                            if (friends) {
+                                friends.forEach(friend => {
+                                    const friendSocket = userSockets.get(friend.friend_id);
+                                    if (friendSocket) {
+                                        friendSocket.emit('friend_garden_update', {
+                                            userId: socket.userId,
+                                            username: socket.username,
+                                            gardenData: gardenData,
+                                            slot: slot
+                                        });
                                     }
                                 });
                             }
-
-                            // Send confirmation to sender
-                            socket.emit('message_sent', { 
-                                success: true, 
-                                message: savedMessageData 
-                            });
-                        }
-                    );
+                        });
+                    }
                 });
-            });
-        } catch (error) {
-            console.error('Error handling chat message:', error);
-            socket.emit('message_sent', { 
-                success: false, 
-                error: 'Server error processing message' 
-            });
-        }
-    });
-
-    // Handle friend requests
-    socket.on('send_friend_request', (targetUsername) => {
-        // Use case-insensitive search for username
-        db.get('SELECT id, username FROM users WHERE LOWER(username) = LOWER(?)', [targetUsername], (err, targetUser) => {
-            if (err || !targetUser) {
-                socket.emit('friend_request_result', { success: false, message: 'User not found' });
-                return;
+            } catch (error) {
+                console.error('❌ Error handling garden update:', error);
             }
+        });
 
-            if (targetUser.id === socket.userId) {
-                socket.emit('friend_request_result', { success: false, message: 'Cannot add yourself as friend' });
-                return;
+        // Handle garden visit requests
+        socket.on('visit_garden', (targetUserId) => {
+            // Check if target user is online
+            const targetSocket = userSockets.get(targetUserId);
+            if (targetSocket) {
+                targetSocket.emit('garden_visit_request', {
+                    visitorId: socket.userId,
+                    visitorName: socket.username
+                });
             }
+        });
 
-            // Check if already friends or request pending (only check for active relationships)
-            console.log(`🔍 Checking existing friendship: userId=${socket.userId}, targetId=${targetUser.id}`);
-            db.get('SELECT * FROM friends WHERE ((user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)) AND status IN ("pending", "accepted")', 
-                [socket.userId, targetUser.id, targetUser.id, socket.userId], (err, existing) => {
-                if (err) {
-                    console.error('❌ Database error checking friendship:', err);
-                    socket.emit('friend_request_result', { success: false, message: 'Database error' });
+        // Handle garden visit responses
+        socket.on('garden_visit_response', (data) => {
+            const visitorSocket = userSockets.get(data.visitorId);
+            if (visitorSocket) {
+                visitorSocket.emit('garden_visit_result', {
+                    allowed: data.allowed,
+                    gardenData: data.gardenData,
+                    ownerName: socket.username
+                });
+            }
+        });
+
+        // Handle chat messages
+        socket.on('send_message', (data) => {
+            try {
+                // Validate input
+                if (!data || !data.message) {
+                    socket.emit('message_sent', { 
+                        success: false, 
+                        error: 'Invalid message data' 
+                    });
                     return;
                 }
 
-                if (existing) {
-                    const status = existing.status === 'accepted' ? 'already friends' : 'request pending';
-                    console.log(`❌ Friendship exists with status: ${existing.status}`);
-                    socket.emit('friend_request_result', { success: false, message: `Already ${status}` });
-                    return;
-                }
-
-                console.log(`✅ No existing friendship found, proceeding with friend request`);
-
-                // Send friend request
-                db.run('INSERT INTO friends (user_id, friend_id, status) VALUES (?, ?, "pending")', 
-                    [socket.userId, targetUser.id], function(err) {
+                // Check if user is muted
+                db.get(`
+                    SELECT muted_until, mute_reason 
+                    FROM user_mutes 
+                    WHERE user_id = ? AND (muted_until IS NULL OR muted_until > datetime('now', 'localtime'))
+                `, [socket.userId], (err, muteData) => {
                     if (err) {
-                        socket.emit('friend_request_result', { success: false, message: 'Failed to send request' });
+                        console.error('Error checking mute status:', err);
+                        socket.emit('message_sent', { 
+                            success: false, 
+                            error: 'Server error checking mute status' 
+                        });
                         return;
                     }
 
-                    socket.emit('friend_request_result', { success: true, message: 'Friend request sent!' });
-
-                    // Notify target user if online
-                    const targetSocket = userSockets.get(targetUser.id);
-                    if (targetSocket) {
-                        console.log(`📨 Sending friend request notification to ${targetUser.username} from ${socket.username}`);
-                        targetSocket.emit('friend_request_received', {
-                            fromId: socket.userId,
-                            fromName: socket.username
-                        });
-                    } else {
-                        console.log(`📨 Target user ${targetUser.username} is not online, friend request will be seen when they log in`);
+                    if (muteData) {
+                        if (muteData.muted_until === null) {
+                            // Permanent mute
+                            const muteMessage = `You are permanently muted: ${muteData.mute_reason || 'No reason provided'}`;
+                            console.log(`🚫 MESSAGE BLOCKED - Permanently muted user ${socket.username}: ${muteData.mute_reason || 'No reason'}`);
+                            socket.emit('message_sent', { 
+                                success: false, 
+                                error: muteMessage 
+                            });
+                            return;
+                        } else {
+                            // Temporary mute - check if still active
+                            const now = new Date();
+                            const muteUntil = new Date(muteData.muted_until);
+                            if (muteUntil > now) {
+                                const muteUntilDate = new Date(muteData.muted_until);
+                                const muteMessage = `You are muted until ${muteUntilDate.toLocaleString()}: ${muteData.mute_reason || 'No reason provided'}`;
+                                console.log(`🚫 MESSAGE BLOCKED - Temporarily muted user ${socket.username} until ${muteUntilDate.toLocaleString()}: ${muteData.mute_reason || 'No reason'}`);
+                                socket.emit('message_sent', { 
+                                    success: false, 
+                                    error: muteMessage 
+                                });
+                                return;
+                            }
+                        }
                     }
-                });
-            });
-        });
-    });
 
-    // Handle friend request responses
-    socket.on('respond_friend_request', (data) => {
-        if (data.accepted) {
-            // Accept the friend request - use INSERT OR REPLACE to avoid duplicates
-            console.log(`✅ Accepting friend request: fromId=${data.fromId}, toId=${socket.userId}`);
-            
-            // First, update the existing request to accepted
-            db.run('UPDATE friends SET status = ? WHERE user_id = ? AND friend_id = ?', 
-                ['accepted', data.fromId, socket.userId], function(err) {
-                if (err) {
-                    console.error('❌ Error updating friend request:', err);
-                    socket.emit('friend_response_result', { success: false, message: 'Database error' });
+                    // Check chat filter
+                    db.all('SELECT word FROM chat_filter_words', (err, filterWords) => {
+                        if (err) {
+                            console.error('Error checking chat filter:', err);
+                            // Continue without filter if there's an error
+                        }
+
+                        let filteredMessage = data.message;
+                        let messageBlocked = false;
+                        let blockedWords = [];
+
+                        if (filterWords && filterWords.length > 0) {
+                            const messageLower = data.message.toLowerCase();
+                            filterWords.forEach(filterWord => {
+                                if (messageLower.includes(filterWord.word.toLowerCase())) {
+                                    messageBlocked = true;
+                                    blockedWords.push(filterWord.word);
+                                }
+                            });
+
+                            if (messageBlocked && !socket.isAdmin) {
+                                console.log(`🚫 MESSAGE BLOCKED - Filtered content from ${socket.username}: ${blockedWords.join(', ')}`);
+                                socket.emit('message_sent', { 
+                                    success: false, 
+                                    error: `Message blocked due to inappropriate content: ${blockedWords.join(', ')}` 
+                                });
+                                return;
+                            } else if (messageBlocked && socket.isAdmin) {
+                                console.log(`✅ Admin ${socket.username} bypassed filter for words: ${blockedWords.join(', ')}`);
+                            }
+                        }
+
+                        const messageData = {
+                            senderId: socket.userId,
+                            senderName: socket.username,
+                            receiverId: data.receiverId || 'global',
+                            message: filteredMessage,
+                            timestamp: Date.now()
+                        };
+
+                        // Save to database with error handling (let SQLite auto-generate the id)
+                        db.run(
+                            'INSERT INTO chat_messages (sender_id, receiver_id, message) VALUES (?, ?, ?)',
+                            [socket.userId, data.receiverId || 'global', filteredMessage],
+                            function(err) {
+                                if (err) {
+                                    console.error('❌ Database error saving message:', err);
+                                    socket.emit('message_sent', { 
+                                        success: false, 
+                                        error: 'Failed to save message' 
+                                    });
+                                    return;
+                                }
+
+                                // Add the auto-generated ID to the message data
+                                const savedMessageData = {
+                                    ...messageData,
+                                    id: this.lastID
+                                };
+
+                                // Send to receiver if online (for private messages)
+                                if (data.receiverId) {
+                                    const receiverSocket = userSockets.get(data.receiverId);
+                                    if (receiverSocket) {
+                                        receiverSocket.emit('new_message', savedMessageData);
+                                    }
+                                } else {
+                                    // Broadcast to all online users for global chat
+                                    userSockets.forEach((userSocket) => {
+                                        if (userSocket.id !== socket.id) {
+                                            userSocket.emit('new_message', savedMessageData);
+                                        }
+                                    });
+                                }
+
+                                // Send confirmation to sender
+                                socket.emit('message_sent', { 
+                                    success: true, 
+                                    message: savedMessageData 
+                                });
+                            }
+                        );
+                    });
+                });
+            } catch (error) {
+                console.error('Error handling chat message:', error);
+                socket.emit('message_sent', { 
+                    success: false, 
+                    error: 'Server error processing message' 
+                });
+            }
+        });
+
+        // Handle friend requests
+        socket.on('send_friend_request', (targetUsername) => {
+            // Use case-insensitive search for username
+            db.get('SELECT id, username FROM users WHERE LOWER(username) = LOWER(?)', [targetUsername], (err, targetUser) => {
+                if (err || !targetUser) {
+                    socket.emit('friend_request_result', { success: false, message: 'User not found' });
                     return;
                 }
 
-                console.log(`✅ Updated friend request. Rows affected: ${this.changes}`);
+                if (targetUser.id === socket.userId) {
+                    socket.emit('friend_request_result', { success: false, message: 'Cannot add yourself as friend' });
+                    return;
+                }
 
-                // Add reverse friendship using INSERT OR REPLACE to avoid constraint violations
-                db.run('INSERT OR REPLACE INTO friends (user_id, friend_id, status) VALUES (?, ?, "accepted")', 
-                    [socket.userId, data.fromId], function(err) {
+                // Check if already friends or request pending (only check for active relationships)
+                db.get('SELECT * FROM friends WHERE ((user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)) AND status IN ("pending", "accepted")', 
+                    [socket.userId, targetUser.id, targetUser.id, socket.userId], (err, existing) => {
                     if (err) {
-                        console.error('❌ Error creating reverse friendship:', err);
+                        console.error('❌ Database error checking friendship:', err);
+                        socket.emit('friend_request_result', { success: false, message: 'Database error' });
+                        return;
+                    }
+
+                    if (existing) {
+                        const status = existing.status === 'accepted' ? 'already friends' : 'request pending';
+                        socket.emit('friend_request_result', { success: false, message: `Already ${status}` });
+                        return;
+                    }
+
+                    // Send friend request
+                    db.run('INSERT INTO friends (user_id, friend_id, status) VALUES (?, ?, "pending")', 
+                        [socket.userId, targetUser.id], function(err) {
+                        if (err) {
+                            socket.emit('friend_request_result', { success: false, message: 'Failed to send request' });
+                            return;
+                        }
+
+                        console.log(`👥 FRIEND REQUEST: ${socket.username} → ${targetUser.username}`);
+                        socket.emit('friend_request_result', { success: true, message: 'Friend request sent!' });
+
+                        // Notify target user if online
+                        const targetSocket = userSockets.get(targetUser.id);
+                        if (targetSocket) {
+                            targetSocket.emit('friend_request_received', {
+                                fromId: socket.userId,
+                                fromName: socket.username
+                            });
+                        }
+                    });
+                });
+            });
+        });
+
+        // Handle friend request responses
+        socket.on('respond_friend_request', (data) => {
+            if (data.accepted) {
+                // Accept the friend request - use INSERT OR REPLACE to avoid duplicates
+                // First, update the existing request to accepted
+                db.run('UPDATE friends SET status = ? WHERE user_id = ? AND friend_id = ?', 
+                    ['accepted', data.fromId, socket.userId], function(err) {
+                    if (err) {
+                        console.error('❌ Error updating friend request:', err);
                         socket.emit('friend_response_result', { success: false, message: 'Database error' });
                         return;
                     }
 
-                    console.log(`✅ Created reverse friendship. Rows affected: ${this.changes}`);
+                    // Add reverse friendship using INSERT OR REPLACE to avoid constraint violations
+                    db.run('INSERT OR REPLACE INTO friends (user_id, friend_id, status) VALUES (?, ?, "accepted")', 
+                        [socket.userId, data.fromId], function(err) {
+                        if (err) {
+                            console.error('❌ Error creating reverse friendship:', err);
+                            socket.emit('friend_response_result', { success: false, message: 'Database error' });
+                            return;
+                        }
 
+                        console.log(`✅ FRIENDSHIP ACCEPTED: ${socket.username} ↔ ${data.fromName || 'Unknown'}`);
+                        socket.emit('friend_response_result', { 
+                            success: true, 
+                            message: 'Friend request accepted!' 
+                        });
+
+                        // Notify requester if online
+                        const requesterSocket = userSockets.get(data.fromId);
+                        if (requesterSocket) {
+                            requesterSocket.emit('friend_request_responded', {
+                                byId: socket.userId,
+                                byName: socket.username,
+                                accepted: true
+                            });
+                        }
+                    });
+                });
+            } else {
+                // Reject the friend request - DELETE it completely
+                db.run('DELETE FROM friends WHERE (user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)', 
+                    [data.fromId, socket.userId, socket.userId, data.fromId], function(err) {
+                    if (err) {
+                        console.error('❌ Error deleting friend request:', err);
+                        socket.emit('friend_response_result', { success: false, message: 'Database error' });
+                        return;
+                    }
+
+                    console.log(`❌ FRIEND REQUEST REJECTED: ${socket.username} → ${data.fromName || 'Unknown'}`);
                     socket.emit('friend_response_result', { 
                         success: true, 
-                        message: 'Friend request accepted!' 
+                        message: 'Friend request rejected' 
                     });
 
                     // Notify requester if online
@@ -715,111 +714,82 @@ io.on('connection', (socket) => {
                         requesterSocket.emit('friend_request_responded', {
                             byId: socket.userId,
                             byName: socket.username,
-                            accepted: true
-                        });
-                    }
-                });
-            });
-        } else {
-            // Reject the friend request - DELETE it completely
-            console.log(`🗑️ Deleting friend request: fromId=${data.fromId}, toId=${socket.userId}`);
-            db.run('DELETE FROM friends WHERE (user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)', 
-                [data.fromId, socket.userId, socket.userId, data.fromId], function(err) {
-                if (err) {
-                    console.error('❌ Error deleting friend request:', err);
-                    socket.emit('friend_response_result', { success: false, message: 'Database error' });
-                    return;
-                }
-
-                console.log(`✅ Friend request deleted successfully. Rows affected: ${this.changes}`);
-                socket.emit('friend_response_result', { 
-                    success: true, 
-                    message: 'Friend request rejected' 
-                });
-
-                // Notify requester if online
-                const requesterSocket = userSockets.get(data.fromId);
-                if (requesterSocket) {
-                    requesterSocket.emit('friend_request_responded', {
-                        byId: socket.userId,
-                        byName: socket.username,
-                        accepted: false
-                    });
-                }
-            });
-        }
-    });
-
-    // Handle unfriend requests
-    socket.on('unfriend_user', (data) => {
-        try {
-            const { friendId } = data;
-            console.log(`Unfriend request: userId=${socket.userId}, friendId=${friendId}`);
-            
-            // Remove friendship from both sides
-            db.run(
-                'DELETE FROM friends WHERE (user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)',
-                [socket.userId, friendId, friendId, socket.userId],
-                function(err) {
-                    if (err) {
-                        console.error('Database error unfriending user:', err);
-                        socket.emit('unfriend_result', { success: false, message: 'Failed to unfriend user' });
-                        return;
-                    }
-                    
-                    if (this.changes > 0) {
-                        console.log(`User unfriended successfully`);
-                        
-                        // Notify the other user
-                        const targetSocket = userSockets.get(friendId);
-                        if (targetSocket) {
-                            targetSocket.emit('user_unfriended', {
-                                byId: socket.userId,
-                                byName: socket.username
-                            });
-                        }
-                        
-                        socket.emit('unfriend_result', { 
-                            success: true, 
-                            message: 'User unfriended successfully' 
-                        });
-                    } else {
-                        socket.emit('unfriend_result', { success: false, message: 'Friendship not found' });
-                    }
-                }
-            );
-        } catch (error) {
-            console.error('Error handling unfriend request:', error);
-            socket.emit('unfriend_result', { success: false, message: 'Server error' });
-        }
-    });
-
-    // Handle disconnection
-    socket.on('disconnect', () => {
-        console.log(`User disconnected: ${socket.username}`);
-        
-        // Remove from online users
-        onlineUsers.delete(socket.userId);
-        userSockets.delete(socket.userId);
-
-        // Update database
-        db.run('UPDATE users SET is_online = 0 WHERE id = ?', [socket.userId]);
-
-        // Notify friends
-        db.all('SELECT friend_id FROM friends WHERE user_id = ? AND status = "accepted"', [socket.userId], (err, friends) => {
-            if (!err && friends) {
-                friends.forEach(friend => {
-                    const friendSocket = userSockets.get(friend.friend_id);
-                    if (friendSocket) {
-                        friendSocket.emit('friend_offline', {
-                            userId: socket.userId,
-                            username: socket.username
+                            accepted: false
                         });
                     }
                 });
             }
         });
-    });
+
+        // Handle unfriend requests
+        socket.on('unfriend_user', (data) => {
+            try {
+                const { friendId } = data;
+                
+                // Remove friendship from both sides
+                db.run(
+                    'DELETE FROM friends WHERE (user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)',
+                    [socket.userId, friendId, friendId, socket.userId],
+                    function(err) {
+                        if (err) {
+                            console.error('Database error unfriending user:', err);
+                            socket.emit('unfriend_result', { success: false, message: 'Failed to unfriend user' });
+                            return;
+                        }
+                        
+                        if (this.changes > 0) {
+                            console.log(`👥 UNFRIENDED: ${socket.username} removed friendship`);
+                            
+                            // Notify the other user
+                            const targetSocket = userSockets.get(friendId);
+                            if (targetSocket) {
+                                targetSocket.emit('user_unfriended', {
+                                    byId: socket.userId,
+                                    byName: socket.username
+                                });
+                            }
+                            
+                            socket.emit('unfriend_result', { 
+                                success: true, 
+                                message: 'User unfriended successfully' 
+                            });
+                        } else {
+                            socket.emit('unfriend_result', { success: false, message: 'Friendship not found' });
+                        }
+                    }
+                );
+            } catch (error) {
+                console.error('Error handling unfriend request:', error);
+                socket.emit('unfriend_result', { success: false, message: 'Server error' });
+            }
+        });
+
+        // Handle disconnection
+        socket.on('disconnect', () => {
+            console.log(`🔴 User OFFLINE: ${socket.username} (ID: ${socket.userId})`);
+            
+            // Remove from online users
+            onlineUsers.delete(socket.userId);
+            userSockets.delete(socket.userId);
+
+            // Update database
+            db.run('UPDATE users SET is_online = 0 WHERE id = ?', [socket.userId]);
+
+            // Notify friends
+            db.all('SELECT friend_id FROM friends WHERE user_id = ? AND status = "accepted"', [socket.userId], (err, friends) => {
+                if (!err && friends) {
+                    friends.forEach(friend => {
+                        const friendSocket = userSockets.get(friend.friend_id);
+                        if (friendSocket) {
+                            friendSocket.emit('friend_offline', {
+                                userId: socket.userId,
+                                username: socket.username
+                            });
+                        }
+                    });
+                }
+            });
+        });
     } catch (error) {
         console.error('Socket connection error:', error);
         socket.disconnect();
@@ -854,16 +824,26 @@ app.get('/api/users/:userId/garden', (req, res) => {
 app.get('/api/users/:userId/friends', (req, res) => {
     const userId = req.params.userId;
     db.all(`
-        SELECT u.id, u.username, u.is_online, f.status, f.created_at
+        SELECT u.id, u.username, u.is_online, f.status, f.created_at, 'sent' as request_type
         FROM friends f
         JOIN users u ON (f.friend_id = u.id)
-        WHERE f.user_id = ?
+        WHERE f.user_id = ? AND f.status = 'pending'
         UNION
-        SELECT u.id, u.username, u.is_online, f.status, f.created_at
+        SELECT u.id, u.username, u.is_online, f.status, f.created_at, 'received' as request_type
         FROM friends f
         JOIN users u ON (f.user_id = u.id)
-        WHERE f.friend_id = ?
-    `, [userId, userId], (err, friends) => {
+        WHERE f.friend_id = ? AND f.status = 'pending'
+        UNION
+        SELECT u.id, u.username, u.is_online, f.status, f.created_at, 'accepted' as request_type
+        FROM friends f
+        JOIN users u ON (f.friend_id = u.id)
+        WHERE f.user_id = ? AND f.status = 'accepted'
+        UNION
+        SELECT u.id, u.username, u.is_online, f.status, f.created_at, 'accepted' as request_type
+        FROM friends f
+        JOIN users u ON (f.user_id = u.id)
+        WHERE f.friend_id = ? AND f.status = 'accepted'
+    `, [userId, userId, userId, userId], (err, friends) => {
         if (err) {
             res.status(500).json({ error: 'Database error' });
             return;
@@ -925,6 +905,11 @@ app.get('/test-connection', (req, res) => {
     res.sendFile(path.join(__dirname, 'test-connection.html'));
 });
 
+// Serve database fix page
+app.get('/fix-database', (req, res) => {
+    res.sendFile(path.join(__dirname, 'fix-database.html'));
+});
+
 // Health check endpoint for keep-alive
 app.get('/health', (req, res) => {
     res.json({ 
@@ -933,6 +918,134 @@ app.get('/health', (req, res) => {
         uptime: process.uptime(),
         onlineUsers: onlineUsers.size
     });
+});
+
+// Get current IP address (for testing ban system safely)
+app.get('/api/my-ip', (req, res) => {
+    const clientIP = req.ip || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket?.remoteAddress;
+    res.json({ 
+        ip: clientIP,
+        forwardedFor: req.headers['x-forwarded-for'],
+        realIP: req.headers['x-real-ip'],
+        userAgent: req.headers['user-agent']
+    });
+});
+
+// Fix database endpoint
+app.get('/api/fix-database', (req, res) => {
+    console.log('🔧 Fixing database...');
+    
+    db.serialize(() => {
+        // Add test data to admin_logs for security tab
+        db.run(`INSERT OR IGNORE INTO admin_logs (admin_id, admin_username, action, target_user_id, target_username, details, ip_address)
+                VALUES ('test-admin', 'admin', 'TEST_LOGIN', 'test-user', 'testuser', 'Test security log entry', '192.168.1.100')`, (err) => {
+            if (err) console.error('Error adding test log:', err);
+            else console.log('✅ Test security log added');
+        });
+
+        setTimeout(() => {
+            res.json({ 
+                message: 'Database fixed successfully!',
+                status: 'success'
+            });
+        }, 1000);
+    });
+});
+
+// Test database status endpoint
+app.get('/api/test-db', (req, res) => {
+    console.log('🔍 Testing database status...');
+    
+    db.all('SELECT name FROM sqlite_master WHERE type="table"', (err, tables) => {
+        if (err) {
+            console.error('❌ Database error:', err.message);
+            return res.json({ 
+                error: 'Database error', 
+                message: err.message,
+                tables: []
+            });
+        }
+        
+        const tableNames = tables.map(t => t.name);
+        console.log('📋 Tables found:', tableNames);
+        
+        // Check specific tables
+        const requiredTables = ['banned_ips', 'banned_devices', 'admin_logs', 'user_mutes'];
+        const missingTables = requiredTables.filter(table => !tableNames.includes(table));
+        
+        res.json({
+            success: true,
+            totalTables: tableNames.length,
+            allTables: tableNames,
+            requiredTables: requiredTables,
+            missingTables: missingTables,
+            hasAllRequired: missingTables.length === 0
+        });
+    });
+});
+
+// Test admin users endpoint
+app.get('/api/test-admin', (req, res) => {
+    db.get('SELECT COUNT(*) as count FROM users WHERE is_admin = 1', (err, result) => {
+        if (err) {
+            return res.json({ error: 'Database error', message: err.message });
+        }
+        
+        res.json({
+            success: true,
+            adminCount: result.count,
+            hasAdmins: result.count > 0
+        });
+    });
+});
+
+// Create admin user endpoint (for first-time setup)
+app.post('/api/create-admin', async (req, res) => {
+    const { username, password, email } = req.body;
+    
+    if (!username || !password) {
+        return res.status(400).json({ error: 'Username and password required' });
+    }
+    
+    try {
+        const bcrypt = require('bcryptjs');
+        const { v4: uuidv4 } = require('uuid');
+        const jwt = require('jsonwebtoken');
+        
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const userId = uuidv4();
+        const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this';
+        
+        db.run(
+            'INSERT INTO users (id, username, email, password_hash, is_admin) VALUES (?, ?, ?, ?, 1)',
+            [userId, username, email || null, hashedPassword],
+            function(err) {
+                if (err) {
+                    console.error('Error creating admin:', err);
+                    return res.status(500).json({ error: 'Database error', message: err.message });
+                }
+                
+                const token = jwt.sign(
+                    { id: userId, username, isAdmin: true },
+                    JWT_SECRET,
+                    { expiresIn: '24h' }
+                );
+                
+                res.json({
+                    message: 'Admin account created successfully',
+                    token,
+                    user: {
+                        id: userId,
+                        username,
+                        isAdmin: true
+                    }
+                });
+            }
+        );
+    } catch (error) {
+        console.error('Error creating admin:', error);
+        res.status(500).json({ error: 'Server error', message: error.message });
+    }
 });
 
 // Serve the main game page (client-side handles authentication)

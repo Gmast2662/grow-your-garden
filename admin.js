@@ -37,21 +37,6 @@ const disconnectUser = (userId, reason = null) => {
     }
 };
 
-// Function to log admin actions
-const logAdminAction = (adminId, adminUsername, action, targetUserId = null, targetUsername = null, details = null, ipAddress = null) => {
-    db.run(
-        'INSERT INTO admin_logs (admin_id, admin_username, action, target_user_id, target_username, details, ip_address) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        [adminId, adminUsername, action, targetUserId, targetUsername, details, ipAddress],
-        function(err) {
-            if (err) {
-                console.error('❌ Error logging admin action:', err);
-            } else {
-                console.log(`📝 Admin log: ${adminUsername} ${action} ${targetUsername || ''}`);
-            }
-        }
-    );
-};
-
 // JWT secret
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this';
 
@@ -83,6 +68,49 @@ const authenticateAdmin = (req, res, next) => {
         return res.status(401).json({ error: 'Invalid token' });
     }
 };
+
+// Helper function to log admin actions
+function logAdminAction(adminId, adminUsername, action, targetUserId = null, targetUsername = null, details = null, ipAddress = null) {
+    db.run(
+        'INSERT INTO admin_logs (admin_id, admin_username, action, target_user_id, target_username, details, ip_address) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [adminId, adminUsername, action, targetUserId, targetUsername, details, ipAddress]
+    );
+    console.log(`📝 Admin log: ${adminUsername} ${action} ${targetUsername || ''}`);
+}
+
+// Force logout user
+router.post('/force-logout/:userId', authenticateAdmin, async (req, res) => {
+    const { userId } = req.params;
+    const { reason } = req.body;
+
+    try {
+        // Get user info
+        db.get('SELECT username FROM users WHERE id = ?', [userId], (err, user) => {
+            if (err || !user) {
+                return res.status(404).json({ error: 'User not found' });
+            }
+
+            // Disconnect user if online
+            const userSocket = userSockets.get(userId);
+            if (userSocket) {
+                userSocket.emit('force_logout', { reason: reason || 'Admin action' });
+                userSocket.disconnect();
+                console.log(`🔌 Admin forced logout for user: ${user.username}${reason ? ` - ${reason}` : ''}`);
+            }
+
+            // Log admin action
+            db.run(
+                'INSERT INTO admin_logs (admin_id, admin_username, action, target_user_id, target_username, details, ip_address) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                [req.user.id, req.user.username, 'force_logout', userId, user.username, reason || 'No reason provided', req.ip]
+            );
+
+            res.json({ message: 'User logged out successfully' });
+        });
+    } catch (error) {
+        console.error('Error forcing logout:', error);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
 
 // Admin login
 router.post('/login', async (req, res) => {
@@ -331,6 +359,7 @@ router.get('/banned-ips', authenticateAdmin, (req, res) => {
         ORDER BY created_at DESC
     `, (err, bannedIPs) => {
         if (err) {
+            console.error('❌ Error fetching banned IPs:', err);
             return res.status(500).json({ error: 'Database error' });
         }
         
@@ -350,6 +379,7 @@ router.get('/banned-devices', authenticateAdmin, (req, res) => {
         ORDER BY created_at DESC
     `, (err, bannedDevices) => {
         if (err) {
+            console.error('❌ Error fetching banned devices:', err);
             return res.status(500).json({ error: 'Database error' });
         }
         
@@ -364,17 +394,17 @@ router.get('/security-logs', authenticateAdmin, (req, res) => {
     
     db.all(`
         SELECT 
-            username,
+            admin_username as username,
             action,
             ip_address,
-            device_fingerprint,
             details,
             created_at
-        FROM security_logs 
+        FROM admin_logs 
         ORDER BY created_at DESC 
         LIMIT ? OFFSET ?
     `, [limit, offset], (err, securityLogs) => {
         if (err) {
+            console.error('❌ Error fetching security logs:', err);
             return res.status(500).json({ error: 'Database error' });
         }
         
@@ -443,10 +473,33 @@ router.get('/users/:userId', authenticateAdmin, (req, res) => {
 // Ban user (admin only)
 router.post('/users/:userId/ban', authenticateAdmin, (req, res) => {
     const { userId } = req.params;
-    const { reason, banIP = false, banDevice = false } = req.body;
+    const { reason, banType = 'user', banIP = false, banDevice = false, ipAddress } = req.body;
     
-    if (!reason) {
-        return res.status(400).json({ error: 'Ban reason required' });
+    // Reason is now optional
+    const banReason = reason || 'No reason provided';
+    
+    // Determine ban options based on banType
+    let shouldBanUser = false;
+    let shouldBanIP = false;
+    let shouldBanDevice = false;
+    
+    switch(banType) {
+        case 'user':
+            shouldBanUser = true;
+            break;
+        case 'ip':
+            shouldBanIP = true;
+            break;
+        case 'device':
+            shouldBanDevice = true;
+            break;
+        case 'all':
+            shouldBanUser = true;
+            shouldBanIP = true;
+            shouldBanDevice = true;
+            break;
+        default:
+            return res.status(400).json({ error: 'Invalid ban type. Use: user, ip, device, or all' });
     }
     
     // Get target user info for logging
@@ -459,57 +512,70 @@ router.post('/users/:userId/ban', authenticateAdmin, (req, res) => {
             return res.status(404).json({ error: 'User not found' });
         }
         
-        db.run(
-            'UPDATE users SET is_banned = 1, ban_reason = ? WHERE id = ?',
-            [reason, userId],
-            function(err) {
-                if (err) {
-                    return res.status(500).json({ error: 'Database error' });
+        // Ban user account if requested
+        if (shouldBanUser) {
+            db.run(
+                'UPDATE users SET is_banned = 1, ban_reason = ? WHERE id = ?',
+                [banReason, userId],
+                function(err) {
+                    if (err) {
+                        return res.status(500).json({ error: 'Database error' });
+                    }
+                    
+                    if (this.changes === 0) {
+                        return res.status(404).json({ error: 'User not found' });
+                    }
+                    
+                    // Disconnect user if online
+                    disconnectUser(userId);
                 }
-                
-                if (this.changes === 0) {
-                    return res.status(404).json({ error: 'User not found' });
-                }
-                
-                // Log the action
-                logAdminAction(
-                    req.user.id,
-                    req.user.username,
-                    'banned user',
-                    userId,
-                    targetUser.username,
-                    `Reason: ${reason}${banIP ? ' + IP banned' : ''}${banDevice ? ' + Device banned' : ''}`,
-                    req.ip
-                );
-                
-                // Ban IP address if requested and available
-                if (banIP && targetUser.registration_ip) {
-                    db.run(
-                        'INSERT OR REPLACE INTO banned_ips (ip_address, reason, banned_by_admin_id, banned_by_admin_username) VALUES (?, ?, ?, ?)',
-                        [targetUser.registration_ip, `User ban: ${reason}`, req.user.id, req.user.username]
-                    );
-                }
-                
-                // Ban device if requested and available
-                if (banDevice && targetUser.device_fingerprint) {
-                    db.run(
-                        'INSERT OR REPLACE INTO banned_devices (device_fingerprint, reason, banned_by_admin_id, banned_by_admin_username) VALUES (?, ?, ?, ?)',
-                        [targetUser.device_fingerprint, `User ban: ${reason}`, req.user.id, req.user.username]
-                    );
-                }
-                
-                // Disconnect user if online
-                disconnectUser(userId);
-                
-                res.json({ 
-                    message: 'User banned successfully',
-                    userId,
-                    reason,
-                    ipBanned: banIP && targetUser.registration_ip,
-                    deviceBanned: banDevice && targetUser.device_fingerprint
-                });
-            }
+            );
+        }
+        
+        // Log the action
+        const banDetails = [];
+        if (shouldBanUser) banDetails.push('User banned');
+        if (shouldBanIP) banDetails.push('IP banned');
+        if (shouldBanDevice) banDetails.push('Device banned');
+        
+        logAdminAction(
+            req.user.id,
+            req.user.username,
+            'banned user',
+            userId,
+            targetUser.username,
+            `Reason: ${banReason} | Types: ${banDetails.join(', ')}`,
+            req.ip
         );
+        
+        // Ban IP address if requested
+        if (shouldBanIP) {
+            const ipToBan = ipAddress || targetUser.registration_ip;
+            if (ipToBan) {
+                db.run(
+                    'INSERT OR REPLACE INTO banned_ips (ip_address, reason, banned_by_admin_id, banned_by_admin_username) VALUES (?, ?, ?, ?)',
+                    [ipToBan, `User ban: ${banReason}`, req.user.id, req.user.username]
+                );
+            }
+        }
+        
+        // Ban device if requested and available
+        if (shouldBanDevice && targetUser.device_fingerprint) {
+            db.run(
+                'INSERT OR REPLACE INTO banned_devices (device_fingerprint, reason, banned_by_admin_id, banned_by_admin_username) VALUES (?, ?, ?, ?)',
+                [targetUser.device_fingerprint, `User ban: ${banReason}`, req.user.id, req.user.username]
+            );
+        }
+        
+        res.json({ 
+            message: 'Ban executed successfully',
+            userId,
+            reason,
+            banType,
+            userBanned: shouldBanUser,
+            ipBanned: shouldBanIP && targetUser.registration_ip,
+            deviceBanned: shouldBanDevice && targetUser.device_fingerprint
+        });
     });
 });
 
@@ -867,7 +933,7 @@ router.get('/stats', authenticateAdmin, (req, res) => {
             });
         }),
         new Promise((resolve, reject) => {
-            db.get('SELECT COUNT(*) as muted_users FROM user_mutes WHERE muted_until IS NULL OR muted_until > datetime("now")', (err, result) => {
+            db.get('SELECT COUNT(*) as muted_users FROM user_mutes WHERE muted_until IS NULL OR muted_until > datetime("now", "localtime")', (err, result) => {
                 if (err) reject(err);
                 else resolve(result.muted_users);
             });
@@ -879,12 +945,48 @@ router.get('/stats', authenticateAdmin, (req, res) => {
             });
         }),
         new Promise((resolve, reject) => {
-            db.get('SELECT COUNT(*) as total_gardens FROM gardens', (err, result) => {
+            db.get('SELECT COUNT(DISTINCT user_id) as total_gardens FROM gardens WHERE user_id IS NOT NULL', (err, result) => {
                 if (err) reject(err);
                 else resolve(result.total_gardens || 0);
             });
+        }),
+        new Promise((resolve, reject) => {
+            db.get('SELECT COUNT(*) as banned_ips FROM banned_ips', (err, result) => {
+                if (err) reject(err);
+                else resolve(result.banned_ips || 0);
+            });
+        }),
+        new Promise((resolve, reject) => {
+            db.get('SELECT COUNT(*) as banned_devices FROM banned_devices', (err, result) => {
+                if (err) reject(err);
+                else resolve(result.banned_devices || 0);
+            });
+        }),
+        new Promise((resolve, reject) => {
+            db.get('SELECT COUNT(*) as security_logs FROM security_logs', (err, result) => {
+                if (err) reject(err);
+                else resolve(result.security_logs || 0);
+            });
+        }),
+        new Promise((resolve, reject) => {
+            db.get('SELECT COUNT(*) as active_announcements FROM announcements WHERE is_active = 1', (err, result) => {
+                if (err) reject(err);
+                else resolve(result.active_announcements || 0);
+            });
+        }),
+        new Promise((resolve, reject) => {
+            db.get('SELECT COUNT(*) as week_users FROM users WHERE created_at >= datetime("now", "-7 days")', (err, result) => {
+                if (err) reject(err);
+                else resolve(result.week_users || 0);
+            });
+        }),
+        new Promise((resolve, reject) => {
+            db.get('SELECT COUNT(*) as week_messages FROM chat_messages WHERE created_at >= datetime("now", "-7 days")', (err, result) => {
+                if (err) reject(err);
+                else resolve(result.week_messages || 0);
+            });
         })
-    ]).then(([totalUsers, onlineUsers, bannedUsers, totalMessages, totalFriends, pendingFriends, totalAnnouncements, adminUsers, totalLogs, todayUsers, todayMessages, mutedUsers, totalFilterWords, totalGardens]) => {
+    ]).then(([totalUsers, onlineUsers, bannedUsers, totalMessages, totalFriends, pendingFriends, totalAnnouncements, adminUsers, totalLogs, todayUsers, todayMessages, mutedUsers, totalFilterWords, totalGardens, bannedIPs, bannedDevices, securityLogs, activeAnnouncements, weekUsers, weekMessages]) => {
         res.json({
             stats: {
                 totalUsers,
@@ -900,7 +1002,13 @@ router.get('/stats', authenticateAdmin, (req, res) => {
                 todayMessages,
                 mutedUsers,
                 totalFilterWords,
-                totalGardens
+                totalGardens,
+                bannedIPs,
+                bannedDevices,
+                securityLogs,
+                activeAnnouncements,
+                weekUsers,
+                weekMessages
             }
         });
     }).catch(error => {
@@ -1151,10 +1259,18 @@ router.post('/mute', authenticateAdmin, (req, res) => {
                         req.ip
                     );
                     
-                    // Disconnect user if permanently muted
+                    // Send mute notification to user if they're online (but don't disconnect)
                     if (duration === 'permanent') {
-                        const disconnectMessage = `You have been permanently muted: ${reason || 'No reason provided'}. You have been disconnected from the server.`;
-                        disconnectUser(userId, disconnectMessage);
+                        const muteMessage = `You have been permanently muted: ${reason || 'No reason provided'}. You can still play the game but cannot send chat messages.`;
+                        // Find user's socket and send notification
+                        userSockets.forEach((socket, socketUserId) => {
+                            if (socketUserId === userId) {
+                                socket.emit('admin_action', {
+                                    type: 'mute_notification',
+                                    message: muteMessage
+                                });
+                            }
+                        });
                     }
                     
                     res.json({
