@@ -1,5 +1,27 @@
 # Update Log
 
+## [1.6.22] - 2025-08-19
+
+### 🔧 FIXED: Permanent Mute Issue & User Tab Cleanup
+- **Issue**: Permanent mutes only worked if a reason was provided (reason should be optional)
+- **Root Cause**: Login logic in auth.js was checking `mute_reason !== null && muted_until !== null` which failed for permanent mutes
+- **Fix**: Updated login logic to properly handle permanent mutes by checking `mute_reason !== null` first, then handling temporary vs permanent separately
+- **Result**: Permanent mutes now work correctly whether a reason is provided or not
+
+### 🧹 CLEANUP: Removed Ban Options from User Tab
+- **Issue**: Ban options were duplicated between User tab and Security tab
+- **Solution**: Removed ban/unban buttons and functions from User tab
+- **Added**: "View IPs" button to show user's registration and last login IP addresses
+- **Result**: Cleaner User tab interface with no duplicate functionality
+
+### 📍 ADDED: User IP Information Display
+- **Feature**: New "View IPs" button in User tab shows:
+  - User's registration IP address
+  - User's last login IP address
+  - Instructions to use these IPs in Security tab for banning
+- **Purpose**: Helps admins identify and ban problematic IP addresses
+- **Implementation**: Simple alert dialog showing IP information
+
 ## [1.6.21] - 2025-08-19
 
 ### 🔧 FIXED: Security Tab Complete Rebuild

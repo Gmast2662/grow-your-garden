@@ -127,18 +127,23 @@ router.post('/login', async (req, res) => {
                 });
             }
 
-            // Check if user is temporarily muted (permanent mutes should not block login)
-            if (user.mute_reason !== null && user.muted_until !== null) {
-                // Temporary mute - check if still active
-                const now = new Date();
-                const muteUntil = new Date(user.muted_until);
-                if (muteUntil > now) {
-                    console.log(`🚫 LOGIN BLOCKED - Temporarily muted user ${username} attempted login until ${muteUntil.toLocaleString()}: ${user.mute_reason || 'No reason'}`);
-                    return res.status(403).json({ 
-                        error: 'Account muted', 
-                        reason: user.mute_reason,
-                        muted_until: user.muted_until
-                    });
+            // Check if user is muted (permanent mutes should not block login)
+            if (user.mute_reason !== null) {
+                if (user.muted_until !== null) {
+                    // Temporary mute - check if still active
+                    const now = new Date();
+                    const muteUntil = new Date(user.muted_until);
+                    if (muteUntil > now) {
+                        console.log(`🚫 LOGIN BLOCKED - Temporarily muted user ${username} attempted login until ${muteUntil.toLocaleString()}: ${user.mute_reason || 'No reason'}`);
+                        return res.status(403).json({ 
+                            error: 'Account muted', 
+                            reason: user.mute_reason,
+                            muted_until: user.muted_until
+                        });
+                    }
+                } else {
+                    // Permanent mute - allow login but log it
+                    console.log(`🔇 LOGIN ALLOWED - Permanently muted user ${username} logged in: ${user.mute_reason || 'No reason'}`);
                 }
             }
 

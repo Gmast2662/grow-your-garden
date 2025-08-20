@@ -752,20 +752,6 @@
     </div>
 
     <!-- Modals -->
-    <div id="banModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('banModal')">&times;</span>
-            <h3>Ban User</h3>
-            <form id="banForm">
-                <div class="form-group">
-                    <label for="banReason">Ban Reason:</label>
-                    <textarea id="banReason" name="reason" rows="3" required></textarea>
-                </div>
-                <button type="submit" class="btn btn-danger">Ban User</button>
-                <button type="button" class="btn" onclick="closeModal('banModal')">Cancel</button>
-            </form>
-        </div>
-    </div>
 
     <div id="resetPasswordModal" class="modal">
         <div class="modal-content">
@@ -832,36 +818,7 @@
 
 
 
-        // Ban form handler
-        document.getElementById('banForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const reason = formData.get('reason');
 
-            try {
-                const response = await fetch(`/api/admin/users/${currentUserId}/ban`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${adminToken}`
-                    },
-                    body: JSON.stringify({ reason })
-                });
-
-                const result = await response.json();
-
-                if (response.ok) {
-                    showAlert('User banned successfully!', 'success');
-                    closeModal('banModal');
-                    loadUsers();
-                    loadStats();
-                } else {
-                    showAlert(result.error, 'error');
-                }
-            } catch (error) {
-                showAlert('Ban failed: ' + error.message, 'error');
-            }
-        });
 
         // Reset password form handler
         document.getElementById('resetPasswordForm').addEventListener('submit', async (e) => {
@@ -1144,10 +1101,6 @@
                                                                   <td>${formatLocalTime(user.created_at)}</td>
                                 <td>${formatLocalTime(user.last_login)}</td>
                                 <td>
-                                    ${user.is_banned ? 
-                                        `<button class="btn btn-success" onclick="unbanUser('${user.id}')">Unban</button>` :
-                                        `<button class="btn btn-danger" onclick="banUser('${user.id}')">Ban</button>`
-                                    }
                                     <button class="btn btn-warning" onclick="resetPassword('${user.id}')">Reset Password</button>
                                     ${!user.is_admin ? 
                                         `<button class="btn" onclick="makeAdmin('${user.id}')">Make Admin</button>` :
@@ -1155,6 +1108,7 @@
                                     }
                                     <button class="btn btn-warning" onclick="clearUserGardens('${user.id}')">Clear Gardens</button>
                                     <button class="btn btn-danger" onclick="deleteUser('${user.id}')">Delete</button>
+                                    <button class="btn btn-info" onclick="showUserIPs('${user.id}', '${user.username}', '${user.registration_ip || ''}', '${user.last_login_ip || ''}')">View IPs</button>
                                 </td>
                             </tr>
                         `;
@@ -1170,92 +1124,24 @@
             }
         }
 
-        function banUser(userId) {
-            currentUserId = userId;
-            // Show ban options dialog
-            const banOptions = prompt(
-                'Choose ban type:\n' +
-                '1. Ban User Account (user cannot login)\n' +
-                '2. Ban IP Address (IP cannot register/login)\n' +
-                '3. Ban Device (device cannot access)\n' +
-                '4. Ban All (user + IP + device)\n\n' +
-                'Enter 1, 2, 3, or 4:'
-            );
+        function showUserIPs(userId, username, registrationIP, lastLoginIP) {
+            let ipInfo = `User: ${username} (ID: ${userId})\n\n`;
             
-            if (banOptions === null) return; // User cancelled
-            
-            let banType = '';
-            switch(banOptions.trim()) {
-                case '1': banType = 'user'; break;
-                case '2': banType = 'ip'; break;
-                case '3': banType = 'device'; break;
-                case '4': banType = 'all'; break;
-                default: 
-                    showAlert('Invalid option. Please enter 1, 2, 3, or 4.', 'error');
-                    return;
+            if (registrationIP) {
+                ipInfo += `Registration IP: ${registrationIP}\n`;
+            } else {
+                ipInfo += `Registration IP: Not recorded\n`;
             }
             
-            const reason = prompt('Enter ban reason (optional):');
-            if (reason === null) return; // User cancelled
-            
-            // For IP bans, ask for the specific IP address
-            let ipAddress = null;
-            if (banType === 'ip' || banType === 'all') {
-                ipAddress = prompt('Enter IP address to ban (or leave empty to use user\'s IP):');
-                if (ipAddress === null) return; // User cancelled
+            if (lastLoginIP) {
+                ipInfo += `Last Login IP: ${lastLoginIP}\n`;
+            } else {
+                ipInfo += `Last Login IP: Not recorded\n`;
             }
             
-            executeBan(userId, banType, reason, ipAddress);
-        }
-        
-        function executeBan(userId, banType, reason, ipAddress) {
-            fetch(`/api/admin/users/${userId}/ban`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${adminToken}`
-                },
-                body: JSON.stringify({
-                    banType: banType,
-                    reason: reason || 'No reason provided',
-                    ipAddress: ipAddress
-                })
-            })
-            .then(response => response.json())
-            .then(result => {
-                if (result.message) {
-                    showAlert(`Ban executed successfully! Type: ${banType}`, 'success');
-                    loadUsers();
-                    loadStats();
-                    // Refresh security data if we're on the security tab
-                    if (document.getElementById('securityTab').classList.contains('active')) {
-                        loadSecurityData();
-                    }
-                } else {
-                    showAlert(result.error, 'error');
-                }
-            })
-            .catch(error => showAlert('Ban failed: ' + error.message, 'error'));
-        }
-
-        function unbanUser(userId) {
-            if (confirm('Are you sure you want to unban this user?')) {
-                fetch(`/api/admin/users/${userId}/unban`, {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${adminToken}` }
-                })
-                .then(response => response.json())
-                .then(result => {
-                    if (result.message) {
-                        showAlert('User unbanned successfully!', 'success');
-                        loadUsers();
-                        loadStats();
-                    } else {
-                        showAlert(result.error, 'error');
-                    }
-                })
-                .catch(error => showAlert('Unban failed: ' + error.message, 'error'));
-            }
+            ipInfo += `\nYou can use these IPs in the Security tab to ban them if needed.`;
+            
+            alert(ipInfo);
         }
 
         function resetPassword(userId) {
