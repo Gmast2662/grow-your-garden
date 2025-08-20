@@ -949,8 +949,44 @@ router.get('/stats', authenticateAdmin, (req, res) => {
                 if (err) reject(err);
                 else resolve(result.total_gardens || 0);
             });
+        }),
+        new Promise((resolve, reject) => {
+            db.get('SELECT COUNT(*) as banned_ips FROM banned_ips', (err, result) => {
+                if (err) reject(err);
+                else resolve(result.banned_ips || 0);
+            });
+        }),
+        new Promise((resolve, reject) => {
+            db.get('SELECT COUNT(*) as banned_devices FROM banned_devices', (err, result) => {
+                if (err) reject(err);
+                else resolve(result.banned_devices || 0);
+            });
+        }),
+        new Promise((resolve, reject) => {
+            db.get('SELECT COUNT(*) as security_logs FROM security_logs', (err, result) => {
+                if (err) reject(err);
+                else resolve(result.security_logs || 0);
+            });
+        }),
+        new Promise((resolve, reject) => {
+            db.get('SELECT COUNT(*) as active_announcements FROM announcements WHERE is_active = 1', (err, result) => {
+                if (err) reject(err);
+                else resolve(result.active_announcements || 0);
+            });
+        }),
+        new Promise((resolve, reject) => {
+            db.get('SELECT COUNT(*) as week_users FROM users WHERE created_at >= datetime("now", "-7 days")', (err, result) => {
+                if (err) reject(err);
+                else resolve(result.week_users || 0);
+            });
+        }),
+        new Promise((resolve, reject) => {
+            db.get('SELECT COUNT(*) as week_messages FROM chat_messages WHERE created_at >= datetime("now", "-7 days")', (err, result) => {
+                if (err) reject(err);
+                else resolve(result.week_messages || 0);
+            });
         })
-    ]).then(([totalUsers, onlineUsers, bannedUsers, totalMessages, totalFriends, pendingFriends, totalAnnouncements, adminUsers, totalLogs, todayUsers, todayMessages, mutedUsers, totalFilterWords, totalGardens]) => {
+    ]).then(([totalUsers, onlineUsers, bannedUsers, totalMessages, totalFriends, pendingFriends, totalAnnouncements, adminUsers, totalLogs, todayUsers, todayMessages, mutedUsers, totalFilterWords, totalGardens, bannedIPs, bannedDevices, securityLogs, activeAnnouncements, weekUsers, weekMessages]) => {
         res.json({
             stats: {
                 totalUsers,
@@ -966,7 +1002,13 @@ router.get('/stats', authenticateAdmin, (req, res) => {
                 todayMessages,
                 mutedUsers,
                 totalFilterWords,
-                totalGardens
+                totalGardens,
+                bannedIPs,
+                bannedDevices,
+                securityLogs,
+                activeAnnouncements,
+                weekUsers,
+                weekMessages
             }
         });
     }).catch(error => {

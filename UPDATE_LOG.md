@@ -1,5 +1,171 @@
 # Update Log
 
+## [1.7.0] - 2025-08-19
+
+### 🌱 NEW: Sprinkler Growth System
+- **Issue**: User reported "sprinklers dont grow crops"
+- **Solution**: Implemented continuous sprinkler growth system
+- **Features**:
+  - **Continuous Growth**: Sprinklers now actively grow crops within their range every 30 seconds
+  - **Range-Based Growth**: Different sprinkler types provide different growth bonuses
+  - **Automatic Operation**: No manual intervention required - sprinklers work automatically
+  - **Growth Bonus**: Sprinklers provide +20% to +80% growth bonus depending on type
+- **Technical Implementation**:
+  - Added `checkAllSprinklerGrowth()` function that iterates through all garden cells
+  - Integrated sprinkler growth check into main game loop
+  - Each sprinkler type has different range and growth bonus multipliers
+  - Growth occurs every 30 seconds while plants are within sprinkler range
+- **Result**: Sprinklers now properly grow crops automatically, providing continuous garden maintenance
+
+### 💰 NEW: Water and Fertilizer Purchase System
+- **Request**: User requested "a new button so you can buy water and fertilizer for money"
+- **Solution**: Implemented comprehensive resource purchase system
+- **Features**:
+  - **Water Purchase**: Buy water with money (always available)
+  - **Fertilizer Purchase**: Buy fertilizer with money (always available)
+  - **UI Integration**: Purchase buttons integrated into game interface
+  - **Resource Management**: Players can now supplement their resources with money
+- **Technical Implementation**:
+  - Added `buyWater()` and `buyFertilizer()` functions to game logic
+  - Created global window functions for button integration
+  - Fixed UI update issues by correcting property names (`waterInventory` → `water`)
+  - Integrated with existing money and inventory systems
+- **Result**: Players can now purchase water and fertilizer with money, providing additional resource management options
+
+### 🎮 ENHANCED: Season Management
+- **Issue**: User reported "when i change the season, it says it goes to spring and the ui stays the same"
+- **Solution**: Fixed season display and UI update issues
+- **Fixes**:
+  - **Season Display**: Fixed `setSeason()` function to properly call `updateSeasonDisplay()`
+  - **UI Updates**: Added `saveGame()` call to ensure season changes are persisted
+  - **DOM Reflow**: Added force reflow to ensure UI elements update properly
+  - **Shop Restock**: Season changes now properly trigger shop restocking
+- **Technical Implementation**:
+  - Modified `setSeason()` to call `updateSeasonDisplay()` and `saveGame()`
+  - Added `offsetHeight` calls to force DOM reflow in `updateSeasonDisplay()`
+  - Ensured season changes trigger proper shop inventory updates
+- **Result**: Season changes now properly update the UI and persist correctly
+
+### 👥 FIXED: Friend Request System
+- **Issue**: User reported "when i send a friend request i can accept it on the account i sent it from"
+- **Solution**: Fixed friend request self-acceptance bug
+- **Technical Implementation**:
+  - Modified server-side `/api/users/:userId/friends` endpoint to include `request_type`
+  - Updated client-side `loadFriendsList()` to filter requests based on `request_type`
+  - Added proper filtering to prevent self-acceptance of friend requests
+- **Result**: Users can no longer accept friend requests from their own account
+
+### 🎨 ENHANCED: Purchase Section UI
+- **Issue**: User reported "the shop for buying more water and fertilizer is in the middle of the seed shop"
+- **Solution**: Moved and improved purchase section placement and styling
+- **UI Improvements**:
+  - **Better Placement**: Moved purchase section to separate area after seed shop
+  - **Enhanced Styling**: Applied comprehensive CSS improvements for better visual appeal
+  - **Professional Design**: Consistent styling with hover effects and modern appearance
+- **Technical Implementation**:
+  - Relocated purchase section HTML to separate `div` with class `purchase-shop`
+  - Added extensive CSS styling for `.purchase-shop`, `.purchase-item`, and `.purchase-btn`
+  - Improved visual hierarchy and user experience
+- **Result**: Purchase section now has proper placement and professional appearance
+
+### 🛡️ NEW: Device Fingerprinting System
+- **Request**: User asked "what does device fingerprint hash mean" and "how do i get the device fingerprint hash"
+- **Solution**: Implemented comprehensive device fingerprinting system
+- **Features**:
+  - **Device Identification**: Unique hash generated from device characteristics
+  - **Security Enhancement**: Enables device-based banning for better security
+  - **Admin Tools**: Admins can view device fingerprints in user management
+  - **Automatic Generation**: Fingerprints generated on registration and login
+- **Technical Implementation**:
+  - Created `generateDeviceFingerprint()` function using crypto SHA256
+  - Integrated fingerprint generation into registration and login processes
+  - Added device fingerprint storage in `users` table
+  - Implemented device fingerprint viewing in admin panel
+- **Result**: Enhanced security system with device-based identification and banning capabilities
+
+### 📊 ENHANCED: Admin Dashboard Statistics
+- **Issue**: User reported "a lot of the old stats are still missing" from dashboard
+- **Solution**: Added 7 new comprehensive statistics to provide better admin insights
+- **New Stats Added**:
+  - Banned IPs count (from `banned_ips` table)
+  - Banned Devices count (from `banned_devices` table)
+  - Security Logs count (from `security_logs` table)
+  - Active Announcements count (from `announcements` where `is_active = 1`)
+  - New Users (7 days) (users created in last week)
+  - Messages (7 days) (chat messages in last week)
+- **Implementation**: 
+  - Enhanced `/api/admin/stats` endpoint in `admin.js` with 6 additional database queries
+  - Updated admin panel HTML to display all new statistics in stat cards
+  - All new stats use proper error handling and default to 0 if not found
+- **Result**: Dashboard now provides comprehensive server statistics for better admin monitoring
+
+### 🔧 FIXED: Ban and Mute Reason Requirements
+- **Issue**: Ban endpoint required a reason even when UI indicated it was optional
+- **Issue**: Permanent mutes were not being enforced due to SQL query logic error
+- **Ban Fix**: Modified `/api/admin/users/:userId/ban` endpoint to make reason optional
+  - Changed `if (!reason) return error` to `const banReason = reason || 'No reason provided'`
+  - Updated all references to use `banReason` instead of `reason`
+- **Mute Fix**: Fixed SQL queries that were incorrectly filtering out permanent mutes
+  - Updated queries in `server.js`, `admin.js`, and `auth.js` to use `datetime('now', 'localtime')`
+  - Fixed the logic that was preventing permanent mutes (where `muted_until` is NULL) from being detected
+- **Mute Enforcement Fix**: Fixed JavaScript logic that was preventing mute enforcement
+  - Changed `if (muteData && (muteData.muted_until !== null || muteData.mute_reason !== null))` to `if (muteData)` in `server.js`
+  - Changed `if (user.mute_reason !== null)` to `if (user.muted_until !== null || user.mute_reason !== null)` in `auth.js`
+- **Result**: 
+  - Ban reasons are now truly optional as indicated in the UI
+  - Permanent mutes now work correctly whether a reason is provided or not
+  - Temporary mutes continue to work as expected
+
+### 🎮 ENHANCED: Main Game UI Improvements
+- **Request**: User requested to move logout button to menu and add account settings and support buttons
+- **Solution**: Completely redesigned game header with new navigation buttons
+- **New Features**:
+  - **Account Settings Button**: Opens modal with user info, game settings, and data management options
+    - Shows username and account status
+    - Sound effects toggle with localStorage persistence
+    - Export/Import game data functionality
+    - Clean modal interface with proper event handling
+  - **Support Button**: Opens comprehensive support modal with contact information
+    - Direct email link to `gardengamemain@gmail.com`
+    - Common issues section with troubleshooting tips
+    - Response time information and contact guidelines
+    - Professional support interface
+  - **Logout Button**: Moved from dynamic creation to header with confirmation dialog
+    - Confirms logout action with user
+    - Automatically saves current game progress
+    - Clears all authentication tokens and localStorage
+    - Redirects to login page
+- **UI Improvements**:
+  - Added new buttons to game header alongside existing menu, admin, save, expand, and sound buttons
+  - Consistent button styling with hover effects
+  - Blue color scheme for account button, orange for support, red for logout
+  - Responsive design that works on all screen sizes
+- **Technical Implementation**:
+  - Removed old dynamic logout button creation code
+  - Added event listeners for new buttons in game initialization
+  - Created `showAccountSettings()`, `showSupport()`, and `logout()` functions
+  - Proper modal management with click-outside-to-close functionality
+  - Integration with existing game save system
+- **Result**: Professional game interface with easy access to account management, support, and logout functionality
+
+## [1.6.26] - 2025-08-19
+
+### 📊 ENHANCED: Dashboard Statistics
+- **Issue**: User reported "a lot of the old stats are still missing" from dashboard
+- **Solution**: Added 7 new comprehensive statistics to provide better admin insights
+- **New Stats Added**:
+  - Banned IPs count (from `banned_ips` table)
+  - Banned Devices count (from `banned_devices` table)
+  - Security Logs count (from `security_logs` table)
+  - Active Announcements count (from `announcements` where `is_active = 1`)
+  - New Users (7 days) (users created in last week)
+  - Messages (7 days) (chat messages in last week)
+- **Implementation**: 
+  - Enhanced `/api/admin/stats` endpoint in `admin.js` with 6 additional database queries
+  - Updated admin panel HTML to display all new statistics in stat cards
+  - All new stats use proper error handling and default to 0 if not found
+- **Result**: Dashboard now provides comprehensive server statistics for better admin monitoring
+
 ## [1.6.25] - 2025-08-19
 
 ### 🔧 FIXED: Ban and Mute Reason Requirements

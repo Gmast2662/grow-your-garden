@@ -927,14 +927,14 @@
             
             // Ensure dashboard tab is active by default
             showTab('dashboard');
-            
-            // Set up automatic stats refresh every 30 seconds
-            if (window.adminStatsInterval) {
-                clearInterval(window.adminStatsInterval);
-            }
-            window.adminStatsInterval = setInterval(() => {
-                loadStats();
-            }, 30000); // Refresh stats every 30 seconds
+                
+                // Set up automatic stats refresh every 30 seconds
+                if (window.adminStatsInterval) {
+                    clearInterval(window.adminStatsInterval);
+                }
+                window.adminStatsInterval = setInterval(() => {
+                    loadStats();
+                }, 30000); // Refresh stats every 30 seconds
         }
 
         function showTab(tabName) {
@@ -1074,6 +1074,30 @@
                             <h3>${stats.totalFilterWords}</h3>
                             <p>Filter Words</p>
                         </div>
+                        <div class="stat-card">
+                            <h3>${stats.bannedIPs}</h3>
+                            <p>Banned IPs</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${stats.bannedDevices}</h3>
+                            <p>Banned Devices</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${stats.securityLogs}</h3>
+                            <p>Security Logs</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${stats.activeAnnouncements}</h3>
+                            <p>Active Announcements</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${stats.weekUsers}</h3>
+                            <p>New Users (7 days)</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${stats.weekMessages}</h3>
+                            <p>Messages (7 days)</p>
+                        </div>
                     `;
                     console.log('Setting statsGrid innerHTML:', statsHTML);
                     const statsGrid = document.getElementById('statsGrid');
@@ -1196,7 +1220,7 @@
             if (deviceFingerprint) {
                 deviceInfo += `Device Fingerprint: ${deviceFingerprint}\n`;
                 deviceInfo += `\nYou can copy this device fingerprint and use it in the Security tab to ban this device.`;
-            } else {
+                } else {
                 deviceInfo += `Device Fingerprint: Not recorded\n`;
                 deviceInfo += `\nThis user's device fingerprint has not been recorded yet.`;
             }

@@ -187,7 +187,7 @@ body {
     margin-bottom: 15px;
 }
 
-.menu-btn, .save-btn, .expand-btn, .admin-btn, .sound-btn {
+.menu-btn, .save-btn, .expand-btn, .admin-btn, .sound-btn, .account-btn, .support-btn, .logout-btn {
     padding: 10px 20px;
     border: none;
     border-radius: 8px;
@@ -234,6 +234,36 @@ body {
 
 .sound-btn:hover {
     background: #e67e22;
+    transform: translateY(-2px);
+}
+
+.account-btn {
+    background: #3498db;
+    color: white;
+}
+
+.account-btn:hover {
+    background: #2980b9;
+    transform: translateY(-2px);
+}
+
+.support-btn {
+    background: #e67e22;
+    color: white;
+}
+
+.support-btn:hover {
+    background: #d35400;
+    transform: translateY(-2px);
+}
+
+.logout-btn {
+    background: #e74c3c;
+    color: white;
+}
+
+.logout-btn:hover {
+    background: #c0392b;
     transform: translateY(-2px);
 }
 

@@ -2,10 +2,10 @@
 
 A feature-rich, browser-based gardening simulation game built with vanilla JavaScript, HTML5 Canvas, and CSS3. Plant seeds, manage resources, upgrade tools, and grow your perfect garden!
 
-- **This game is fully working and released as v1.6.14 with stable multiplayer features, admin controls, and enhanced chat system. I am actively working on more updates to make this game even better. Contact me or tell me in the Github.**
+- **This game is fully working and released as v1.7.0 with stable multiplayer features, admin controls, enhanced chat system, and comprehensive security features. I am actively working on more updates to make this game even better. Contact me or tell me in the Github.**
 - **I have fixed every bug, but there still may be some bugs I don't know about. So if you find any go to the issues page in the Github.**
 
-![Grow Your Garden](https://img.shields.io/badge/Status-v1.6.14%20Released-brightgreen)
+![Grow Your Garden](https://img.shields.io/badge/Status-v1.7.0%20Released-brightgreen)
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-yellow)
 ![HTML5](https://img.shields.io/badge/HTML5-Canvas-orange)
 ![CSS3](https://img.shields.io/badge/CSS3-Responsive-blue)
@@ -45,8 +45,10 @@ A feature-rich, browser-based gardening simulation game built with vanilla JavaS
 - **Mobile Optimized**: Touch-friendly controls and responsive design
 - **Admin Panel**: Debug tools and creative mode
 - **Sound Effects**: Immersive audio feedback
+- **Account Management**: Easy access to account settings, support, and logout functionality
+- **Professional UI**: Clean, modern interface with intuitive navigation
 
-### 🌐 **Multiplayer Features** (v1.6.14)
+### 🌐 **Multiplayer Features** (v1.7.0)
 - **Unified Experience**: Single game works both offline and online
 - **Auto-Detection**: Automatically detects server availability
 - **Real-time Multiplayer**: Connect with friends in real-time when server is available
@@ -60,6 +62,7 @@ A feature-rich, browser-based gardening simulation game built with vanilla JavaS
 - **Cloud Saves**: Your garden data is saved on the server when connected
 - **Cross-Device Play**: Access your garden from any device
 - **Graceful Fallback**: Works perfectly offline with local saves
+- **Comprehensive Security**: Advanced admin controls with IP/device banning, user management, and security logging
 
 ## 💻 System Requirements
 
@@ -297,7 +300,19 @@ Contributions are welcome! Here's how you can help:
 
 ## 🆕 Recent Updates
 
-### **Latest Version (v1.6.14)**
+### **Latest Version (v1.7.0)**
+- 🌱 **NEW**: Sprinkler growth system for automatic crop cultivation
+- 💰 **NEW**: Water and fertilizer purchase shop with money
+- 👤 **NEW**: Account settings and support system with direct email contact
+- 🛡️ **NEW**: Device fingerprinting for enhanced security
+- 📊 **NEW**: Comprehensive admin dashboard with 7 new statistics
+- 🔧 **FIXED**: Permanent mute and ban functionality with optional reasons
+- 🎮 **ENHANCED**: Season management and display improvements
+- 👥 **FIXED**: Friend request system and self-acceptance bug
+- 🎨 **ENHANCED**: Professional game interface with header buttons
+- 🛠️ **IMPROVED**: Database queries and timezone handling
+
+### **Previous Version (v1.6.14)**
 - 💬 **NEW**: Auto-refresh chat system - messages update every 5 seconds automatically
 - 🏷️ **NEW**: [DEV] tag for developer identification in chat (AviDev only)
 - 🎨 **ENHANCED**: Special styling for [DEV] usernames with red color and glow effect

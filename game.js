@@ -1004,8 +1004,7 @@ class GardenGame {
         // Add multiplayer button event listeners
         this.addMultiplayerEventListeners();
         
-        // Add logout button
-        this.addLogoutButton();
+        // Logout button is now in the header
         
         // Periodically update multiplayer UI to ensure status is current
         setInterval(() => {
@@ -1050,35 +1049,7 @@ class GardenGame {
         });
     }
     
-    // Add logout button
-    addLogoutButton() {
-        // Create logout button
-        const logoutBtn = document.createElement('button');
-        logoutBtn.textContent = 'Logout';
-        logoutBtn.className = 'logout-btn';
-        logoutBtn.style.cssText = `
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            padding: 8px 16px;
-            background: #ff4444;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            z-index: 1000;
-        `;
-        
-        logoutBtn.addEventListener('click', () => {
-            // Clear token
-            localStorage.removeItem('garden_game_token');
-            // Redirect to login
-            window.location.href = '/login';
-        });
-        
-        document.body.appendChild(logoutBtn);
-    }
+    // Logout button is now handled in the header
     
     updateMultiplayerUI() {
         if (!this.multiplayer) return;
@@ -5121,6 +5092,9 @@ class GardenGame {
             // Add event listeners to the new elements
             const newMenuBtn = document.getElementById('menuBtn');
             const newSaveBtn = document.getElementById('saveBtn');
+            const accountBtn = document.getElementById('accountBtn');
+            const supportBtn = document.getElementById('supportBtn');
+            const logoutBtn = document.getElementById('logoutBtn');
             
             if (newMenuBtn) {
                 newMenuBtn.addEventListener('click', () => {
@@ -5133,6 +5107,24 @@ class GardenGame {
                     this.currentGame.saveGame();
                     this.currentGame.showMessage('Game saved manually!', 'success');
                     this.updateSaveSlots();
+                });
+            }
+            
+            if (accountBtn) {
+                accountBtn.addEventListener('click', () => {
+                    this.showAccountSettings();
+                });
+            }
+            
+            if (supportBtn) {
+                supportBtn.addEventListener('click', () => {
+                    this.showSupport();
+                });
+            }
+            
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', () => {
+                    this.logout();
                 });
             }
             
@@ -6710,6 +6702,221 @@ class MenuSystem {
         this.currentGame = null;
         window.game = null; // Clear global game reference
         this.updateSaveSlots();
+    }
+    
+    showAccountSettings() {
+        // Get current user info from localStorage
+        const token = localStorage.getItem('garden_game_token');
+        const username = localStorage.getItem('garden_game_username');
+        
+        if (!token || !username) {
+            alert('You must be logged in to access account settings.');
+            return;
+        }
+        
+        // Create account settings modal
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        `;
+        
+        const content = document.createElement('div');
+        content.style.cssText = `
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        `;
+        
+        content.innerHTML = `
+            <h2 style="margin-bottom: 20px; color: #2c3e50;">👤 Account Settings</h2>
+            <div style="margin-bottom: 20px;">
+                <p><strong>Username:</strong> ${username}</p>
+                <p><strong>Account Status:</strong> <span style="color: #27ae60;">Active</span></p>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <h3 style="margin-bottom: 10px;">Game Settings</h3>
+                <label style="display: block; margin-bottom: 10px;">
+                    <input type="checkbox" id="soundToggle" ${this.soundEnabled ? 'checked' : ''} style="margin-right: 8px;">
+                    Enable Sound Effects
+                </label>
+                <label style="display: block; margin-bottom: 10px;">
+                    <input type="checkbox" id="notificationsToggle" checked style="margin-right: 8px;">
+                    Enable Notifications
+                </label>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <h3 style="margin-bottom: 10px;">Data Management</h3>
+                <button id="exportDataBtn" style="background: #3498db; color: white; border: none; padding: 10px 15px; border-radius: 5px; margin-right: 10px; cursor: pointer;">
+                    📤 Export Game Data
+                </button>
+                <button id="importDataBtn" style="background: #e67e22; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer;">
+                    📥 Import Game Data
+                </button>
+            </div>
+            <div style="text-align: center;">
+                <button id="closeAccountBtn" style="background: #95a5a6; color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-size: 16px;">
+                    Close
+                </button>
+            </div>
+        `;
+        
+        modal.appendChild(content);
+        document.body.appendChild(modal);
+        
+        // Add event listeners
+        const closeBtn = content.querySelector('#closeAccountBtn');
+        const soundToggle = content.querySelector('#soundToggle');
+        const exportBtn = content.querySelector('#exportDataBtn');
+        const importBtn = content.querySelector('#importDataBtn');
+        
+        closeBtn.addEventListener('click', () => {
+            document.body.removeChild(modal);
+        });
+        
+        soundToggle.addEventListener('change', (e) => {
+            this.soundEnabled = e.target.checked;
+            localStorage.setItem('garden_game_sound_enabled', this.soundEnabled);
+        });
+        
+        exportBtn.addEventListener('click', () => {
+            if (this.currentGame) {
+                this.currentGame.exportSaveData();
+            } else {
+                alert('No active game to export.');
+            }
+        });
+        
+        importBtn.addEventListener('click', () => {
+            if (this.currentGame) {
+                this.currentGame.importSaveData();
+            } else {
+                alert('No active game to import data into.');
+            }
+        });
+        
+        // Close modal when clicking outside
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                document.body.removeChild(modal);
+            }
+        });
+    }
+    
+    showSupport() {
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        `;
+        
+        const content = document.createElement('div');
+        content.style.cssText = `
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        `;
+        
+        content.innerHTML = `
+            <h2 style="margin-bottom: 20px; color: #2c3e50;">📧 Support</h2>
+            <div style="margin-bottom: 20px;">
+                <p style="margin-bottom: 15px;">Need help with your garden? We're here to assist you!</p>
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <h3 style="margin-bottom: 10px; color: #2c3e50;">📧 Contact Support</h3>
+                    <p style="margin-bottom: 10px;"><strong>Email:</strong> <a href="mailto:gardengamemain@gmail.com" style="color: #3498db; text-decoration: none;">gardengamemain@gmail.com</a></p>
+                    <p style="margin-bottom: 10px;"><strong>Response Time:</strong> Usually within 24 hours</p>
+                </div>
+                <div style="background: #e8f5e8; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <h3 style="margin-bottom: 10px; color: #27ae60;">❓ Common Issues</h3>
+                    <ul style="margin-left: 20px;">
+                        <li>Plants not growing properly</li>
+                        <li>Game not saving progress</li>
+                        <li>Multiplayer connection issues</li>
+                        <li>Account-related problems</li>
+                    </ul>
+                </div>
+                <div style="background: #fff3cd; padding: 15px; border-radius: 8px;">
+                    <h3 style="margin-bottom: 10px; color: #856404;">💡 Tips</h3>
+                    <p>When contacting support, please include:</p>
+                    <ul style="margin-left: 20px;">
+                        <li>Your username</li>
+                        <li>Description of the issue</li>
+                        <li>Steps to reproduce the problem</li>
+                        <li>Browser and device information</li>
+                    </ul>
+                </div>
+            </div>
+            <div style="text-align: center;">
+                <button id="closeSupportBtn" style="background: #95a5a6; color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-size: 16px;">
+                    Close
+                </button>
+            </div>
+        `;
+        
+        modal.appendChild(content);
+        document.body.appendChild(modal);
+        
+        // Add event listeners
+        const closeBtn = content.querySelector('#closeSupportBtn');
+        
+        closeBtn.addEventListener('click', () => {
+            document.body.removeChild(modal);
+        });
+        
+        // Close modal when clicking outside
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                document.body.removeChild(modal);
+            }
+        });
+    }
+    
+    logout() {
+        // Show confirmation dialog
+        const confirmed = confirm('Are you sure you want to logout? Your current game progress will be saved automatically.');
+        
+        if (confirmed) {
+            // Save current game if active
+            if (this.currentGame) {
+                this.currentGame.saveGame();
+            }
+            
+            // Clear authentication tokens
+            localStorage.removeItem('garden_game_token');
+            localStorage.removeItem('garden_game_username');
+            
+            // Clear any other game-related localStorage items
+            localStorage.removeItem('garden_game_sound_enabled');
+            
+            // Redirect to login page
+            window.location.href = '/login';
+        }
     }
     
     clearUIState() {
