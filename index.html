@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1002,3 +1003,1009 @@
 </html>
 
 
+=======
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grow Your Garden</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Main Menu -->
+    <div id="mainMenu" class="main-menu">
+        <div class="menu-container">
+            <h1>🌱 Grow Your Garden</h1>
+            <p>Welcome to your garden adventure!</p>
+            
+            <div class="github-link">
+                <a href="https://github.com/Gmast2662/grow-your-garden" target="_blank" class="github-btn">
+                    📂 View on GitHub
+                </a>
+            </div>
+            
+            <div class="menu-buttons">
+                <button id="accountBtn" class="account-btn">👤 Account Settings</button>
+                <button id="supportBtn" class="support-btn">📧 Support</button>
+                <button id="logoutBtn" class="logout-btn">🚪 Logout</button>
+            </div>
+            
+            <div class="save-slots">
+                <div class="save-slot" data-slot="1">
+                    <h3>Garden Slot 1</h3>
+                    <div class="slot-status">Empty</div>
+                    <div class="slot-date"></div>
+                    <div class="slot-buttons">
+                        <button class="load-btn" disabled>Load Garden</button>
+                        <button class="new-btn">New Garden</button>
+                    </div>
+                </div>
+                
+                <div class="save-slot" data-slot="2">
+                    <h3>Garden Slot 2</h3>
+                    <div class="slot-status">Empty</div>
+                    <div class="slot-date"></div>
+                    <div class="slot-buttons">
+                        <button class="load-btn" disabled>Load Garden</button>
+                        <button class="new-btn">New Garden</button>
+                    </div>
+                </div>
+                
+                <div class="save-slot" data-slot="3">
+                    <h3>Garden Slot 3</h3>
+                    <div class="slot-status">Empty</div>
+                    <div class="slot-date"></div>
+                    <div class="slot-buttons">
+                        <button class="load-btn" disabled>Load Garden</button>
+                        <button class="new-btn">New Garden</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Container -->
+    <div id="gameContainer" class="game-container" style="display: none;">
+        <div class="game-header">
+            <div class="header-top">
+                <button id="menuBtn" class="menu-btn">🏠 Menu</button>
+                <button id="adminBtn" class="admin-btn">⚙️ Admin</button>
+                <button id="saveBtn" class="save-btn">💾 Save</button>
+                <button id="expandBtn" class="expand-btn">🏡 Expand Garden</button>
+                <button id="soundBtn" class="sound-btn">🔊 Sound</button>
+            </div>
+            <div class="stats">
+                <div class="stat">
+                    <span class="stat-label">💰 Money:</span>
+                    <span id="money" class="stat-value">100</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">🌧️ Water:</span>
+                    <span id="water" class="stat-value">50</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">🌱 Fertilizer:</span>
+                    <span id="fertilizer" class="stat-value">20</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">📊 Score:</span>
+                    <span id="score" class="stat-value">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">🌤️ Weather:</span>
+                    <span id="weather" class="stat-value">Sunny</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">🏆 Achievements:</span>
+                    <span id="achievements" class="stat-value">0/8</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="game-content">
+            <div class="sidebar">
+                <!-- Multiplayer Panel -->
+                <div class="multiplayer-panel">
+                    <h3>🌐 Multiplayer</h3>
+                    <div class="multiplayer-status">
+                        <span id="connectionStatus">🔴 Disconnected</span>
+                    </div>
+                    <div class="multiplayer-buttons">
+                        <button id="friendsBtn" class="multiplayer-btn">👥 Friends</button>
+                        <button id="chatBtn" class="multiplayer-btn">💬 Chat</button>
+                        <button id="visitBtn" class="multiplayer-btn">🏡 Visit Garden</button>
+                    </div>
+                    <div id="friendsList" class="friends-list" style="display: none;">
+                        <div id="friendsContainer"></div>
+                    </div>
+                    <div id="chatPanel" class="chat-panel" style="display: none;">
+                        <h4>💬 Garden Chat</h4>
+                        <div id="chatMessages" class="chat-messages"></div>
+                        <div class="chat-input">
+                            <input type="text" id="chatInput" placeholder="Type a message...">
+                            <button id="sendChatBtn">Send</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="seed-shop">
+                    <h3>🌱 Seed Shop</h3>
+                    
+                    <!-- Basic Seeds Section -->
+                    <h4>🌱 Basic Seeds</h4>
+                    <div class="seed-item" data-seed="carrot">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTE4IDI4TDIyIDI4TDIwIDMyTDE4IDI4WiIgZmlsbD0iIzAwODAwMCIvPgo8cGF0aCBkPSJNMTYgMjZMMjQgMjZMMjAgMzBMMTYgMjZaIiBmaWxsPSIjRkY5ODAwIi8+CjxwYXRoIGQ9Ik0xNyAyNEwyMyAyNEwyMCAyOEwxNyAyNFoiIGZpbGw9IiNGRjk4MDAiLz4KPHBhdGggZD0iTTE4IDIyTDIyIDIyTDIwIDI2TDE4IDIyWiIgZmlsbD0iI0ZGOTgwMCIvPgo8cGF0aCBkPSJNMTkgMjBMMjEgMjBMMjAgMjRMMTkgMjBaIiBmaWxsPSIjRkY5ODAwIi8+CjxwYXRoIGQ9Ik0xOCAxNkwyMiAxNkwyMCAyMEwxOCAxNloiIGZpbGw9IiMwMDgwMDAiLz4KPHBhdGggZD0iTTE5IDE0TDIxIDE0TDIwIDE4TDE5IDE0WiIgZmlsbD0iIzAwODAwMCIvPgo8L3N2Zz4=" alt="Carrot">
+                        <div class="seed-info">
+                            <span class="seed-name">Carrot</span>
+                            <span class="seed-price">$5</span>
+                            <span class="seed-stock">Stock: 7</span>
+                        </div>
+                    </div>
+                    <div class="seed-item" data-seed="tomato">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMTQiIGZpbGw9IiNGRjAwMDAiLz4KPHBhdGggZD0iTTE4IDI4TDIyIDI4TDIwIDMyTDE4IDI4WiIgZmlsbD0iIzAwODAwMCIvPgo8cGF0aCBkPSJNMTYgMjZMMjQgMjZMMjAgMzBMMTYgMjZaIiBmaWxsPSIjRkYwMDAwIi8+CjxwYXRoIGQ9Ik0xNyAyNEwyMyAyNEwyMCAyOEwxNyAyNFoiIGZpbGw9IiNGRjAwMDAiLz4KPHBhdGggZD0iTTE4IDIyTDIyIDIyTDIwIDI2TDE4IDIyWiIgZmlsbD0iI0ZGMDAwMCIvPgo8cGF0aCBkPSJNMTkgMjBMMjEgMjBMMjAgMjRMMTkgMjBaIiBmaWxsPSIjRkYwMDAwIi8+CjxwYXRoIGQ9Ik0xOCAxNkwyMiAxNkwyMCAyMEwxOCAxNloiIGZpbGw9IiMwMDgwMDAiLz4KPHBhdGggZD0iTTE5IDE0TDIxIDE0TDIwIDE4TDE5IDE0WiIgZmlsbD0iIzAwODAwMCIvPgo8L3N2Zz4=" alt="Tomato">
+                        <div class="seed-info">
+                            <span class="seed-name">Tomato</span>
+                            <span class="seed-price">$8</span>
+                            <span class="seed-stock">Stock: 6</span>
+                        </div>
+                    </div>
+                    <div class="seed-item" data-seed="corn">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTE4IDI4TDIyIDI4TDIwIDMyTDE4IDI4WiIgZmlsbD0iIzAwODAwMCIvPgo8cGF0aCBkPSJNMTYgMjZMMjQgMjZMMjAgMzBMMTYgMjZaIiBmaWxsPSIjRkZENzAwIi8+CjxwYXRoIGQ9Ik0xNyAyNEwyMyAyNEwyMCAyOEwxNyAyNFoiIGZpbGw9IiNGRkQ3MDAiLz4KPHBhdGggZD0iTTE4IDIyTDIyIDIyTDIwIDI2TDE4IDIyWiIgZmlsbD0iI0ZGRDcwMCIvPgo8cGF0aCBkPSJNMTkgMjBMMjEgMjBMMjAgMjRMMTkgMjBaIiBmaWxsPSIjRkZENzAwIi8+CjxwYXRoIGQ9Ik0xOCAxNkwyMiAxNkwyMCAyMEwxOCAxNloiIGZpbGw9IiMwMDgwMDAiLz4KPHBhdGggZD0iTTE5IDE0TDIxIDE0TDIwIDE4TDE5IDE0WiIgZmlsbD0iIzAwODAwMCIvPgo8L3N2Zz4=" alt="Corn">
+                        <div class="seed-info">
+                            <span class="seed-name">Corn</span>
+                            <span class="seed-price">$12</span>
+                            <span class="seed-stock">Stock: 4</span>
+                        </div>
+                    </div>
+                    <div class="seed-item" data-seed="squash">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMTIiIGZpbGw9IiNGRkE1MDAiLz4KPHBhdGggZD0iTTE4IDI4TDIyIDI4TDIwIDMyTDE4IDI4WiIgZmlsbD0iIzAwODAwMCIvPgo8cGF0aCBkPSJNMTYgMjZMMjQgMjZMMjAgMzBMMTYgMjZaIiBmaWxsPSIjRkZDNzAwIi8+CjxwYXRoIGQ9Ik0xNyAyNEwyMyAyNEwyMCAyOEwxNyAyNFoiIGZpbGw9IiNGRkM3MDAiLz4KPHBhdGggZD0iTTE4IDIyTDIyIDIyTDIwIDI2TDE4IDIyWiIgZmlsbD0iI0ZGQzcwMCIvPgo8cGF0aCBkPSJNMTkgMjBMMjEgMjBMMjAgMjRMMTkgMjBaIiBmaWxsPSIjRkZDNzAwIi8+CjxwYXRoIGQ9Ik0xOCAxNkwyMiAxNkwyMCAyMEwxOCAxNloiIGZpbGw9IiMwMDgwMDAiLz4KPHBhdGggZD0iTTE5IDE0TDIxIDE0TDIwIDE4TDE5IDE0WiIgZmlsbD0iIzAwODAwMCIvPgo8L3N2Zz4=" alt="Squash">
+                        <div class="seed-info">
+                            <span class="seed-name">Squash</span>
+                            <span class="seed-price">$15</span>
+                            <span class="seed-stock">Stock: 5</span>
+                        </div>
+                    </div>
+                    <div class="seed-item" data-seed="potato">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMTIiIGZpbGw9IiM4QjQ1MTMiLz4KPHBhdGggZD0iTTE4IDI4TDIyIDI4TDIwIDMyTDE4IDI4WiIgZmlsbD0iIzAwODAwMCIvPgo8cGF0aCBkPSJNMTYgMjZMMjQgMjZMMjAgMzBMMTYgMjZaIiBmaWxsPSIjOEI0NTEzIi8+CjxwYXRoIGQ9Ik0xNyAyNEwyMyAyNEwyMCAyOEwxNyAyNFoiIGZpbGw9IiM4QjQ1MTMiLz4KPHBhdGggZD0iTTE4IDIyTDIyIDIyTDIwIDI2TDE4IDIyWiIgZmlsbD0iIzhCNDUxMyIvPgo8cGF0aCBkPSJNMTkgMjBMMjEgMjBMMjAgMjRMMTkgMjBaIiBmaWxsPSIjOEI0NTEzIi8+CjxwYXRoIGQ9Ik0xOCAxNkwyMiAxNkwyMCAyMEwxOCAxNloiIGZpbGw9IiMwMDgwMDAiLz4KPHBhdGggZD0iTTE5IDE0TDIxIDE0TDIwIDE4TDE5IDE0WiIgZmlsbD0iIzAwODAwMCIvPgo8L3N2Zz4=" alt="Potato">
+                        <div class="seed-info">
+                            <span class="seed-name">Potato</span>
+                            <span class="seed-price">$6</span>
+                            <span class="seed-stock">Stock: 6</span>
+                        </div>
+                    </div>
+                    <div class="seed-item" data-seed="lettuce">
+                         <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMTIiIGZpbGw9IiM5MEVFOEIiLz4KPHBhdGggZD0iTTE4IDI4TDIyIDI4TDIwIDMyTDE4IDI4WiIgZmlsbD0iIzAwODAwMCIvPgo8cGF0aCBkPSJNMTYgMjZMMjQgMjZMMjAgMzBMMTYgMjZaIiBmaWxsPSIjOTBFRThCIi8+CjxwYXRoIGQ9Ik0xNyAyNEwyMyAyNEwyMCAyOEwxNyAyNFoiIGZpbGw9IiM5MEVFOEIiLz4KPHBhdGggZD0iTTE4IDIyTDIyIDIyTDIwIDI2TDE4IDIyWiIgZmlsbD0iIzkwRUU4QiIvPgo8cGF0aCBkPSJNMTkgMjBMMjEgMjBMMjAgMjRMMTkgMjBaIiBmaWxsPSIjOTBFRThCIi8+CjxwYXRoIGQ9Ik0xOCAxNkwyMiAxNkwyMCAyMEwxOCAxNloiIGZpbGw9IiMwMDgwMDAiLz4KPHBhdGggZD0iTTE5IDE0TDIxIDE0TDIwIDE4TDE5IDE0WiIgZmlsbD0iIzAwODAwMCIvPgo8L3N2Zz4=" alt="Lettuce">
+                        <div class="seed-info">
+                            <span class="seed-name">Lettuce</span>
+                            <span class="seed-price">$4</span>
+                            <span class="seed-stock">Stock: 8</span>
+                        </div>
+                    </div>
+                    <div class="seed-item" data-seed="onion">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMTIiIGZpbGw9IiNGNUY1QkMiLz4KPHBhdGggZD0iTTE4IDI4TDIyIDI4TDIwIDMyTDE4IDI4WiIgZmlsbD0iIzAwODAwMCIvPgo8cGF0aCBkPSJNMTYgMjZMMjQgMjZMMjAgMzBMMTYgMjZaIiBmaWxsPSIjRjVGNUIjIi8+CjxwYXRoIGQ9Ik0xNyAyNEwyMyAyNEwyMCAyOEwxNyAyNFoiIGZpbGw9IiNGNUY1QkMiLz4KPHBhdGggZD0iTTE4IDIyTDIyIDIyTDIwIDI2TDE4IDIyWiIgZmlsbD0iI0Y1RjVCQyIvPgo8cGF0aCBkPSJNMTkgMjBMMjEgMjBMMjAgMjRMMTkgMjBaIiBmaWxsPSIjRjVGNUIjIi8+CjxwYXRoIGQ9Ik0xOCAxNkwyMiAxNkwyMCAyMEwxOCAxNloiIGZpbGw9IiMwMDgwMDAiLz4KPHBhdGggZD0iTTE5IDE0TDIxIDE0TDIwIDE4TDE5IDE0WiIgZmlsbD0iIzAwODAwMCIvPgo8L3N2Zz4=" alt="Onion">
+                        <div class="seed-info">
+                            <span class="seed-name">Onion</span>
+                            <span class="seed-price">$7</span>
+                            <span class="seed-stock">Stock: 6</span>
+                        </div>
+                    </div>
+                    <div class="seed-item" data-seed="garlic">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTYgMTgiIHI9IjMiIGZpbGw9IiNGNUY1QkMiLz4KPGNpcmNsZSBjeD0iMjQgMTgiIHI9IjMiIGZpbGw9IiNGNUY1QkMiLz4KPGNpcmNsZSBjeD0iMjAgMjIiIHI9IjMiIGZpbGw9IiNGNUY1QkMiLz4KPGNpcmNsZSBjeD0iMTYgMjYiIHI9IjMiIGZpbGw9IiNGNUY1QkMiLz4KPGNpcmNsZSBjeD0iMjQgMjYiIHI9IjMiIGZpbGw9IiNGNUY1QkMiLz4KPHBhdGggZD0iTTE4IDI4TDIyIDI4TDIwIDMyTDE4IDI4WiIgZmlsbD0iIzAwODAwMCIvPgo8cGF0aCBkPSJNMTYgMjZMMjQgMjZMMjAgMzBMMTYgMjZaIiBmaWxsPSIjRjVGNUIjIi8+CjxwYXRoIGQ9Ik0xNyAyNEwyMyAyNEwyMCAyOEwxNyAyNFoiIGZpbGw9IiNGNUY1QkMiLz4KPHBhdGggZD0iTTE4IDIyTDIyIDIyTDIwIDI2TDE4IDIyWiIgZmlsbD0iI0Y1RjVCQyIvPgo8cGF0aCBkPSJNMTkgMjBMMjEgMjBMMjAgMjRMMTkgMjBaIiBmaWxsPSIjRjVGNUIjIi8+CjxwYXRoIGQ9Ik0xOCAxNkwyMiAxNkwyMCAyMEwxOCAxNloiIGZpbGw9IiMwMDgwMDAiLz4KPHBhdGggZD0iTTE5IDE0TDIxIDE0TDIwIDE4TDE5IDE0WiIgZmlsbD0iIzAwODAwMCIvPgo8L3N2Zz4=" alt="Garlic">
+                        <div class="seed-info">
+                            <span class="seed-name">Garlic</span>
+                            <span class="seed-price">$9</span>
+                            <span class="seed-stock">Stock: 4</span>
+                        </div>
+                    </div>
+                    <div class="seed-item" data-seed="broccoli">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMTIiIGZpbGw9IiMyMjhCMjIiLz4KPGNpcmNsZSBjeD0iMTYgMTYiIHI9IjMiIGZpbGw9IiMyMjhCMjIiLz4KPGNpcmNsZSBjeD0iMjQgMTYiIHI9IjMiIGZpbGw9IiMyMjhCMjIiLz4KPGNpcmNsZSBjeD0iMjAgMjAiIHI9IjMiIGZpbGw9IiMyMjhCMjIiLz4KPGNpcmNsZSBjeD0iMTYgMjQiIHI9IjMiIGZpbGw9IiMyMjhCMjIiLz4KPGNpcmNsZSBjeD0iMjQgMjQiIHI9IjMiIGZpbGw9IiMyMjhCMjIiLz4KPHBhdGggZD0iTTE4IDI4TDIyIDI4TDIwIDMyTDE4IDI4WiIgZmlsbD0iIzAwODAwMCIvPgo8cGF0aCBkPSJNMTYgMjZMMjQgMjZMMjAgMzBMMTYgMjZaIiBmaWxsPSIjMjI4QjIyIi8+CjxwYXRoIGQ9Ik0xNyAyNEwyMyAyNEwyMCAyOEwxNyAyNFoiIGZpbGw9IiMyMjhCMjIiLz4KPHBhdGggZD0iTTE4IDIyTDIyIDIyTDIwIDI2TDE4IDIyWiIgZmlsbD0iIzIyOEIyMiIvPgo8cGF0aCBkPSJNMTkgMjBMMjEgMjBMMjAgMjRMMTkgMjBaIiBmaWxsPSIjMjI4QjIyIi8+CjxwYXRoIGQ9Ik0xOCAxNkwyMiAxNkwyMCAyMEwxOCAxNloiIGZpbGw9IiMwMDgwMDAiLz4KPHBhdGggZD0iTTE5IDE0TDIxIDE0TDIwIDE4TDE5IDE0WiIgZmlsbD0iIzAwODAwMCIvPgo8L3N2Zz4=" alt="Broccoli">
+                        <div class="seed-info">
+                            <span class="seed-name">Broccoli</span>
+                            <span class="seed-price">$12</span>
+                            <span class="seed-stock">Stock: 3</span>
+                        </div>
+                    </div>
+                    <div class="seed-item" data-seed="cauliflower">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMTIiIGZpbGw9IiNGNUY1QkMiLz4KPGNpcmNsZSBjeD0iMTYgMTYiIHI9IjIiIGZpbGw9IiNGNUY1QkMiLz4KPGNpcmNsZSBjeD0iMjQgMTYiIHI9IjIiIGZpbGw9IiNGNUY1QkMiLz4KPGNpcmNsZSBjeD0iMjAgMjAiIHI9IjIiIGZpbGw9IiNGNUY1QkMiLz4KPGNpcmNsZSBjeD0iMTYgMjQiIHI9IjIiIGZpbGw9IiNGNUY1QkMiLz4KPGNpcmNsZSBjeD0iMjQgMjQiIHI9IjIiIGZpbGw9IiNGNUY1QkMiLz4KPGNpcmNsZSBjeD0iMTggMjgiIHI9IjIiIGZpbGw9IiNGNUY1QkMiLz4KPGNpcmNsZSBjeD0iMjIgMjgiIHI9IjIiIGZpbGw9IiNGNUY1QkMiLz4KPHBhdGggZD0iTTE4IDI4TDIyIDI4TDIwIDMyTDE4IDI4WiIgZmlsbD0iIzAwODAwMCIvPgo8cGF0aCBkPSJNMTYgMjZMMjQgMjZMMjAgMzBMMTYgMjZaIiBmaWxsPSIjRjVGNUIjIi8+CjxwYXRoIGQ9Ik0xNyAyNEwyMyAyNEwyMCAyOEwxNyAyNFoiIGZpbGw9IiNGNUY1QkMiLz4KPHBhdGggZD0iTTE4IDIyTDIyIDIyTDIwIDI2TDE4IDIyWiIgZmlsbD0iI0Y1RjVCQyIvPgo8cGF0aCBkPSJNMTkgMjBMMjEgMjBMMjAgMjRMMTkgMjBaIiBmaWxsPSIjRjVGNUIjIi8+CjxwYXRoIGQ9Ik0xOCAxNkwyMiAxNkwyMCAyMEwxOCAxNloiIGZpbGw9IiMwMDgwMDAiLz4KPHBhdGggZD0iTTE5IDE0TDIxIDE0TDIwIDE4TDE5IDE0WiIgZmlsbD0iIzAwODAwMCIvPgo8L3N2Zz4=" alt="Cauliflower">
+                        <div class="seed-info">
+                            <span class="seed-name">Cauliflower</span>
+                            <span class="seed-price">$14</span>
+                            <span class="seed-stock">Stock: 2</span>
+                        </div>
+                    </div>
+                    <div class="seed-item" data-seed="cucumber">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMTIiIGZpbGw9IiMzMkNEMzIiLz4KPHBhdGggZD0iTTE4IDI4TDIyIDI4TDIwIDMyTDE4IDI4WiIgZmlsbD0iIzAwODAwMCIvPgo8cGF0aCBkPSJNMTYgMjZMMjQgMjZMMjAgMzBMMTYgMjZaIiBmaWxsPSIjMzJDQzMyIi8+CjxwYXRoIGQ9Ik0xNyAyNEwyMyAyNEwyMCAyOEwxNyAyNFoiIGZpbGw9IiMzMkNDMzIiLz4KPHBhdGggZD0iTTE4IDIyTDIyIDIyTDIwIDI2TDE4IDIyWiIgZmlsbD0iIzMyQ0MzMiIvPgo8cGF0aCBkPSJNMTkgMjBMMjEgMjBMMjAgMjRMMTkgMjBaIiBmaWxsPSIjMzJDQzMyIi8+CjxwYXRoIGQ9Ik0xOCAxNkwyMiAxNkwyMCAyMEwxOCAxNloiIGZpbGw9IiMwMDgwMDAiLz4KPHBhdGggZD0iTTE5IDE0TDIxIDE0TDIwIDE4TDE5IDE0WiIgZmlsbD0iIzAwODAwMCIvPgo8L3N2Zz4=" alt="Cucumber">
+                        <div class="seed-info">
+                            <span class="seed-name">Cucumber</span>
+                            <span class="seed-price">$6</span>
+                            <span class="seed-stock">Stock: 6</span>
+                        </div>
+                    </div>
+                    <div class="seed-item" data-seed="radish">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMTIiIGZpbGw9IiNGRjY5QjQiLz4KPHBhdGggZD0iTTE4IDI4TDIyIDI4TDIwIDMyTDE4IDI4WiIgZmlsbD0iIzAwODAwMCIvPgo8cGF0aCBkPSJNMTYgMjZMMjQgMjZMMjAgMzBMMTYgMjZaIiBmaWxsPSIjRkY2OUI0Ii8+CjxwYXRoIGQ9Ik0xNyAyNEwyMyAyNEwyMCAyOEwxNyAyNFoiIGZpbGw9IiNGRjY5QjQiLz4KPHBhdGggZD0iTTE4IDIyTDIyIDIyTDIwIDI2TDE4IDIyWiIgZmlsbD0iI0ZGNjlCNCIvPgo8cGF0aCBkPSJNMTkgMjBMMjEgMjBMMjAgMjRMMTkgMjBaIiBmaWxsPSIjRkY2OUI0Ii8+CjxwYXRoIGQ9Ik0xOCAxNkwyMiAxNkwyMCAyMEwxOCAxNloiIGZpbGw9IiMwMDgwMDAiLz4KPHBhdGggZD0iTTE5IDE0TDIxIDE0TDIwIDE4TDE5IDE0WiIgZmlsbD0iIzAwODAwMCIvPgo8L3N2Zz4=" alt="Radish">
+                        <div class="seed-info">
+                            <span class="seed-name">Radish</span>
+                            <span class="seed-price">$3</span>
+                            <span class="seed-stock">Stock: 8</span>
+                        </div>
+                    </div>
+                    <div class="seed-item" data-seed="spinach">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMTIiIGZpbGw9IiMyMjhCMjIiLz4KPHBhdGggZD0iTTE4IDI4TDIyIDI4TDIwIDMyTDE4IDI4WiIgZmlsbD0iIzAwODAwMCIvPgo8cGF0aCBkPSJNMTYgMjZMMjQgMjZMMjAgMzBMMTYgMjZaIiBmaWxsPSIjMjI4QjIyIi8+CjxwYXRoIGQ9Ik0xNyAyNEwyMyAyNEwyMCAyOEwxNyAyNFoiIGZpbGw9IiMyMjhCMjIiLz4KPHBhdGggZD0iTTE4IDIyTDIyIDIyTDIwIDI2TDE4IDIyWiIgZmlsbD0iIzIyOEIyMiIvPgo8cGF0aCBkPSJNMTkgMjBMMjEgMjBMMjAgMjRMMTkgMjBaIiBmaWxsPSIjMjI4QjIyIi8+CjxwYXRoIGQ9Ik0xOCAxNkwyMiAxNkwyMCAyMEwxOCAxNloiIGZpbGw9IiMwMDgwMDAiLz4KPHBhdGggZD0iTTE5IDE0TDIxIDE0TDIwIDE4TDE5IDE0WiIgZmlsbD0iIzAwODAwMCIvPgo8L3N2Zz4=" alt="Spinach">
+                        <div class="seed-info">
+                            <span class="seed-name">Spinach</span>
+                            <span class="seed-price">$5</span>
+                            <span class="seed-stock">Stock: 7</span>
+                        </div>
+                    </div>
+                    <div class="seed-item" data-seed="winter_greens">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMTIiIGZpbGw9IiMyMjhCMjIiLz4KPHBhdGggZD0iTTE4IDI4TDIyIDI4TDIwIDMyTDE4IDI4WiIgZmlsbD0iIzAwODAwMCIvPgo8cGF0aCBkPSJNMTYgMjZMMjQgMjZMMjAgMzBMMTYgMjZaIiBmaWxsPSIjMjI4QjIyIi8+CjxwYXRoIGQ9Ik0xNyAyNEwyMyAyNEwyMCAyOEwxNyAyNFoiIGZpbGw9IiMyMjhCMjIiLz4KPHBhdGggZD0iTTE4IDIyTDIyIDIyTDIwIDI2TDE4IDIyWiIgZmlsbD0iIzIyOEIyMiIvPgo8cGF0aCBkPSJNMTkgMjBMMjEgMjBMMjAgMjRMMTkgMjBaIiBmaWxsPSIjMjI4QjIyIi8+CjxwYXRoIGQ9Ik0xOCAxNkwyMiAxNkwyMCAyMEwxOCAxNloiIGZpbGw9IiMwMDgwMDAiLz4KPHBhdGggZD0iTTE5IDE0TDIxIDE0TDIwIDE4TDE5IDE0WiIgZmlsbD0iIzAwODAwMCIvPgo8L3N2Zz4=" alt="Winter Greens">
+                        <div class="seed-info">
+                            <span class="seed-name">Winter Greens</span>
+                            <span class="seed-price">$20</span>
+                            <span class="seed-stock">Stock: 4</span>
+                        </div>
+                    </div>
+                    <div class="seed-item" data-seed="zucchini">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMTIiIGZpbGw9IiM5MEVFOEIiLz4KPHBhdGggZD0iTTE4IDI4TDIyIDI4TDIwIDMyTDE4IDI4WiIgZmlsbD0iIzAwODAwMCIvPgo8cGF0aCBkPSJNMTYgMjZMMjQgMjZMMjAgMzBMMTYgMjZaIiBmaWxsPSIjOTBFRThCIi8+CjxwYXRoIGQ9Ik0xNyAyNEwyMyAyNEwyMCAyOEwxNyAyNFoiIGZpbGw9IiM5MEVFOEIiLz4KPHBhdGggZD0iTTE4IDIyTDIyIDIyTDIwIDI2TDE4IDIyWiIgZmlsbD0iIzkwRUU4QiIvPgo8cGF0aCBkPSJNMTkgMjBMMjEgMjBMMjAgMjRMMTkgMjBaIiBmaWxsPSIjOTBFRThCIi8+CjxwYXRoIGQ9Ik0xOCAxNkwyMiAxNkwyMCAyMEwxOCAxNloiIGZpbGw9IiMwMDgwMDAiLz4KPHBhdGggZD0iTTE5IDE0TDIxIDE0TDIwIDE4TDE5IDE0WiIgZmlsbD0iIzAwODAwMCIvPgo8L3N2Zz4=" alt="Zucchini">
+                        <div class="seed-info">
+                            <span class="seed-name">Zucchini</span>
+                            <span class="seed-price">$8</span>
+                            <span class="seed-stock">Stock: 5</span>
+                        </div>
+                    </div>
+                    <div class="seed-item" data-seed="peas">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMTIiIGZpbGw9IiMzMkNEMzIiLz4KPHBhdGggZD0iTTE4IDI4TDIyIDI4TDIwIDMyTDE4IDI4WiIgZmlsbD0iIzAwODAwMCIvPgo8cGF0aCBkPSJNMTYgMjZMMjQgMjZMMjAgMzBMMTYgMjZaIiBmaWxsPSIjMzJDQzMyIi8+CjxwYXRoIGQ9Ik0xNyAyNEwyMyAyNEwyMCAyOEwxNyAyNFoiIGZpbGw9IiMzMkNDMzIiLz4KPHBhdGggZD0iTTE4IDIyTDIyIDIyTDIwIDI2TDE4IDIyWiIgZmlsbD0iIzMyQ0MzMiIvPgo8cGF0aCBkPSJNMTkgMjBMMjEgMjBMMjAgMjRMMTkgMjBaIiBmaWxsPSIjMzJDQzMyIi8+CjxwYXRoIGQ9Ik0xOCAxNkwyMiAxNkwyMCAyMEwxOCAxNloiIGZpbGw9IiMwMDgwMDAiLz4KPHBhdGggZD0iTTE5IDE0TDIxIDE0TDIwIDE4TDE5IDE0WiIgZmlsbD0iIzAwODAwMCIvPgo8L3N2Zz4=" alt="Peas">
+                        <div class="seed-info">
+                            <span class="seed-name">Peas</span>
+                            <span class="seed-price">$4</span>
+                            <span class="seed-stock">Stock: 8</span>
+                        </div>
+                    </div>
+                    <div class="seed-item" data-seed="herbs">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMTIiIGZpbGw9IiMyMjhCMjIiLz4KPHBhdGggZD0iTTE4IDI4TDIyIDI4TDIwIDMyTDE4IDI4WiIgZmlsbD0iIzAwODAwMCIvPgo8cGF0aCBkPSJNMTYgMjZMMjQgMjZMMjAgMzBMMTYgMjZaIiBmaWxsPSIjMjI4QjIyIi8+CjxwYXRoIGQ9Ik0xNyAyNEwyMyAyNEwyMCAyOEwxNyAyNFoiIGZpbGw9IiMyMjhCMjIiLz4KPHBhdGggZD0iTTE4IDIyTDIyIDIyTDIwIDI2TDE4IDIyWiIgZmlsbD0iIzIyOEIyMiIvPgo8cGF0aCBkPSJNMTkgMjBMMjEgMjBMMjAgMjRMMTkgMjBaIiBmaWxsPSIjMjI4QjIyIi8+CjxwYXRoIGQ9Ik0xOCAxNkwyMiAxNkwyMCAyMEwxOCAxNloiIGZpbGw9IiMwMDgwMDAiLz4KPHBhdGggZD0iTTE5IDE0TDIxIDE0TDIwIDE4TDE5IDE0WiIgZmlsbD0iIzAwODAwMCIvPgo8L3N2Zz4=" alt="Herbs">
+                        <div class="seed-info">
+                            <span class="seed-name">Herbs</span>
+                            <span class="seed-price">$15</span>
+                            <span class="seed-stock">Stock: 6</span>
+                        </div>
+                    </div>
+                                         <div class="seed-item" data-seed="cabbage">
+                         <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMTIiIGZpbGw9IiM5MEVFOEIiLz4KPHBhdGggZD0iTTE4IDI4TDIyIDI4TDIwIDMyTDE4IDI4WiIgZmlsbD0iIzAwODAwMCIvPgo8cGF0aCBkPSJNMTYgMjZMMjQgMjZMMjAgMzBMMTYgMjZaIiBmaWxsPSIjOTBFRThCIi8+CjxwYXRoIGQ9Ik0xNyAyNEwyMyAyNEwyMCAyOEwxNyAyNFoiIGZpbGw9IiM5MEVFOEIiLz4KPHBhdGggZD0iTTE4IDIyTDIyIDIyTDIwIDI2TDE4IDIyWiIgZmlsbD0iIzkwRUU4QiIvPgo8cGF0aCBkPSJNMTkgMjBMMjEgMjBMMjAgMjRMMTkgMjBaIiBmaWxsPSIjOTBFRThCIi8+CjxwYXRoIGQ9Ik0xOCAxNkwyMiAxNkwyMCAyMEwxOCAxNloiIGZpbGw9IiMwMDgwMDAiLz4KPHBhdGggZD0iTTE5IDE0TDIxIDE0TDIwIDE4TDE5IDE0WiIgZmlsbD0iIzAwODAwMCIvPgo8L3N2Zz4=" alt="Cabbage">
+                         <div class="seed-info">
+                             <span class="seed-name">Cabbage</span>
+                             <span class="seed-price">$7</span>
+                             <span class="seed-stock">Stock: 5</span>
+                         </div>
+                     </div>
+                     <div class="seed-item" data-seed="celery">
+                         <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMTIiIGZpbGw9IiM5MEVFOEIiLz4KPHBhdGggZD0iTTE4IDI4TDIyIDI4TDIwIDMyTDE4IDI4WiIgZmlsbD0iIzAwODAwMCIvPgo8cGF0aCBkPSJNMTYgMjZMMjQgMjZMMjAgMzBMMTYgMjZaIiBmaWxsPSIjOTBFRThCIi8+CjxwYXRoIGQ9Ik0xNyAyNEwyMyAyNEwyMCAyOEwxNyAyNFoiIGZpbGw9IiM5MEVFOEIiLz4KPHBhdGggZD0iTTE4IDIyTDIyIDIyTDIwIDI2TDE4IDIyWiIgZmlsbD0iIzkwRUU4QiIvPgo8cGF0aCBkPSJNMTkgMjBMMjEgMjBMMjAgMjRMMTkgMjBaIiBmaWxsPSIjOTBFRThCIi8+CjxwYXRoIGQ9Ik0xOCAxNkwyMiAxNkwyMCAyMEwxOCAxNloiIGZpbGw9IiMwMDgwMDAiLz4KPHBhdGggZD0iTTE5IDE0TDIxIDE0TDIwIDE4TDE5IDE0WiIgZmlsbD0iIzAwODAwMCIvPgo8L3N2Zz4=" alt="Celery">
+                         <div class="seed-info">
+                             <span class="seed-name">Celery</span>
+                             <span class="seed-price">$6</span>
+                             <span class="seed-stock">Stock: 6</span>
+                         </div>
+                     </div>
+                    
+                    <!-- Rare Seeds Section -->
+                     <h4>⭐ Rare Seeds</h4>
+                     <div class="seed-item rare-seed" data-seed="bell_pepper">
+                         <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMTIiIGZpbGw9IiMzMkNEMzIiLz4KPHBhdGggZD0iTTE4IDI4TDIyIDI4TDIwIDMyTDE4IDI4WiIgZmlsbD0iIzAwODAwMCIvPgo8cGF0aCBkPSJNMTYgMjZMMjQgMjZMMjAgMzBMMTYgMjZaIiBmaWxsPSIjMzJDQzMyIi8+CjxwYXRoIGQ9Ik0xNyAyNEwyMyAyNEwyMCAyOEwxNyAyNFoiIGZpbGw9IiMzMkNDMzIiLz4KPHBhdGggZD0iTTE4IDIyTDIyIDIyTDIwIDI2TDE4IDIyWiIgZmlsbD0iIzMyQ0MzMiIvPgo8cGF0aCBkPSJNMTkgMjBMMjEgMjBMMjAgMjRMMTkgMjBaIiBmaWxsPSIjMzJDQzMyIi8+CjxwYXRoIGQ9Ik0xOCAxNkwyMiAxNkwyMCAyMEwxOCAxNloiIGZpbGw9IiMwMDgwMDAiLz4KPHBhdGggZD0iTTE5IDE0TDIxIDE0TDIwIDE4TDE5IDE0WiIgZmlsbD0iIzAwODAwMCIvPgo8L3N2Zz4=" alt="Bell Pepper">
+                        <div class="seed-info">
+                            <span class="seed-name">Bell Pepper (RARE)</span>
+                            <span class="seed-price">$10</span>
+                            <span class="seed-stock">Stock: 4</span>
+                        </div>
+                    </div>
+                    <div class="seed-item rare-seed" data-seed="watermelon">
+                         <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMTIiIGZpbGw9IiNGRjYzNDciLz4KPHBhdGggZD0iTTE4IDI4TDIyIDI4TDIwIDMyTDE4IDI4WiIgZmlsbD0iIzAwODAwMCIvPgo8cGF0aCBkPSJNMTYgMjZMMjQgMjZMMjAgMzBMMTYgMjZaIiBmaWxsPSIjRkY2MzQ3Ii8+CjxwYXRoIGQ9Ik0xNyAyNEwyMyAyNEwyMCAyOEwxNyAyNFoiIGZpbGw9IiNGRjYzNDciLz4KPHBhdGggZD0iTTE4IDIyTDIyIDIyTDIwIDI2TDE4IDIyWiIgZmlsbD0iI0ZGNjM0NyIvPgo8cGF0aCBkPSJNMTkgMjBMMjEgMjBMMjAgMjRMMTkgMjBaIiBmaWxsPSIjRkY2MzQ3Ii8+CjxwYXRoIGQ9Ik0xOCAxNkwyMiAxNkwyMCAyMEwxOCAxNloiIGZpbGw9IiMwMDgwMDAiLz4KPHBhdGggZD0iTTE5IDE0TDIxIDE0TDIwIDE4TDE5IDE0WiIgZmlsbD0iIzAwODAwMCIvPgo8L3N2Zz4=" alt="Watermelon">
+                        <div class="seed-info">
+                            <span class="seed-name">Watermelon (RARE)</span>
+                            <span class="seed-price">$20</span>
+                            <span class="seed-stock">Stock: 2</span>
+                        </div>
+                    </div>
+                    <div class="seed-item rare-seed" data-seed="asparagus">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMTIiIGZpbGw9IiMyMjhCMjIiLz4KPHBhdGggZD0iTTE4IDI4TDIyIDI4TDIwIDMyTDE4IDI4WiIgZmlsbD0iIzAwODAwMCIvPgo8cGF0aCBkPSJNMTYgMjZMMjQgMjZMMjAgMzBMMTYgMjZaIiBmaWxsPSIjMjI4QjIyIi8+CjxwYXRoIGQ9Ik0xNyAyNEwyMyAyNEwyMCAyOEwxNyAyNFoiIGZpbGw9IiMyMjhCMjIiLz4KPHBhdGggZD0iTTE4IDIyTDIyIDIyTDIwIDI2TDE4IDIyWiIgZmlsbD0iIzIyOEIyMiIvPgo8cGF0aCBkPSJNMTkgMjBMMjEgMjBMMjAgMjRMMTkgMjBaIiBmaWxsPSIjMjI4QjIyIi8+CjxwYXRoIGQ9Ik0xOCAxNkwyMiAxNkwyMCAyMEwxOCAxNloiIGZpbGw9IiMwMDgwMDAiLz4KPHBhdGggZD0iTTE5IDE0TDIxIDE0TDIwIDE4TDE5IDE0WiIgZmlsbD0iIzAwODAwMCIvPgo8L3N2Zz4=" alt="Asparagus">
+                        <div class="seed-info">
+                            <span class="seed-name">Asparagus (RARE)</span>
+                            <span class="seed-price">$13</span>
+                            <span class="seed-stock">Stock: 3</span>
+                        </div>
+                    </div>
+                    <div class="seed-item rare-seed" data-seed="artichoke">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMTIiIGZpbGw9IiMyMjhCMjIiLz4KPGNpcmNsZSBjeD0iMTYgMTYiIHI9IjMiIGZpbGw9IiMyMjhCMjIiLz4KPGNpcmNsZSBjeD0iMjQgMTYiIHI9IjMiIGZpbGw9IiMyMjhCMjIiLz4KPGNpcmNsZSBjeD0iMjAgMjAiIHI9IjMiIGZpbGw9IiMyMjhCMjIiLz4KPGNpcmNsZSBjeD0iMTYgMjQiIHI9IjMiIGZpbGw9IiMyMjhCMjIiLz4KPGNpcmNsZSBjeD0iMjQgMjQiIHI9IjMiIGZpbGw9IiMyMjhCMjIiLz4KPHBhdGggZD0iTTE4IDI4TDIyIDI4TDIwIDMyTDE4IDI4WiIgZmlsbD0iIzAwODAwMCIvPgo8cGF0aCBkPSJNMTYgMjZMMjQgMjZMMjAgMzBMMTYgMjZaIiBmaWxsPSIjMjI4QjIyIi8+CjxwYXRoIGQ9Ik0xNyAyNEwyMyAyNEwyMCAyOEwxNyAyNFoiIGZpbGw9IiMyMjhCMjIiLz4KPHBhdGggZD0iTTE4IDIyTDIyIDIyTDIwIDI2TDE4IDIyWiIgZmlsbD0iIzIyOEIyMiIvPgo8cGF0aCBkPSJNMTkgMjBMMjEgMjBMMjAgMjRMMTkgMjBaIiBmaWxsPSIjMjI4QjIyIi8+CjxwYXRoIGQ9Ik0xOCAxNkwyMiAxNkwyMCAyMEwxOCAxNloiIGZpbGw9IiMwMDgwMDAiLz4KPHBhdGggZD0iTTE5IDE0TDIxIDE0TDIwIDE4TDE5IDE0WiIgZmlsbD0iIzAwODAwMCIvPgo8L3N2Zz4=" alt="Artichoke">
+                        <div class="seed-info">
+                            <span class="seed-name">Artichoke (RARE)</span>
+                            <span class="seed-price">$16</span>
+                            <span class="seed-stock">Stock: 2</span>
+                        </div>
+                    </div>
+                    <div class="seed-item rare-seed" data-seed="kiwi">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMTIiIGZpbGw9IiM5MEVFOEIiLz4KPGNpcmNsZSBjeD0iMTYgMTYiIHI9IjIiIGZpbGw9IiM5MEVFOEIiLz4KPGNpcmNsZSBjeD0iMjQgMTYiIHI9IjIiIGZpbGw9IiM5MEVFOEIiLz4KPGNpcmNsZSBjeD0iMjAgMjAiIHI9IjIiIGZpbGw9IiM5MEVFOEIiLz4KPGNpcmNsZSBjeD0iMTYgMjQiIHI9IjIiIGZpbGw9IiM5MEVFOEIiLz4KPGNpcmNsZSBjeD0iMjQgMjQiIHI9IjIiIGZpbGw9IiM5MEVFOEIiLz4KPHBhdGggZD0iTTE4IDI4TDIyIDI4TDIwIDMyTDE4IDI4WiIgZmlsbD0iIzAwODAwMCIvPgo8cGF0aCBkPSJNMTYgMjZMMjQgMjZMMjAgMzBMMTYgMjZaIiBmaWxsPSIjOTBFRThCIi8+CjxwYXRoIGQ9Ik0xNyAyNEwyMyAyNEwyMCAyOEwxNyAyNFoiIGZpbGw9IiM5MEVFOEIiLz4KPHBhdGggZD0iTTE4IDIyTDIyIDIyTDIwIDI2TDE4IDIyWiIgZmlsbD0iIzkwRUU4QiIvPgo8cGF0aCBkPSJNMTkgMjBMMjEgMjBMMjAgMjRMMTkgMjBaIiBmaWxsPSIjOTBFRThCIi8+CjxwYXRoIGQ9Ik0xOCAxNkwyMiAxNkwyMCAyMEwxOCAxNloiIGZpbGw9IiMwMDgwMDAiLz4KPHBhdGggZD0iTTE5IDE0TDIxIDE0TDIwIDE4TDE5IDE0WiIgZmlsbD0iIzAwODAwMCIvPgo8L3N2Zz4=" alt="Kiwi">
+                        <div class="seed-info">
+                            <span class="seed-name">Kiwi (RARE)</span>
+                            <span class="seed-price">$22</span>
+                            <span class="seed-stock">Stock: 2</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Legendary Seeds Section -->
+                    <h4>🌟 Legendary Seeds</h4>
+                    <div class="seed-item legendary-seed" data-seed="pumpkin">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMTIiIGZpbGw9IiNGRjhDMDAiLz4KPHBhdGggZD0iTTE4IDI4TDIyIDI4TDIwIDMyTDE4IDI4WiIgZmlsbD0iIzAwODAwMCIvPgo8cGF0aCBkPSJNMTYgMjZMMjQgMjZMMjAgMzBMMTYgMjZaIiBmaWxsPSIjRkY4QzAwIi8+CjxwYXRoIGQ9Ik0xNyAyNEwyMyAyNEwyMCAyOEwxNyAyNFoiIGZpbGw9IiNGRjhDMDAiLz4KPHBhdGggZD0iTTE4IDIyTDIyIDIyTDIwIDI2TDE4IDIyWiIgZmlsbD0iI0ZGOEMwMCIvPgo8cGF0aCBkPSJNMTkgMjBMMjEgMjBMMjAgMjRMMTkgMjBaIiBmaWxsPSIjRkY4QzAwIi8+CjxwYXRoIGQ9Ik0xOCAxNkwyMiAxNkwyMCAyMEwxOCAxNloiIGZpbGw9IiMwMDgwMDAiLz4KPHBhdGggZD0iTTE5IDE0TDIxIDE0TDIwIDE4TDE5IDE0WiIgZmlsbD0iIzAwODAwMCIvPgo8L3N2Zz4=" alt="Pumpkin">
+                        <div class="seed-info">
+                            <span class="seed-name">Pumpkin (LEGENDARY)</span>
+                            <span class="seed-price">$25</span>
+                            <span class="seed-stock">Stock: 1</span>
+                        </div>
+                    </div>
+                    <div class="seed-item legendary-seed" data-seed="grapes">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMTIiIGZpbGw9IiM4QjAwOEIiLz4KPHBhdGggZD0iTTE4IDI4TDIyIDI4TDIwIDMyTDE4IDI4WiIgZmlsbD0iIzAwODAwMCIvPgo8cGF0aCBkPSJNMTYgMjZMMjQgMjZMMjAgMzBMMTYgMjZaIiBmaWxsPSIjOEIwMDhCIi8+CjxwYXRoIGQ9Ik0xNyAyNEwyMyAyNEwyMCAyOEwxNyAyNFoiIGZpbGw9IiM4QjAwOEIiLz4KPHBhdGggZD0iTTE4IDIyTDIyIDIyTDIwIDI2TDE4IDIyWiIgZmlsbD0iIzhCMDA4QiIvPgo8cGF0aCBkPSJNMTkgMjBMMjEgMjBMMjAgMjRMMTkgMjBaIiBmaWxsPSIjOEIwMDhCIi8+CjxwYXRoIGQ9Ik0xOCAxNkwyMiAxNkwyMCAyMEwxOCAxNloiIGZpbGw9IiMwMDgwMDAiLz4KPHBhdGggZD0iTTE5IDE0TDIxIDE0TDIwIDE4TDE5IDE0WiIgZmlsbD0iIzAwODAwMCIvPgo8L3N2Zz4=" alt="Grapes">
+                        <div class="seed-info">
+                            <span class="seed-name">Grapes (LEGENDARY)</span>
+                            <span class="seed-price">$18</span>
+                            <span class="seed-stock">Stock: 3</span>
+                        </div>
+                    </div>
+                    <div class="seed-item legendary-seed" data-seed="apple">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMTIiIGZpbGw9IiNGRjAwMDAiLz4KPHBhdGggZD0iTTE4IDI4TDIyIDI4TDIwIDMyTDE4IDI4WiIgZmlsbD0iIzAwODAwMCIvPgo8cGF0aCBkPSJNMTYgMjZMMjQgMjZMMjAgMzBMMTYgMjZaIiBmaWxsPSIjRkYwMDAwIi8+CjxwYXRoIGQ9Ik0xNyAyNEwyMyAyNEwyMCAyOEwxNyAyNFoiIGZpbGw9IiNGRjAwMDAiLz4KPHBhdGggZD0iTTE4IDIyTDIyIDIyTDIwIDI2TDE4IDIyWiIgZmlsbD0iI0ZGMDAwMCIvPgo8cGF0aCBkPSJNMTkgMjBMMjEgMjBMMjAgMjRMMTkgMjBaIiBmaWxsPSIjRkYwMDAwIi8+CjxwYXRoIGQ9Ik0xOCAxNkwyMiAxNkwyMCAyMEwxOCAxNloiIGZpbGw9IiMwMDgwMDAiLz4KPHBhdGggZD0iTTE5IDE0TDIxIDE0TDIwIDE4TDE5IDE0WiIgZmlsbD0iIzAwODAwMCIvPgo8L3N2Zz4=" alt="Apple">
+                        <div class="seed-info">
+                            <span class="seed-name">Apple (LEGENDARY)</span>
+                            <span class="seed-price">$15</span>
+                            <span class="seed-stock">Stock: 4</span>
+                        </div>
+                    </div>
+                    <div class="seed-item legendary-seed" data-seed="pineapple">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMTIiIGZpbGw9IiNGRkQ3MDAiLz4KPGNpcmNsZSBjeD0iMTYgMTYiIHI9IjIiIGZpbGw9IiNGRkQ3MDAiLz4KPGNpcmNsZSBjeD0iMjQgMTYiIHI9IjIiIGZpbGw9IiNGRkQ3MDAiLz4KPGNpcmNsZSBjeD0iMjAgMjAiIHI9IjIiIGZpbGw9IiNGRkQ3MDAiLz4KPGNpcmNsZSBjeD0iMTYgMjQiIHI9IjIiIGZpbGw9IiNGRkQ3MDAiLz4KPGNpcmNsZSBjeD0iMjQgMjQiIHI9IjIiIGZpbGw9IiNGRkQ3MDAiLz4KPHBhdGggZD0iTTE4IDI4TDIyIDI4TDIwIDMyTDE4IDI4WiIgZmlsbD0iIzAwODAwMCIvPgo8cGF0aCBkPSJNMTYgMjZMMjQgMjZMMjAgMzBMMTYgMjZaIiBmaWxsPSIjRkZENzAwIi8+CjxwYXRoIGQ9Ik0xNyAyNEwyMyAyNEwyMCAyOEwxNyAyNFoiIGZpbGw9IiNGRkQ3MDAiLz4KPHBhdGggZD0iTTE4IDIyTDIyIDIyTDIwIDI2TDE4IDIyWiIgZmlsbD0iI0ZGRDcwMCIvPgo8cGF0aCBkPSJNMTkgMjBMMjEgMjBMMjAgMjRMMTkgMjBaIiBmaWxsPSIjRkZENzAwIi8+CjxwYXRoIGQ9Ik0xOCAxNkwyMiAxNkwyMCAyMEwxOCAxNloiIGZpbGw9IiMwMDgwMDAiLz4KPHBhdGggZD0iTTE5IDE0TDIxIDE0TDIwIDE4TDE5IDE0WiIgZmlsbD0iIzAwODAwMCIvPgo8L3N2Zz4=" alt="Pineapple">
+                        <div class="seed-info">
+                            <span class="seed-name">Pineapple (LEGENDARY)</span>
+                            <span class="seed-price">$30</span>
+                            <span class="seed-stock">Stock: 1</span>
+                        </div>
+                    </div>
+                    <div class="seed-item legendary-seed" data-seed="mango">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMTIiIGZpbGw9IiNGRjhDMDAiLz4KPGNpcmNsZSBjeD0iMTYgMTYiIHI9IjIiIGZpbGw9IiNGRjhDMDAiLz4KPGNpcmNsZSBjeD0iMjQgMTYiIHI9IjIiIGZpbGw9IiNGRjhDMDAiLz4KPGNpcmNsZSBjeD0iMjAgMjAiIHI9IjIiIGZpbGw9IiNGRjhDMDAiLz4KPGNpcmNsZSBjeD0iMTYgMjQiIHI9IjIiIGZpbGw9IiNGRjhDMDAiLz4KPGNpcmNsZSBjeD0iMjQgMjQiIHI9IjIiIGZpbGw9IiNGRjhDMDAiLz4KPHBhdGggZD0iTTE4IDI4TDIyIDI4TDIwIDMyTDE4IDI4WiIgZmlsbD0iIzAwODAwMCIvPgo8cGF0aCBkPSJNMTYgMjZMMjQgMjZMMjAgMzBMMTYgMjZaIiBmaWxsPSIjRkY4QzAwIi8+CjxwYXRoIGQ9Ik0xNyAyNEwyMyAyNEwyMCAyOEwxNyAyNFoiIGZpbGw9IiNGRjhDMDAiLz4KPHBhdGggZD0iTTE4IDIyTDIyIDIyTDIwIDI2TDE4IDIyWiIgZmlsbD0iI0ZGOEMwMCIvPgo8cGF0aCBkPSJNMTkgMjBMMjEgMjBMMjAgMjRMMTkgMjBaIiBmaWxsPSIjRkY4QzAwIi8+CjxwYXRoIGQ9Ik0xOCAxNkwyMiAxNkwyMCAyMEwxOCAxNloiIGZpbGw9IiMwMDgwMDAiLz4KPHBhdGggZD0iTTE5IDE0TDIxIDE0TDIwIDE4TDE5IDE0WiIgZmlsbD0iIzAwODAwMCIvPgo8L3N2Zz4=" alt="Mango">
+                        <div class="seed-info">
+                            <span class="seed-name">Mango (LEGENDARY)</span>
+                            <span class="seed-price">$28</span>
+                            <span class="seed-stock">Stock: 2</span>
+                        </div>
+                    </div>
+                    <div class="seed-item legendary-seed" data-seed="dragonfruit">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMTIiIGZpbGw9IiNGRjY5QjQiLz4KPGNpcmNsZSBjeD0iMTYgMTYiIHI9IjIiIGZpbGw9IiNGRjY5QjQiLz4KPGNpcmNsZSBjeD0iMjQgMTYiIHI9IjIiIGZpbGw9IiNGRjY5QjQiLz4KPGNpcmNsZSBjeD0iMjAgMjAiIHI9IjIiIGZpbGw9IiNGRjY5QjQiLz4KPGNpcmNsZSBjeD0iMTYgMjQiIHI9IjIiIGZpbGw9IiNGRjY5QjQiLz4KPGNpcmNsZSBjeD0iMjQgMjQiIHI9IjIiIGZpbGw9IiNGRjY5QjQiLz4KPHBhdGggZD0iTTE4IDI4TDIyIDI4TDIwIDMyTDE4IDI4WiIgZmlsbD0iIzAwODAwMCIvPgo8cGF0aCBkPSJNMTYgMjZMMjQgMjZMMjAgMzBMMTYgMjZaIiBmaWxsPSIjRkY2OUI0Ii8+CjxwYXRoIGQ9Ik0xNyAyNEwyMyAyNEwyMCAyOEwxNyAyNFoiIGZpbGw9IiNGRjY5QjQiLz4KPHBhdGggZD0iTTE4IDIyTDIyIDIyTDIwIDI2TDE4IDIyWiIgZmlsbD0iI0ZGNjlCNCIvPgo8cGF0aCBkPSJNMTkgMjBMMjEgMjBMMjAgMjRMMTkgMjBaIiBmaWxsPSIjRkY2OUI0Ii8+CjxwYXRoIGQ9Ik0xOCAxNkwyMiAxNkwyMCAyMEwxOCAxNloiIGZpbGw9IiMwMDgwMDAiLz4KPHBhdGggZD0iTTE5IDE0TDIxIDE0TDIwIDE4TDE5IDE0WiIgZmlsbD0iIzAwODAwMCIvPgo8L3N2Zz4=" alt="Dragonfruit">
+                        <div class="seed-info">
+                            <span class="seed-name">Dragonfruit (LEGENDARY)</span>
+                            <span class="seed-price">$35</span>
+                            <span class="seed-stock">Stock: 1</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Water and Fertilizer Purchase Section -->
+                <div class="purchase-shop">
+                    <h3>💧 Water & Fertilizer</h3>
+                    <div class="purchase-section">
+                        <div class="purchase-item">
+                            <div class="purchase-info">
+                                <span class="purchase-name">💧 Water</span>
+                                <span class="purchase-price">$5</span>
+                                <span class="purchase-description">Water your plants for faster growth</span>
+                            </div>
+                            <button class="purchase-btn" onclick="if(window.game) window.game.buyWater()">Buy Water</button>
+                        </div>
+                        <div class="purchase-item">
+                            <div class="purchase-info">
+                                <span class="purchase-name">🌱 Fertilizer</span>
+                                <span class="purchase-price">$10</span>
+                                <span class="purchase-description">Fertilize your plants for maximum growth</span>
+                            </div>
+                            <button class="purchase-btn" onclick="if(window.game) window.game.buyFertilizer()">Buy Fertilizer</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sprinkler-shop">
+                    <h3>💧 Sprinkler Shop</h3>
+                    <div class="sprinkler-item" data-sprinkler="basic">
+                        <div class="sprinkler-info">
+                            <span class="sprinkler-name">💧 Basic Sprinkler</span>
+                            <span class="sprinkler-price" id="sprinkler-basic-price">$50</span>
+                            <span class="sprinkler-count" id="sprinkler-basic-count">0</span>
+                        </div>
+                        <span class="sprinkler-desc">+20% growth, 1 tile range</span>
+                    </div>
+                    <div class="sprinkler-item" data-sprinkler="advanced">
+                        <div class="sprinkler-info">
+                            <span class="sprinkler-name">🌊 Advanced Sprinkler</span>
+                            <span class="sprinkler-price" id="sprinkler-advanced-price">$150</span>
+                            <span class="sprinkler-count" id="sprinkler-advanced-count">0</span>
+                        </div>
+                        <span class="sprinkler-desc">+40% growth, +10% water efficiency, 2 tile range</span>
+                    </div>
+                    <div class="sprinkler-item" data-sprinkler="premium">
+                        <div class="sprinkler-info">
+                            <span class="sprinkler-name">🌈 Premium Sprinkler</span>
+                            <span class="sprinkler-price" id="sprinkler-premium-price">$300</span>
+                            <span class="sprinkler-count" id="sprinkler-premium-count">0</span>
+                        </div>
+                        <span class="sprinkler-desc">+60% growth, +20% water, +10% fertilizer, 2 tile range</span>
+                    </div>
+                    <div class="sprinkler-item" data-sprinkler="legendary">
+                        <div class="sprinkler-info">
+                            <span class="sprinkler-name">⭐ Legendary Sprinkler</span>
+                            <span class="sprinkler-price" id="sprinkler-legendary-price">$500</span>
+                            <span class="sprinkler-count" id="sprinkler-legendary-count">0</span>
+                        </div>
+                        <span class="sprinkler-desc">+80% growth, +30% water, +20% fertilizer, 3 tile range</span>
+                    </div>
+                </div>
+
+                <div class="decoration-shop">
+                    <h3>🌸 Garden Decorations</h3>
+                    <div class="decoration-categories">
+                        <button class="category-btn active" data-category="all">All</button>
+                        <button class="category-btn" data-category="path">Paths</button>
+                        <button class="category-btn" data-category="statue">Statues</button>
+                        <button class="category-btn" data-category="fence">Fences</button>
+                        <button class="category-btn" data-category="seasonal">Seasonal</button>
+                    </div>
+                    
+                    <div class="decoration-grid">
+                        <!-- Stone Path -->
+                        <div class="decoration-item" data-decoration="stone_path" data-category="path">
+                            <div class="decoration-icon">🪨</div>
+                            <div class="decoration-info">
+                                <div class="decoration-name">Stone Path</div>
+                                <div class="decoration-cost">$25</div>
+                                <div class="decoration-description">Beautiful stone pathway</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Wooden Path -->
+                        <div class="decoration-item" data-decoration="wooden_path" data-category="path">
+                            <div class="decoration-icon">🪵</div>
+                            <div class="decoration-info">
+                                <div class="decoration-name">Wooden Path</div>
+                                <div class="decoration-cost">$15</div>
+                                <div class="decoration-description">Rustic wooden walkway</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Flower Bed -->
+                        <div class="decoration-item" data-decoration="flower_bed" data-category="decoration">
+                            <div class="decoration-icon">🌸</div>
+                            <div class="decoration-info">
+                                <div class="decoration-name">Flower Bed</div>
+                                <div class="decoration-cost">$50</div>
+                                <div class="decoration-description">Attracts beneficial insects</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Garden Gnome -->
+                        <div class="decoration-item" data-decoration="garden_gnome" data-category="statue">
+                            <div class="decoration-icon">🧙</div>
+                            <div class="decoration-info">
+                                <div class="decoration-name">Garden Gnome</div>
+                                <div class="decoration-cost">$100</div>
+                                <div class="decoration-description">Magical garden guardian</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Bird Bath -->
+                        <div class="decoration-item" data-decoration="bird_bath" data-category="statue">
+                            <div class="decoration-icon">🛁</div>
+                            <div class="decoration-info">
+                                <div class="decoration-name">Bird Bath</div>
+                                <div class="decoration-cost">$75</div>
+                                <div class="decoration-description">Attracts helpful birds</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Sundial -->
+                        <div class="decoration-item" data-decoration="sundial" data-category="statue">
+                            <div class="decoration-icon">⏰</div>
+                            <div class="decoration-info">
+                                <div class="decoration-name">Sundial</div>
+                                <div class="decoration-cost">$200</div>
+                                <div class="decoration-description">Ancient time-keeping wisdom</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Picket Fence -->
+                        <div class="decoration-item" data-decoration="picket_fence" data-category="fence">
+                            <div class="decoration-icon">🏡</div>
+                            <div class="decoration-info">
+                                <div class="decoration-name">Picket Fence</div>
+                                <div class="decoration-cost">$30</div>
+                                <div class="decoration-description">Classic garden border</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Stone Wall -->
+                        <div class="decoration-item" data-decoration="stone_wall" data-category="fence">
+                            <div class="decoration-icon">🧱</div>
+                            <div class="decoration-info">
+                                <div class="decoration-name">Stone Wall</div>
+                                <div class="decoration-cost">$80</div>
+                                <div class="decoration-description">Sturdy garden defense</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Christmas Lights -->
+                        <div class="decoration-item" data-decoration="christmas_lights" data-category="seasonal">
+                            <div class="decoration-icon">🎄</div>
+                            <div class="decoration-info">
+                                <div class="decoration-name">Christmas Lights</div>
+                                <div class="decoration-cost">$150</div>
+                                <div class="decoration-description">Festive winter cheer</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Halloween Pumpkins -->
+                        <div class="decoration-item" data-decoration="halloween_pumpkins" data-category="seasonal">
+                            <div class="decoration-icon">🎃</div>
+                            <div class="decoration-info">
+                                <div class="decoration-name">Halloween Pumpkins</div>
+                                <div class="decoration-cost">$100</div>
+                                <div class="decoration-description">Spooky fall decoration</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Spring Tulips -->
+                        <div class="decoration-item" data-decoration="spring_tulips" data-category="seasonal">
+                            <div class="decoration-icon">🌷</div>
+                            <div class="decoration-info">
+                                <div class="decoration-name">Spring Tulips</div>
+                                <div class="decoration-cost">$60</div>
+                                <div class="decoration-description">Beautiful spring flowers</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Summer Sunflowers -->
+                        <div class="decoration-item" data-decoration="summer_sunflowers" data-category="seasonal">
+                            <div class="decoration-icon">🌻</div>
+                            <div class="decoration-info">
+                                <div class="decoration-name">Summer Sunflowers</div>
+                                <div class="decoration-cost">$70</div>
+                                <div class="decoration-description">Bright summer beauty</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="decoration-info-panel">
+                        <h4 id="selectedDecorationName">Select a decoration</h4>
+                        <p id="selectedDecorationDescription">Click on a decoration to see details</p>
+                        <p id="selectedDecorationCost">Cost: $0</p>
+                        <p id="selectedDecorationBonus">Bonus: None</p>
+                    </div>
+                </div>
+
+                <div class="tools">
+                    <h3>🛠️ Tools</h3>
+                    <button id="water-btn" class="tool-btn active">
+                        <span>💧</span>
+                        <span>Water</span>
+                        <span class="tool-level">Lv.1</span>
+                    </button>
+                    <button id="fertilizer-btn" class="tool-btn">
+                        <span>🌱</span>
+                        <span>Fertilizer</span>
+                        <span class="tool-level">Lv.1</span>
+                    </button>
+                    <button id="harvest-btn" class="tool-btn">
+                        <span>✂️</span>
+                        <span>Harvest</span>
+                        <span class="tool-level">Lv.1</span>
+                    </button>
+                    <button id="shovel-btn" class="tool-btn">
+                        <span>⛏️</span>
+                        <span>Shovel</span>
+                        <span class="tool-level">Lv.1</span>
+                    </button>
+                    
+                    <h4>💧 Sprinkler Tools</h4>
+                    <button id="sprinkler-basic-btn" class="tool-btn sprinkler-tool">
+                        <span>💧</span>
+                        <span>Basic Sprinkler</span>
+                        <span class="sprinkler-count" id="sprinkler-basic-tool-count">0</span>
+                    </button>
+                    <button id="sprinkler-advanced-btn" class="tool-btn sprinkler-tool">
+                        <span>🌊</span>
+                        <span>Advanced Sprinkler</span>
+                        <span class="sprinkler-count" id="sprinkler-advanced-tool-count">0</span>
+                    </button>
+                    <button id="sprinkler-premium-btn" class="tool-btn sprinkler-tool">
+                        <span>🌈</span>
+                        <span>Premium Sprinkler</span>
+                        <span class="sprinkler-count" id="sprinkler-premium-tool-count">0</span>
+                    </button>
+                    <button id="sprinkler-legendary-btn" class="tool-btn sprinkler-tool">
+                        <span>⭐</span>
+                        <span>Legendary Sprinkler</span>
+                        <span class="sprinkler-count" id="sprinkler-legendary-tool-count">0</span>
+                    </button>
+                    
+                    <h4>🔧 Upgrade Tools</h4>
+                    <button id="upgrade-water-btn" class="upgrade-btn">
+                        <span>💧 Upgrade Water</span>
+                        <span class="upgrade-cost">$50</span>
+                    </button>
+                    <button id="upgrade-fertilizer-btn" class="upgrade-btn">
+                        <span>🌱 Upgrade Fertilizer</span>
+                        <span class="upgrade-cost">$75</span>
+                    </button>
+                    <button id="upgrade-shovel-btn" class="upgrade-btn">
+                        <span>⛏️ Upgrade Shovel</span>
+                        <span class="upgrade-cost">$100</span>
+                    </button>
+                    <button id="upgrade-harvest-btn" class="upgrade-btn">
+                        <span>✂️ Upgrade Harvest</span>
+                        <span class="upgrade-cost">$60</span>
+                    </button>
+                </div>
+
+                <div class="achievements-section">
+                    <h3>🏆 Achievements</h3>
+                    <div id="achievements-list">
+                        <!-- Achievements will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <div class="challenges-section">
+                    <h3>🎯 Garden Challenges</h3>
+                    <div id="challenges-list">
+                        <!-- Challenges will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <div class="stats-section">
+                    <h3>📊 Garden Statistics</h3>
+                    <div id="stats-list">
+                        <!-- Statistics will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <div class="instructions">
+                    <h3>📖 How to Play</h3>
+                    <ul>
+                        <li>Select a seed from the shop</li>
+                        <li>Click on an empty plot to plant</li>
+                        <li>Water your plants to help them grow</li>
+                        <li>Use fertilizer for extra growth boost</li>
+                        <li>Use shovel to remove unwanted plants or sprinklers</li>
+                        <li>Buy and place sprinklers to boost plant growth</li>
+                        <li>Harvest when plants are fully grown</li>
+                        <li>Earn money to buy sprinklers and upgrade tools!</li>
+                    </ul>
+                    
+                    <h3>🔧 Tool Upgrades</h3>
+                    <ul>
+                        <li><strong>Water Tool:</strong> Reduces cooldown by 1s per level, +20% growth bonus per level, +10 water per level</li>
+                        <li><strong>Fertilizer Tool:</strong> Reduces cooldown by 1.5s per level, +30% growth bonus per level, +5 fertilizer per level</li>
+                        <li><strong>Harvest Tool:</strong> +10% money bonus per level when harvesting</li>
+                        <li><strong>Shovel Tool:</strong> No special effects (cosmetic upgrade)</li>
+                    </ul>
+                    
+                    <h3>💧 Sprinkler System</h3>
+                    <ul>
+                        <li><strong>Basic Sprinkler:</strong> +20% growth speed, 1 tile range</li>
+                        <li><strong>Advanced Sprinkler:</strong> +40% growth, +10% water efficiency, 2 tile range</li>
+                        <li><strong>Premium Sprinkler:</strong> +60% growth, +20% water, +10% fertilizer, 2 tile range</li>
+                        <li><strong>Legendary Sprinkler:</strong> +80% growth, +30% water, +20% fertilizer, 3 tile range</li>
+                        <li>Sprinklers affect all plants within their range</li>
+                        <li>Multiple sprinklers stack their effects</li>
+                        <li>Use shovel tool to remove placed sprinklers</li>
+                    </ul>
+                    
+                    <h3>🌤️ Weather Effects</h3>
+                    <ul>
+                        <li><strong>Sunny:</strong> Normal growth speed (1.0x)</li>
+                        <li><strong>Rainy:</strong> 50% faster growth (1.5x)</li>
+                        <li><strong>Cloudy:</strong> 20% slower growth (0.8x)</li>
+                        <li><strong>Stormy:</strong> 100% faster growth (2.0x)</li>
+                    </ul>
+                    
+                    <h3>🌱 Seasonal Effects</h3>
+                    <ul>
+                        <li><strong>Spring:</strong> 20% faster growth (1.2x) - Best for spring crops</li>
+                        <li><strong>Summer:</strong> Normal growth speed (1.0x) - Best for summer crops</li>
+                        <li><strong>Fall:</strong> 20% slower growth (0.8x) - Best for fall crops</li>
+                        <li><strong>Winter:</strong> 40% slower growth (0.6x) - Limited crop availability</li>
+                        <li>Seasons change every 5 real-world days</li>
+                        <li>Some seeds are only available in specific seasons</li>
+                        <li>Year-round seeds can be planted in any season</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="garden-area">
+                <div class="season-display" id="seasonDisplay">
+                    <div class="season-info">
+                        <span id="seasonText">🌸 Spring (Day 1)</span>
+                        <span id="growthMultiplier" class="growth-multiplier">Growth: +20%</span>
+                    </div>
+                </div>
+                <canvas id="gardenCanvas" width="600" height="600"></canvas>
+                <div class="garden-info">
+                    <p>Click on a plot to plant or interact with plants!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel Modal -->
+    <div id="adminModal" class="admin-modal">
+        <div class="admin-modal-content">
+            <div class="admin-modal-header">
+                <h2>⚙️ Admin Panel</h2>
+                <button id="closeAdminBtn" class="close-btn">&times;</button>
+            </div>
+            
+            <div class="admin-modal-body">
+                <div class="admin-tabs">
+                    <button class="admin-tab active" data-tab="resources">💰 Resources</button>
+                    <button class="admin-tab" data-tab="shop">🌱 Shop</button>
+
+                    <button class="admin-tab" data-tab="tools">🛠️ Tools</button>
+                    <button class="admin-tab" data-tab="weather">🌤️ Weather</button>
+                    <button class="admin-tab" data-tab="achievements">🏆 Achievements</button>
+                    <button class="admin-tab" data-tab="advanced">⚡ Advanced</button>
+                </div>
+                
+                <!-- Resources Tab -->
+                <div class="admin-tab-content active" id="resources-tab">
+                    <h3>💰 Money & Resources</h3>
+                    <div class="admin-section">
+                        <div class="admin-input-group">
+                            <label>Add Money:</label>
+                            <input type="number" id="addMoneyInput" placeholder="Money to add" min="0">
+                            <button onclick="addMoney()">Add</button>
+                        </div>
+                        <div class="admin-input-group">
+                            <label>Set Money:</label>
+                            <input type="number" id="setMoneyInput" placeholder="Money to set" min="0">
+                            <button onclick="setMoney()">Set</button>
+                        </div>
+                        <div class="admin-input-group">
+                            <label>Add Water:</label>
+                            <input type="number" id="addWaterInput" placeholder="Water to add" min="0">
+                            <button onclick="addWater()">Add</button>
+                        </div>
+                        <div class="admin-input-group">
+                            <label>Set Water:</label>
+                            <input type="number" id="setWaterInput" placeholder="Water to set" min="0">
+                            <button onclick="setWater()">Set</button>
+                        </div>
+                        <div class="admin-input-group">
+                            <label>Add Fertilizer:</label>
+                            <input type="number" id="addFertilizerInput" placeholder="Fertilizer to add" min="0">
+                            <button onclick="addFertilizer()">Add</button>
+                        </div>
+                        <div class="admin-input-group">
+                            <label>Set Fertilizer:</label>
+                            <input type="number" id="setFertilizerInput" placeholder="Fertilizer to set" min="0">
+                            <button onclick="setFertilizer()">Set</button>
+                        </div>
+                        <div class="admin-input-group">
+                            <label>Add Score:</label>
+                            <input type="number" id="addScoreInput" placeholder="Score to add" min="0">
+                            <button onclick="addScore()">Add</button>
+                        </div>
+                        <div class="admin-input-group">
+                            <label>Set Score:</label>
+                            <input type="number" id="setScoreInput" placeholder="Score to set" min="0">
+                            <button onclick="setScore()">Set</button>
+                        </div>
+
+
+                    </div>
+                </div>
+                
+                <!-- Shop Tab -->
+                <div class="admin-tab-content" id="shop-tab">
+                    <h3>🌱 Shop Management</h3>
+                    <div class="admin-section">
+                        <div class="admin-input-group">
+                            <label>Seed Type:</label>
+                            <select id="seedTypeSelect">
+                                <option value="carrot">Carrot</option>
+                                <option value="tomato">Tomato</option>
+                                <option value="corn">Corn</option>
+                                <option value="potato">Potato</option>
+                                <option value="lettuce">Lettuce</option>
+                                <option value="onion">Onion</option>
+                                <option value="garlic">Garlic</option>
+                                <option value="broccoli">Broccoli</option>
+                                <option value="cauliflower">Cauliflower</option>
+                                <option value="cucumber">Cucumber</option>
+                                <option value="radish">Radish</option>
+                                <option value="spinach">Spinach</option>
+                                <option value="zucchini">Zucchini</option>
+                                <option value="peas">Peas</option>
+                                <option value="cabbage">Cabbage</option>
+                                <option value="celery">Celery</option>
+                                <option value="bell_pepper">Bell Pepper</option>
+                                <option value="watermelon">Watermelon</option>
+                                <option value="asparagus">Asparagus</option>
+                                <option value="artichoke">Artichoke</option>
+                                <option value="kiwi">Kiwi</option>
+                                <option value="pumpkin">Pumpkin</option>
+                                <option value="grapes">Grapes</option>
+                                <option value="apple">Apple</option>
+                                <option value="pineapple">Pineapple</option>
+                                <option value="mango">Mango</option>
+                                <option value="dragonfruit">Dragonfruit</option>
+                                <option value="squash">Squash</option>
+                                <option value="winter_greens">Winter Greens</option>
+                                <option value="herbs">Herbs</option>
+                            </select>
+                        </div>
+                        <div class="admin-input-group">
+                            <label>Set Stock:</label>
+                            <input type="number" id="setStockInput" placeholder="Stock to set" min="0">
+                            <button onclick="setStock()">Set Stock</button>
+                        </div>
+                        <div class="admin-input-group">
+                            <label>Set Rarity:</label>
+                            <select id="raritySelect">
+                                <option value="common">Common</option>
+                                <option value="rare">Rare</option>
+                                <option value="legendary">Legendary</option>
+                            </select>
+                            <button onclick="setRarity()">Set Rarity</button>
+                        </div>
+                        <div class="admin-input-group">
+                            <label>Restock Interval (minutes):</label>
+                            <input type="number" id="restockTimeInput" placeholder="Minutes" min="1">
+                            <button onclick="setRestockTime()">Set</button>
+                        </div>
+                        <div class="admin-buttons">
+                            <button onclick="restockAll()" class="admin-action-btn">🔄 Restock All</button>
+                        </div>
+                    </div>
+                </div>
+                
+                
+                
+                <!-- Tools Tab -->
+                <div class="admin-tab-content" id="tools-tab">
+                    <h3>🛠️ Tool Management</h3>
+                    <div class="admin-section">
+                        <div class="admin-input-group">
+                            <label>Tool Type:</label>
+                            <select id="toolTypeSelect">
+                                <option value="water">Water</option>
+                                <option value="fertilizer">Fertilizer</option>
+                                <option value="shovel">Shovel</option>
+                                <option value="harvest">Harvest</option>
+                            </select>
+                        </div>
+                        <div class="admin-buttons">
+                            <button onclick="upgradeTool()" class="admin-action-btn">⬆️ Upgrade Tool</button>
+                        </div>
+                        
+                        <h4>💧 Sprinkler Management</h4>
+                        <div class="admin-input-group">
+                            <label>Sprinkler Type:</label>
+                            <select id="sprinklerTypeSelect">
+                                <option value="basic">Basic</option>
+                                <option value="advanced">Advanced</option>
+                                <option value="premium">Premium</option>
+                                <option value="legendary">Legendary</option>
+                            </select>
+                        </div>
+                        <div class="admin-input-group">
+                            <label>Add Amount:</label>
+                            <input type="number" id="addSprinklerInput" placeholder="Sprinklers to add" min="0">
+                            <button onclick="addSprinkler()">Add</button>
+                        </div>
+                        <div class="admin-buttons">
+                            <button onclick="clearSprinklers()" class="admin-action-btn">🗑️ Clear Sprinklers</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Weather Tab -->
+                <div class="admin-tab-content" id="weather-tab">
+                    <h3>🌤️ Weather Control</h3>
+                    <div class="admin-section">
+                        <div class="admin-input-group">
+                            <label>Weather Type:</label>
+                            <select id="weatherSelect">
+                                <option value="sunny">Sunny</option>
+                                <option value="rainy">Rainy</option>
+                                <option value="cloudy">Cloudy</option>
+                                <option value="stormy">Stormy</option>
+                            </select>
+                            <button onclick="setWeather()">Set Weather</button>
+                        </div>
+                        <div class="admin-input-group">
+                            <label>Weather Change Interval (minutes):</label>
+                            <input type="number" id="weatherTimeInput" placeholder="Minutes" min="1">
+                            <button onclick="setWeatherTime()">Set</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Achievements Tab -->
+                <div class="admin-tab-content" id="achievements-tab">
+                    <h3>🏆 Achievement Management</h3>
+                    <div class="admin-section">
+                        <div class="admin-input-group">
+                            <label>Achievement:</label>
+                            <select id="achievementSelect">
+                                <option value="firstHarvest">First Harvest</option>
+                                <option value="moneyMaker">Money Maker</option>
+                                <option value="plantMaster">Plant Master</option>
+                                <option value="waterWizard">Water Wizard</option>
+                                <option value="fertilizerFanatic">Fertilizer Fanatic</option>
+                                <option value="speedGrower">Speed Grower</option>
+                                <option value="rareCollector">Rare Collector</option>
+                                <option value="legendaryFarmer">Legendary Farmer</option>
+                            </select>
+                            <button onclick="unlockAchievement()">Unlock</button>
+                        </div>
+                        <div class="admin-buttons">
+                            <button onclick="setScore()" class="admin-action-btn">🎯 Set Score</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Advanced Tab -->
+                <div class="admin-tab-content" id="advanced-tab">
+                    <h3>⚡ Advanced Commands</h3>
+                    <div class="admin-section">
+                        <h4>🎯 Challenge Management</h4>
+                        <div class="admin-buttons">
+                            <button onclick="completeAllChallenges()" class="admin-action-btn">✅ Complete All</button>
+                            <button onclick="resetChallenges()" class="admin-action-btn">🔄 Reset Challenges</button>
+                        </div>
+                        
+                        <h4>🌱 Garden Management</h4>
+                        <div class="admin-buttons">
+                            <button onclick="growAllPlants()" class="admin-action-btn">🌱 Grow All Plants</button>
+                            <button onclick="harvestAllPlants()" class="admin-action-btn">✂️ Harvest All</button>
+                            <button onclick="waterAllPlants()" class="admin-action-btn">💧 Water All</button>
+                            <button onclick="fertilizeAllPlants()" class="admin-action-btn">🌿 Fertilize All</button>
+                        </div>
+                        
+                        <h4>📊 Statistics & Data</h4>
+                        <div class="admin-buttons">
+                            <button onclick="resetStats()" class="admin-action-btn">🔄 Reset Stats</button>
+                            <button onclick="showGrowthRates()" class="admin-action-btn">🌱 Show Growth Rates</button>
+                            <button onclick="exportSaveData()" class="admin-action-btn">📤 Export Data</button>
+                            <button onclick="importSaveData()" class="admin-action-btn">📥 Import Data</button>
+                        </div>
+                        
+                        <h4>🎮 Game Control</h4>
+                        <div class="admin-buttons">
+                            <button onclick="setSeason()" class="admin-action-btn">🌱 Set Season</button>
+                        </div>
+                        
+                        <h4>🔧 System</h4>
+                        <div class="admin-buttons">
+                            <button onclick="clearAllSlots()" class="admin-danger-btn">🗑️ Clear All Slots</button>
+                            <button onclick="backupGame()" class="admin-action-btn">💾 Backup</button>
+                            <button onclick="restoreGame()" class="admin-action-btn">📥 Restore</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="admin-modal-footer">
+                <button onclick="saveGame()" class="admin-action-btn">💾 Save</button>
+                <button onclick="clearGarden()" class="admin-danger-btn">🗑️ Clear</button>
+                <button onclick="resetCurrentSlot()" class="admin-danger-btn">🔄 Reset</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="game.js"></script>
+    <script src="multiplayer.js"></script>
+</body>
+</html>
+
+
+>>>>>>> e4a482801caead975926ba19c835b6d2d697c03b

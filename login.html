@@ -319,8 +319,9 @@
                 const data = await response.json();
                 
                 if (response.ok) {
-                    // Store token
+                    // Store token and username
                     localStorage.setItem('garden_game_token', data.token);
+                    localStorage.setItem('garden_game_username', data.user.username);
                     showSuccess('login', 'Login successful! Redirecting...');
                     
                     // Redirect to game after a short delay
@@ -367,8 +368,9 @@
                 const data = await response.json();
                 
                 if (response.ok) {
-                    // Store token
+                    // Store token and username
                     localStorage.setItem('garden_game_token', data.token);
+                    localStorage.setItem('garden_game_username', data.user.username);
                     showSuccess('register', 'Account created successfully! Redirecting...');
                     
                     // Redirect to game after a short delay

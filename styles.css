@@ -270,25 +270,46 @@ body {
 /* Menu Buttons */
 .menu-buttons {
     display: flex;
+<<<<<<< HEAD
     flex-direction: column;
     gap: 15px;
     margin: 20px 0;
     width: 100%;
     max-width: 300px;
+=======
+    flex-direction: row; /* Changed from column to row for horizontal alignment */
+    gap: 10px; /* Reduced gap for horizontal layout */
+    margin: 20px 0;
+    width: 100%;
+    max-width: 600px; /* Increased max-width for horizontal layout */
+    justify-content: center; /* Center the buttons */
+    flex-wrap: wrap; /* Allow wrapping if needed */
+>>>>>>> e4a482801caead975926ba19c835b6d2d697c03b
 }
 
 .menu-buttons .account-btn,
 .menu-buttons .support-btn,
 .menu-buttons .logout-btn {
+<<<<<<< HEAD
     padding: 15px 25px;
+=======
+    padding: 12px 20px; /* Slightly reduced padding for horizontal layout */
+>>>>>>> e4a482801caead975926ba19c835b6d2d697c03b
     border: none;
     border-radius: 10px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
+<<<<<<< HEAD
     font-size: 1.1rem;
     text-align: center;
     width: 100%;
+=======
+    font-size: 1rem; /* Slightly smaller font for horizontal layout */
+    text-align: center;
+    width: auto; /* Changed from 100% to auto for horizontal layout */
+    min-width: 140px; /* Set minimum width for consistency */
+>>>>>>> e4a482801caead975926ba19c835b6d2d697c03b
 }
 
 .menu-buttons .account-btn {

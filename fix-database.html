@@ -50,11 +50,19 @@
 </head>
 <body>
     <div class="container">
+<<<<<<< HEAD
         <h1>�� Fix Database</h1>
         <p>This will create the missing database tables for the admin panel.</p>
 
         <button onclick="fixDatabase()">Fix Database</button>
 
+=======
+        <h1>🔧 Fix Database</h1>
+        <p>This will create the missing database tables for the admin panel.</p>
+        
+        <button onclick="fixDatabase()">Fix Database</button>
+        
+>>>>>>> e4a482801caead975926ba19c835b6d2d697c03b
         <div id="result"></div>
     </div>
 
@@ -62,11 +70,19 @@
         async function fixDatabase() {
             const resultDiv = document.getElementById('result');
             resultDiv.innerHTML = '<p>Fixing database...</p>';
+<<<<<<< HEAD
 
             try {
                 const response = await fetch('/api/fix-database');
                 const result = await response.json();
 
+=======
+            
+            try {
+                const response = await fetch('/api/fix-database');
+                const result = await response.json();
+                
+>>>>>>> e4a482801caead975926ba19c835b6d2d697c03b
                 if (response.ok) {
                     resultDiv.innerHTML = `
                         <div class="result success">
@@ -94,4 +110,8 @@
         }
     </script>
 </body>
+<<<<<<< HEAD
 </html>
+=======
+</html>
+>>>>>>> e4a482801caead975926ba19c835b6d2d697c03b

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html>
 <head>
@@ -31,3 +32,38 @@
     </script>
 </body>
 </html>
+=======
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Timezone Test</title>
+</head>
+<body>
+    <h1>Timezone Test</h1>
+    <p>Current time in different timezones:</p>
+    <ul>
+        <li>Your local time: <span id="local"></span></li>
+        <li>PST (Pacific): <span id="pst"></span></li>
+        <li>UTC: <span id="utc"></span></li>
+    </ul>
+    
+    <h2>Test with a specific timestamp:</h2>
+    <p>Testing with: 2025-08-18T21:01:00.000Z</p>
+    <ul>
+        <li>Local: <span id="test-local"></span></li>
+        <li>PST: <span id="test-pst"></span></li>
+    </ul>
+
+    <script>
+        const now = new Date();
+        document.getElementById('local').textContent = now.toLocaleString();
+        document.getElementById('pst').textContent = now.toLocaleString('en-US', {timeZone: 'America/Los_Angeles'});
+        document.getElementById('utc').textContent = now.toISOString();
+        
+        const testDate = new Date('2025-08-18T21:01:00.000Z');
+        document.getElementById('test-local').textContent = testDate.toLocaleString();
+        document.getElementById('test-pst').textContent = testDate.toLocaleString('en-US', {timeZone: 'America/Los_Angeles'});
+    </script>
+</body>
+</html>
+>>>>>>> e4a482801caead975926ba19c835b6d2d697c03b
