@@ -1288,6 +1288,22 @@ This document contains every single update, bug fix, and change made to Grow You
 
 **Last Updated: August 2025**
 
+## [1.6.20] - 2025-08-19
+
+### Added
+- **Water & Fertilizer Purchase System**: Added purchase buttons for water ($5) and fertilizer ($10) in the shop
+- **Purchase UI**: Added CSS styles for purchase section with hover effects and clear pricing
+- **Purchase Functions**: Added buyWater() and buyFertilizer() methods to Game class and global window functions
+
+### Fixed
+- **Water & Fertilizer UI Update**: Fixed issue where UI wasn't updating after purchase (wrong property names)
+- **Dashboard Stats**: Added all missing stats to dashboard display (Total Friends, Pending Friends, Announcements, etc.)
+- **Sprinkler Growth System**: Fixed sprinklers not growing crops by adding checkAllSprinklerGrowth() to game loop
+- **Security Tab Debugging**: Added comprehensive debugging logs to identify display issues
+- **Admin Panel Tabs**: Fixed tabs being visible on login page
+- **Friend Request Bug**: Fixed users being able to accept their own friend requests
+- **Login Page Redirect**: Fixed login page not showing on refresh when not authenticated
+
 ## [1.6.19] - 2025-08-19
 ### Fixed
 - **Admin Panel Login**: Fixed "invalid token" message appearing on login page before authentication

@@ -1961,7 +1961,7 @@ class GardenGame {
             const waterCost = 5;
             if (this.money >= waterCost) {
                 this.money -= waterCost;
-                this.waterInventory += 1;
+                this.water += 1;
                 this.updateUI();
                 this.showMessage('💧 Water purchased! You can now water your plants.', 'success');
                 this.playSound('success');
@@ -1976,7 +1976,7 @@ class GardenGame {
             const fertilizerCost = 10;
             if (this.money >= fertilizerCost) {
                 this.money -= fertilizerCost;
-                this.fertilizerInventory += 1;
+                this.fertilizer += 1;
                 this.updateUI();
                 this.showMessage('🌱 Fertilizer purchased! You can now fertilize your plants.', 'success');
                 this.playSound('success');
@@ -3206,6 +3206,15 @@ class GardenGame {
                     this.updateUI();
                     this.draw(); // Force immediate redraw to show growth
                 }
+            }
+        }
+    }
+    
+    // Check sprinkler growth for all plants in the garden
+    checkAllSprinklerGrowth() {
+        for (let row = 0; row < this.gridSize; row++) {
+            for (let col = 0; col < this.gridSize; col++) {
+                this.checkSprinklerGrowth(row, col);
             }
         }
     }
@@ -4503,6 +4512,9 @@ class GardenGame {
         this.checkAchievements();
             this.generateChallenges();
             
+            // Check sprinkler growth for all plants
+            this.checkAllSprinklerGrowth();
+            
             // Note: updateShopDisplay is now only called when needed, not in the game loop
             
             // Update particles
@@ -5309,7 +5321,7 @@ class GardenGame {
         const waterCost = 5;
         if (this.money >= waterCost) {
             this.money -= waterCost;
-            this.waterInventory += 1;
+            this.water += 1;
             this.updateUI();
             this.showMessage('💧 Water purchased! You can now water your plants.', 'success');
             this.playSound('success');
@@ -5324,7 +5336,7 @@ class GardenGame {
         const fertilizerCost = 10;
         if (this.money >= fertilizerCost) {
             this.money -= fertilizerCost;
-            this.fertilizerInventory += 1;
+            this.fertilizer += 1;
             this.updateUI();
             this.showMessage('🌱 Fertilizer purchased! You can now fertilize your plants.', 'success');
             this.playSound('success');

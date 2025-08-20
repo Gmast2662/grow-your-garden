@@ -1034,7 +1034,6 @@
                             <h3>${stats.bannedUsers}</h3>
                             <p>Banned Users</p>
                         </div>
-
                         <div class="stat-card">
                             <h3>${stats.mutedUsers}</h3>
                             <p>Muted Users</p>
@@ -1042,6 +1041,38 @@
                         <div class="stat-card">
                             <h3>${stats.totalMessages || stats.totalChatMessages || 0}</h3>
                             <p>Chat Messages</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${stats.totalFriends}</h3>
+                            <p>Total Friends</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${stats.pendingFriends}</h3>
+                            <p>Pending Friends</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${stats.totalAnnouncements}</h3>
+                            <p>Announcements</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${stats.adminUsers}</h3>
+                            <p>Admin Users</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${stats.totalLogs}</h3>
+                            <p>Admin Logs</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${stats.todayUsers}</h3>
+                            <p>Today's Users</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${stats.todayMessages}</h3>
+                            <p>Today's Messages</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${stats.totalFilterWords}</h3>
+                            <p>Filter Words</p>
                         </div>
                     `;
                     console.log('Setting statsGrid innerHTML:', statsHTML);
@@ -1701,23 +1732,31 @@
 
         // Load banned IPs
         async function loadBannedIPs() {
+            console.log('loadBannedIPs called');
             if (!adminToken) {
+                console.warn('No admin token available for loadBannedIPs');
                 return;
             }
             try {
+                console.log('Fetching banned IPs from /api/admin/banned-ips');
                 const response = await fetch('/api/admin/banned-ips', {
                     headers: { 'Authorization': `Bearer ${adminToken}` }
                 });
+                console.log('Banned IPs response status:', response.status);
                 const result = await response.json();
+                console.log('Banned IPs response:', result);
                 
                 if (response.ok) {
                     const bannedIPsList = document.getElementById('bannedIPsList');
+                    console.log('bannedIPsList element found:', bannedIPsList);
                     if (!bannedIPsList) {
+                        console.error('Error: bannedIPsList element not found');
                         showAlert('Error: bannedIPsList element not found', 'error');
                         return;
                     }
                     if (result.bannedIPs.length === 0) {
                         bannedIPsList.innerHTML = '<h5>Banned IP Addresses</h5><p>No banned IP addresses</p>';
+                        console.log('Set empty banned IPs list');
                     } else {
                         let html = '<h5>Banned IP Addresses</h5>';
                         result.bannedIPs.forEach(ip => {
@@ -1733,8 +1772,10 @@
                             `;
                         });
                         bannedIPsList.innerHTML = html;
+                        console.log('Set banned IPs list with', result.bannedIPs.length, 'items');
                     }
                 } else {
+                    console.error('Failed to load banned IPs:', result.error);
                     showAlert('Failed to load banned IPs: ' + result.error, 'error');
                 }
             } catch (error) {
