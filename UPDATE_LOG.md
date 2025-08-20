@@ -60,6 +60,12 @@
 - **Status**: Added comprehensive debugging logs to loadBannedIPs() function
 - **Next Steps**: Need user console output to identify why security tab content is not being displayed
 
+### 🔧 FIXED: Season Change Display Issue
+- **Issue**: When changing seasons with admin commands, the season display wasn't updating properly
+- **Root Cause**: setSeason() function wasn't calling updateSeasonDisplay() directly and wasn't saving the game state
+- **Fix**: Added explicit updateSeasonDisplay() call and saveGame() call to setSeason() function
+- **Result**: Season changes now properly update the display and persist across game sessions
+
 ### 🔍 INVESTIGATING: Permanent Mute Functionality
 - **Issue**: User reported that permanent mutes are not working
 - **Status**: Investigating admin panel mute form and server-side mute handling

@@ -2599,7 +2599,9 @@ class GardenGame {
                 this.currentSeason = season;
                 this.seasonDay = 1;
                 this.updateSeasonMultiplier();
+                this.updateSeasonDisplay(); // Force immediate season display update
                 this.updateUI();
+                this.saveGame(); // Save the season change
                 this.showMessage(`Season set to ${season}!`, 'success');
             } else {
                 this.showMessage('Invalid season!', 'error');
