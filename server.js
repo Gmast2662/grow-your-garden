@@ -824,16 +824,26 @@ app.get('/api/users/:userId/garden', (req, res) => {
 app.get('/api/users/:userId/friends', (req, res) => {
     const userId = req.params.userId;
     db.all(`
-        SELECT u.id, u.username, u.is_online, f.status, f.created_at
+        SELECT u.id, u.username, u.is_online, f.status, f.created_at, 'sent' as request_type
         FROM friends f
         JOIN users u ON (f.friend_id = u.id)
-        WHERE f.user_id = ?
+        WHERE f.user_id = ? AND f.status = 'pending'
         UNION
-        SELECT u.id, u.username, u.is_online, f.status, f.created_at
+        SELECT u.id, u.username, u.is_online, f.status, f.created_at, 'received' as request_type
         FROM friends f
         JOIN users u ON (f.user_id = u.id)
-        WHERE f.friend_id = ?
-    `, [userId, userId], (err, friends) => {
+        WHERE f.friend_id = ? AND f.status = 'pending'
+        UNION
+        SELECT u.id, u.username, u.is_online, f.status, f.created_at, 'accepted' as request_type
+        FROM friends f
+        JOIN users u ON (f.friend_id = u.id)
+        WHERE f.user_id = ? AND f.status = 'accepted'
+        UNION
+        SELECT u.id, u.username, u.is_online, f.status, f.created_at, 'accepted' as request_type
+        FROM friends f
+        JOIN users u ON (f.user_id = u.id)
+        WHERE f.friend_id = ? AND f.status = 'accepted'
+    `, [userId, userId, userId, userId], (err, friends) => {
         if (err) {
             res.status(500).json({ error: 'Database error' });
             return;

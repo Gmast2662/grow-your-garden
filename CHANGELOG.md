@@ -36,6 +36,19 @@ This document contains every single update, bug fix, and change made to Grow You
   - **Fix**: Added debugging logs to showTab function and loadStats function to track tab activation and content display
   - **Fix**: Modified showAdminSection to explicitly call showTab('dashboard') to ensure proper tab activation
   - **Result**: Better visibility into tab switching and content display issues
+- **Friend Request Self-Acceptance Fix**: Fixed users being able to accept their own friend requests
+  - **Issue**: Users could see and accept their own sent friend requests in the pending requests list
+  - **Fix**: Modified server-side friends API endpoint to include request_type field distinguishing sent vs received requests
+  - **Fix**: Updated client-side filtering in game.js to only show received requests in pending requests section
+  - **Result**: Users can no longer accept their own friend requests, fixing the friend system logic
+- **Permanent Mute Investigation**: Investigating reported issues with permanent mute functionality
+  - **Issue**: User reported that permanent mutes are not working properly
+  - **Status**: Examining admin panel mute form and server-side mute handling logic
+  - **Next Steps**: Need to verify mute application and enforcement in chat message handling
+- **Dashboard & Security Tab Debugging**: Enhanced debugging for ongoing tab display issues
+  - **Issue**: Dashboard stats and security tab content still not displaying despite previous fixes
+  - **Status**: Comprehensive debugging logs added to track function calls, API responses, and DOM manipulation
+  - **Next Steps**: Awaiting user console output to identify why content is not being displayed despite successful API calls
 
 
 ## 🆕 Previous Updates (v1.6.18)

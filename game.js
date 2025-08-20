@@ -1195,7 +1195,7 @@ class GardenGame {
                 let friendsHtml = '';
                 
                 // Show accepted friends
-                const acceptedFriends = uniqueFriends.filter(friend => friend.status === 'accepted');
+                const acceptedFriends = uniqueFriends.filter(friend => friend.status === 'accepted' && friend.request_type === 'accepted');
                 if (acceptedFriends.length > 0) {
                     // Separate online and offline friends
                     const onlineFriends = acceptedFriends.filter(friend => {
@@ -1251,8 +1251,11 @@ class GardenGame {
                     }
                 }
                 
-                // Show pending friend requests
-                const pendingRequests = uniqueFriends.filter(friend => friend.status === 'pending');
+                // Show pending friend requests (only received requests, not sent ones)
+                const pendingRequests = uniqueFriends.filter(friend => {
+                    // Only show received requests, not sent ones
+                    return friend.status === 'pending' && friend.request_type === 'received';
+                });
                 if (pendingRequests.length > 0) {
                     friendsHtml += '<h4>⏳ Pending Requests</h4>';
                     pendingRequests.forEach(friend => {

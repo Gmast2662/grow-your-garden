@@ -10,6 +10,22 @@
 - **Login Page Redirect**: Fixed issue where login page wasn't showing on page refresh when not authenticated
 - **Tab Visibility Debugging**: Added comprehensive debugging to identify why dashboard and security tabs aren't displaying content
 
+### 🔧 FIXED: Friend Request Self-Acceptance Issue
+- **Issue**: Users could see and accept their own sent friend requests in the pending requests list
+- **Fix**: Modified server-side friends API to distinguish between sent and received requests using request_type field
+- **Fix**: Updated client-side filtering to only show received requests in pending requests section
+- **Result**: Users can no longer accept their own friend requests
+
+### 🔍 INVESTIGATING: Permanent Mute Functionality
+- **Issue**: User reported that permanent mutes are not working
+- **Status**: Investigating admin panel mute form and server-side mute handling
+- **Next Steps**: Need to verify mute application and enforcement logic
+
+### 🔍 ONGOING: Dashboard & Security Tab Issues
+- **Issue**: Dashboard stats and security tab content not displaying despite API calls working
+- **Status**: Debugging logs added, need user console output to identify root cause
+- **Next Steps**: Analyze console output to determine why content is not being displayed
+
 
 ## [1.6.19] - 2025-08-19
 
