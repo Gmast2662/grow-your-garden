@@ -982,7 +982,9 @@
                     loadStats();
                 } else if (tabName === 'security') {
                     console.log('Loading security data');
-                    loadSecurityData();
+                    setTimeout(() => {
+                        loadSecurityData();
+                    }, 100); // Small delay to ensure tab is visible
                 } else {
                     // Stop auto-refresh for other tabs
                     stopLogsAutoRefresh();
@@ -1718,12 +1720,30 @@
             }
             try {
                 console.log('Loading security data...');
-                await Promise.all([
-                    loadBannedIPs(),
-                    loadBannedDevices(),
-                    loadSecurityLogs()
-                ]);
-                console.log('Security data loaded successfully');
+                
+                // Load each section individually with better error handling
+                try {
+                    await loadBannedIPs();
+                    console.log('Banned IPs loaded successfully');
+                } catch (error) {
+                    console.error('Error loading banned IPs:', error);
+                }
+                
+                try {
+                    await loadBannedDevices();
+                    console.log('Banned devices loaded successfully');
+                } catch (error) {
+                    console.error('Error loading banned devices:', error);
+                }
+                
+                try {
+                    await loadSecurityLogs();
+                    console.log('Security logs loaded successfully');
+                } catch (error) {
+                    console.error('Error loading security logs:', error);
+                }
+                
+                console.log('Security data loading completed');
             } catch (error) {
                 console.error('Error loading security data:', error);
                 showAlert('Failed to load security data: ' + error.message, 'error');
@@ -1754,6 +1774,8 @@
                         showAlert('Error: bannedIPsList element not found', 'error');
                         return;
                     }
+                    
+                    console.log('Setting banned IPs content, count:', result.bannedIPs.length);
                     if (result.bannedIPs.length === 0) {
                         bannedIPsList.innerHTML = '<h5>Banned IP Addresses</h5><p>No banned IP addresses</p>';
                         console.log('Set empty banned IPs list');

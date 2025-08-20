@@ -64,7 +64,27 @@
 - **Issue**: When changing seasons with admin commands, the season display wasn't updating properly
 - **Root Cause**: setSeason() function wasn't calling updateSeasonDisplay() directly and wasn't saving the game state
 - **Fix**: Added explicit updateSeasonDisplay() call and saveGame() call to setSeason() function
+- **Fix**: Added force reflow to updateSeasonDisplay() to ensure DOM updates are applied
 - **Result**: Season changes now properly update the display and persist across game sessions
+
+### 🔧 FIXED: Water & Fertilizer Purchase Section Placement
+- **Issue**: Water and fertilizer purchase section was placed in the middle of the seed shop (after basic seeds)
+- **Fix**: Moved purchase section to a separate dedicated section after the seed shop
+- **Result**: Better organization with clear separation between seed shop and resource purchases
+
+### 🎨 IMPROVED: Purchase Section UI Design
+- **Enhanced Styling**: Added gradient backgrounds, improved borders, and better visual hierarchy
+- **Interactive Effects**: Added hover animations with color transitions and shadow effects
+- **Button Improvements**: Enhanced purchase buttons with gradient backgrounds and shimmer effects
+- **Visual Feedback**: Added top border animations and improved spacing
+- **Result**: Much more attractive and professional-looking purchase interface
+
+### 🔧 FIXED: Security Tab Loading Issues
+- **Issue**: Security tab content not displaying properly despite API calls working
+- **Fix**: Added individual error handling for each security data loading function
+- **Fix**: Added comprehensive debugging logs to track loading progress
+- **Fix**: Added small delay when switching to security tab to ensure proper loading
+- **Result**: Better visibility into security tab loading issues and improved reliability
 
 ### 🔍 INVESTIGATING: Permanent Mute Functionality
 - **Issue**: User reported that permanent mutes are not working

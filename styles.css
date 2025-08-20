@@ -1086,29 +1086,66 @@ body {
     }
     
     /* Purchase section styles */
-    .purchase-section {
-        margin: 20px 0;
-        padding: 15px;
-        background: #f8f9fa;
-        border-radius: 10px;
-        border: 2px solid #e1e5e9;
-    }
+.purchase-shop {
+    margin: 20px 0;
+    padding: 20px;
+    background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+    border-radius: 15px;
+    border: 2px solid #bbdefb;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.purchase-shop h3 {
+    margin: 0 0 15px 0;
+    color: #1976d2;
+    font-size: 1.4rem;
+    text-align: center;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.purchase-section {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+}
     
     .purchase-item {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 15px;
-        margin-bottom: 10px;
-        background: white;
-        border-radius: 8px;
-        border: 1px solid #e1e5e9;
+        padding: 18px;
+        margin-bottom: 12px;
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        border-radius: 12px;
+        border: 2px solid #e3f2fd;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
         transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .purchase-item::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #2196f3, #4caf50);
+        opacity: 0;
+        transition: opacity 0.3s ease;
     }
     
     .purchase-item:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        border-color: #bbdefb;
+    }
+    
+    .purchase-item:hover::before {
+        opacity: 1;
     }
     
     .purchase-info {
@@ -1140,26 +1177,45 @@ body {
     }
     
     .purchase-btn {
-        padding: 10px 20px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 12px 24px;
+        background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
         color: white;
         border: none;
-        border-radius: 6px;
+        border-radius: 8px;
         font-size: 1rem;
         font-weight: 600;
         cursor: pointer;
         transition: all 0.3s ease;
         white-space: nowrap;
+        box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .purchase-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s ease;
     }
     
     .purchase-btn:hover {
-        background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
-        transform: translateY(-1px);
-        box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+        background: linear-gradient(135deg, #45a049 0%, #3d8b40 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(76, 175, 80, 0.4);
+    }
+    
+    .purchase-btn:hover::before {
+        left: 100%;
     }
     
     .purchase-btn:active {
         transform: translateY(0);
+        box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
     }
     .seed-shop h3,
     .sprinkler-shop h3,

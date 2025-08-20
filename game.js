@@ -4084,6 +4084,9 @@ class GardenGame {
             const seasonText = seasonEmojis[this.currentSeason] + ' ' + this.currentSeason.charAt(0).toUpperCase() + this.currentSeason.slice(1) + ' (Day ' + this.seasonDay + ')';
             seasonTextElement.textContent = seasonText;
             
+            // Force a reflow to ensure the DOM updates
+            seasonTextElement.offsetHeight;
+            
             // Update growth multiplier display
             if (this.seasonMultiplier !== 1.0) {
                 const multiplierText = 'Growth: ' + (this.seasonMultiplier > 1 ? '+' : '') + Math.round((this.seasonMultiplier - 1) * 100) + '%';
@@ -4093,6 +4096,9 @@ class GardenGame {
             } else {
                 growthMultiplierElement.style.display = 'none';
             }
+            
+            // Force a reflow for the multiplier element too
+            growthMultiplierElement.offsetHeight;
         }
     }
     
