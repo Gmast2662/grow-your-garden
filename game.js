@@ -1145,15 +1145,27 @@ class GardenGame {
             
             // Get friends from multiplayer manager
             this.multiplayer.getFriends().then(friends => {
-                // Remove duplicates based on user ID AND status/request_type
-                // This ensures we don't lose pending requests when we have accepted friends for the same user
+                console.log('Raw friends data:', friends); // Debug log
+                console.log('Current user:', this.multiplayer?.currentUser); // Debug log
+                
+                if (!friends || friends.length === 0) {
+                    friendsContainer.innerHTML = `
+                        <p>No friends found. Add some friends to get started!</p>
+                        <div class="add-friend-section">
+                            <input type="text" id="friendUsername" placeholder="Enter username to add">
+                            <button id="addFriendBtn">Add Friend</button>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Remove duplicates based on user ID only (not status/request_type)
                 const uniqueFriends = friends.filter((friend, index, self) => {
-                    const friendKey = `${friend.id || friend.user_id}-${friend.status}-${friend.request_type}`;
-                    return index === self.findIndex(f => {
-                        const fKey = `${f.id || f.user_id}-${f.status}-${f.request_type}`;
-                        return fKey === friendKey;
-                    });
+                    const friendId = friend.id || friend.user_id;
+                    return index === self.findIndex(f => (f.id || f.user_id) === friendId);
                 });
+                
+                console.log('Unique friends after deduplication:', uniqueFriends); // Debug log
                 
                 let friendsHtml = '';
                 
@@ -1188,13 +1200,16 @@ class GardenGame {
                     if (onlineFriends.length > 0) {
                         friendsHtml += '<h4>🟢 Online Friends</h4>';
                         friendsHtml += onlineFriends.map(friend => {
+                            const friendId = friend.id || friend.user_id;
+                            // Try multiple possible username fields
+                            const friendName = friend.username || friend.name || friend.from_name || friend.by_name || 'Unknown User';
                             return `<div class="friend-item">
                                 <div class="friend-info">
-                                    <span class="friend-name">${friend.username}</span>
+                                    <span class="friend-name">${friendName}</span>
                                     <span class="friend-status online">🟢</span>
                                 </div>
                                 <div class="friend-actions">
-                                    <button class="unfriend-btn-small" data-friend-id="${friend.id || friend.user_id}" data-action="unfriend">Unfriend</button>
+                                    <button class="unfriend-btn-small" data-friend-id="${friendId}" data-action="unfriend">Unfriend</button>
                                 </div>
                             </div>`;
                         }).join('');
@@ -1204,13 +1219,16 @@ class GardenGame {
                     if (offlineFriends.length > 0) {
                         friendsHtml += '<h4>🔴 Offline Friends</h4>';
                         friendsHtml += offlineFriends.map(friend => {
+                            const friendId = friend.id || friend.user_id;
+                            // Try multiple possible username fields
+                            const friendName = friend.username || friend.name || friend.from_name || friend.by_name || 'Unknown User';
                             return `<div class="friend-item">
                                 <div class="friend-info">
-                                    <span class="friend-name">${friend.username}</span>
+                                    <span class="friend-name">${friendName}</span>
                                     <span class="friend-status offline">🔴</span>
                                 </div>
                                 <div class="friend-actions">
-                                    <button class="unfriend-btn-small" data-friend-id="${friend.id || friend.user_id}" data-action="unfriend">Unfriend</button>
+                                    <button class="unfriend-btn-small" data-friend-id="${friendId}" data-action="unfriend">Unfriend</button>
                                 </div>
                             </div>`;
                         }).join('');
@@ -1227,10 +1245,12 @@ class GardenGame {
                     friendsHtml += '<h4>⏳ Pending Requests</h4>';
                     pendingRequests.forEach(friend => {
                         const friendId = friend.id || friend.user_id || friend.from_id;
+                        // Try multiple possible username fields
+                        const friendName = friend.username || friend.name || friend.from_name || friend.by_name || 'Unknown User';
                         friendsHtml += `
                             <div class="friend-item pending">
                                 <div class="friend-info">
-                                    <span class="friend-name">${friend.username}</span>
+                                    <span class="friend-name">${friendName}</span>
                                     <span class="friend-status">⏳ Pending</span>
                                 </div>
                                 <div class="friend-actions">
@@ -1473,7 +1493,8 @@ class GardenGame {
             const status = friend.isOnline ? '🟢 Online' : '🔴 Offline';
             const statusColor = friend.isOnline ? '#4CAF50' : '#f44336';
             const friendId = friend.id || friend.user_id;
-            const friendName = friend.username || friend.name || 'Unknown User';
+            // Try multiple possible username fields
+            const friendName = friend.username || friend.name || friend.from_name || friend.by_name || 'Unknown User';
             
             friendsListHTML += `
                 <div class="friend-item" style="
@@ -2551,7 +2572,7 @@ class GardenGame {
                         }
                     }
                     
-
+                    
                     
                     window.menuSystem.currentGame.updateUI();
                     window.menuSystem.currentGame.draw();
@@ -6569,6 +6590,22 @@ class GardenGame {
             console.log(`No save data found for slot ${this.saveSlot}, starting fresh game`);
             this.initializeFreshGame();
         }
+    }
+    
+    // Get garden data for multiplayer sharing
+    getGardenData() {
+        return {
+            money: this.money,
+            water: this.water,
+            fertilizer: this.fertilizer,
+            score: this.score,
+            weather: this.weather,
+            currentSeason: this.currentSeason,
+            seasonDay: this.seasonDay,
+            garden: this.garden,
+            stats: this.stats,
+            saveSlot: this.saveSlot
+        };
     }
     
     // Logout method to clear multiplayer state when switching accounts

@@ -345,8 +345,18 @@ class MultiplayerManager {
         const allowed = confirm(message);
         
         if (allowed) {
-            // Get current garden data from game
-            const gardenData = window.game ? window.game.getGardenData() : null;
+            // Try to get current garden data from different possible sources
+            let gardenData = null;
+            
+            if (window.game && typeof window.game.getGardenData === 'function') {
+                gardenData = window.game.getGardenData();
+            } else if (window.menuSystem && window.menuSystem.currentGame && typeof window.menuSystem.currentGame.getGardenData === 'function') {
+                gardenData = window.menuSystem.currentGame.getGardenData();
+            } else if (window.currentGame && typeof window.currentGame.getGardenData === 'function') {
+                gardenData = window.currentGame.getGardenData();
+            }
+            
+            console.log('Garden visit request - garden data:', gardenData);
             this.respondToGardenVisit(data.visitorId, true, gardenData);
         } else {
             this.respondToGardenVisit(data.visitorId, false);

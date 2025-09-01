@@ -2057,3 +2057,23 @@ This document contains every single update, bug fix, and change made to Grow You
   - Added debug logging for troubleshooting
 - **Files Modified**: `multiplayer.js`, `game.js`, `styles.css`
 - **Result**: Multiplayer system now works reliably with proper friend display, chat functionality, and account isolation
+
+### 🔧 FIXED: Multiplayer System Issues
+- **Issue**: Friends list not showing names, only online status
+- **Fix**: Enhanced `loadFriendsList()` to properly display friend usernames with fallback handling
+- **Issue**: Chat messages not working bidirectionally between accounts
+- **Fix**: Improved chat message handling with deduplication and proper UI updates
+- **Issue**: Duplicate users appearing in visit garden dialog
+- **Fix**: Added deduplication logic based on user ID to prevent duplicate entries
+- **Issue**: Account mixing when using multiple accounts in same browser
+- **Fix**: Added `resetState()` method to clear multiplayer data when switching accounts
+- **Issue**: Garden visit requests being denied due to missing garden data
+- **Fix**: Added `getGardenData()` method to GardenGame class and improved garden visit request handling
+- **Technical Improvements**:
+  - Enhanced friend data handling with multiple field fallbacks (`username`, `name`, `from_name`, `by_name`)
+  - Added chat message deduplication to prevent spam
+  - Improved error handling and user feedback
+  - Added debug logging for troubleshooting
+  - Enhanced garden visit system to properly retrieve and share garden data
+- **Files Modified**: `multiplayer.js`, `game.js`, `styles.css`
+- **Result**: Multiplayer system now works reliably with proper friend display, chat functionality, garden visits, and account isolation
