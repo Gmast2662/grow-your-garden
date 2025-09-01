@@ -1426,6 +1426,28 @@ class GardenGame {
     }
     
     showFriendSelectionDialog(friends) {
+        if (!friends || friends.length === 0) {
+            this.showMessage('No friends available to visit', 'info');
+            return;
+        }
+        
+        // Remove duplicates based on user ID only
+        const uniqueFriends = friends.filter((friend, index, self) => {
+            const friendId = friend.id || friend.user_id;
+            return index === self.findIndex(f => (f.id || f.user_id) === friendId);
+        });
+        
+        // Only show accepted friends for garden visits
+        const acceptedFriends = uniqueFriends.filter(friend => {
+            const isAccepted = (friend.status === 'accepted') || (friend.request_type === 'accepted');
+            return isAccepted;
+        });
+        
+        if (acceptedFriends.length === 0) {
+            this.showMessage('No accepted friends available to visit', 'info');
+            return;
+        }
+        
         const modal = document.createElement('div');
         modal.className = 'friend-selection-modal';
         modal.style.cssText = `
@@ -1442,9 +1464,16 @@ class GardenGame {
         `;
         
         let friendsListHTML = '';
-        friends.forEach(friend => {
+        acceptedFriends.forEach(friend => {
+            // Don't show current user
+            if (friend.id === this.multiplayer?.currentUser?.id || friend.user_id === this.multiplayer?.currentUser?.id) {
+                return;
+            }
+            
             const status = friend.isOnline ? '🟢 Online' : '🔴 Offline';
             const statusColor = friend.isOnline ? '#4CAF50' : '#f44336';
+            const friendId = friend.id || friend.user_id;
+            const friendName = friend.username || friend.name || 'Unknown User';
             
             friendsListHTML += `
                 <div class="friend-item" style="
@@ -1459,10 +1488,10 @@ class GardenGame {
                     transition: all 0.3s;
                 " onmouseover="this.style.borderColor='#4CAF50'" onmouseout="this.style.borderColor='#e0e0e0'">
                     <div>
-                        <strong style="font-size: 1.1em;">${friend.username}</strong>
+                        <strong style="font-size: 1.1em;">${friendName}</strong>
                         <div style="color: ${statusColor}; font-size: 0.9em;">${status}</div>
                     </div>
-                    <button onclick="if(window.game) window.game.visitFriendGarden('${friend.id}', '${friend.username}')" 
+                    <button onclick="if(window.game) window.game.visitFriendGarden('${friendId}', '${friendName}')" 
                             style="
                                 background: #4CAF50;
                                 color: white;
@@ -1480,6 +1509,11 @@ class GardenGame {
                 </div>
             `;
         });
+        
+        if (!friendsListHTML) {
+            this.showMessage('No friends available to visit', 'info');
+            return;
+        }
         
         modal.innerHTML = `
             <div style="
@@ -6535,6 +6569,19 @@ class GardenGame {
             console.log(`No save data found for slot ${this.saveSlot}, starting fresh game`);
             this.initializeFreshGame();
         }
+    }
+    
+    // Logout method to clear multiplayer state when switching accounts
+    logout() {
+        // Clear multiplayer state to prevent account mixing
+        if (this.multiplayer) {
+            this.multiplayer.resetState();
+        }
+        
+        // Clear any local game state
+        this.saveGame();
+        
+        console.log('🌱 GardenGame logout - multiplayer state cleared');
     }
     
 

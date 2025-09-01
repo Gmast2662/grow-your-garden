@@ -141,12 +141,32 @@ class MultiplayerManager {
         // Chat events
         this.socket.on('new_message', (data) => {
             console.log(`💬 New message from ${data.senderName}`);
-            this.chatMessages.push(data);
+            
+            // Check if message already exists to prevent duplicates
+            const messageExists = this.chatMessages.some(msg => 
+                msg.id === data.id || 
+                (msg.senderId === data.senderId && msg.message === data.message && msg.timestamp === data.timestamp)
+            );
+            
+            if (!messageExists) {
+                this.chatMessages.push(data);
+                
+                // Keep only last 100 messages to prevent memory issues
+                if (this.chatMessages.length > 100) {
+                    this.chatMessages = this.chatMessages.slice(-100);
+                }
+            }
+            
             this.emit('chat_message', data);
             
             // Update UI if game is available
             if (window.game && window.game.updateMultiplayerUI) {
                 window.game.updateMultiplayerUI();
+            }
+            
+            // Also update chat display
+            if (window.game && window.game.loadChatMessages) {
+                window.game.loadChatMessages();
             }
         });
 
@@ -155,8 +175,16 @@ class MultiplayerManager {
                 console.log('✅ Message sent successfully');
                 // Add message to local chat if it's a global message
                 if (data.message) {
-                    this.chatMessages.push(data.message);
-                    this.emit('chat_message', data.message);
+                    // Check if message already exists to prevent duplicates
+                    const messageExists = this.chatMessages.some(msg => 
+                        msg.id === data.message.id || 
+                        (msg.senderId === data.message.senderId && msg.message === data.message.message && msg.timestamp === data.message.timestamp)
+                    );
+                    
+                    if (!messageExists) {
+                        this.chatMessages.push(data.message);
+                        this.emit('chat_message', data.message);
+                    }
                     
                     // Update UI if game is available
                     if (window.game && window.game.loadChatMessages) {
@@ -687,105 +715,6 @@ class MultiplayerManager {
                         'blue_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
                         'pink_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
                         'brown_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'gray_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'black_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'purple_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'red_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'white_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'yellow_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'orange_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'green_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'blue_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'pink_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'brown_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'gray_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'black_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'purple_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'red_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'white_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'yellow_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'orange_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'green_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'blue_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'pink_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'brown_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'gray_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'black_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'purple_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'red_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'white_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'yellow_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'orange_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'green_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'blue_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'pink_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'brown_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'gray_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'black_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'purple_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'red_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'white_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'yellow_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'orange_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'green_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'blue_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'pink_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'brown_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'gray_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'black_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'purple_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'red_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'white_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'yellow_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'orange_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'green_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'blue_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'pink_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'brown_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'gray_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'black_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'purple_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'red_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'white_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'yellow_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'orange_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'green_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'blue_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'pink_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'brown_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'gray_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'black_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'purple_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'red_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'white_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'yellow_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'orange_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'green_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'blue_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'pink_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'brown_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'gray_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'black_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'purple_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'red_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'white_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'yellow_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'orange_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'green_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'blue_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'pink_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'brown_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'gray_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'black_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'purple_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'red_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'white_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'yellow_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'orange_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'green_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'blue_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'pink_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
-                        'brown_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
                         'gray_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
                         'unknown': ['🌱', '🌱', '🌱', '🌱', '🌱']
                     };
@@ -928,6 +857,20 @@ class MultiplayerManager {
                 popup.remove();
             }
         }, 10000);
+    }
+
+    // Clear chat messages and reset state (useful when switching accounts)
+    clearChatMessages() {
+        this.chatMessages = [];
+        console.log('💬 Chat messages cleared');
+    }
+    
+    // Reset multiplayer state (useful when switching accounts)
+    resetState() {
+        this.chatMessages = [];
+        this.friends = [];
+        this.onlineUsers = [];
+        console.log('🔄 Multiplayer state reset');
     }
 }
 
