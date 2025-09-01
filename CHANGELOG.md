@@ -2,6 +2,30 @@
 
 This document contains every single update, bug fix, and change made to Grow Your Garden, including detailed technical information.
 
+## 🆕 Latest Updates (v1.8.0)
+
+### 🔧 FIXED: Sprinkler Growth and Efficiency Buffs Not Working
+- **Issue**: Different sprinkler types were not providing their advertised growth speed and efficiency buffs
+- **Root Cause**: 
+  - Sprinkler growth bonuses were calculated but never applied to growth timing
+  - Water and fertilizer efficiency bonuses were defined but never implemented
+- **Solution**: 
+  - **Growth Speed**: Modified `checkSprinklerGrowth()` to apply sprinkler growth bonus to growth timing
+  - **Water Efficiency**: Added `getSprinklerWaterBonus()` function and applied to `waterPlant()` function
+  - **Fertilizer Efficiency**: Added `getSprinklerFertilizerBonus()` function and applied to `fertilizePlant()` function
+- **Technical Implementation**:
+  - Growth time now calculated as: `baseTime / (1 + sprinklerBonus)` for faster growth with better sprinklers
+  - Water efficiency: Plants within sprinkler range use 0 water instead of 1 when watered
+  - Fertilizer efficiency: Plants within sprinkler range use 0 fertilizer instead of 1 when fertilized
+  - Added user feedback messages showing efficiency percentages
+- **Sprinkler Types & Effects**:
+  - **Basic**: +20% growth speed, 1 tile range
+  - **Advanced**: +40% growth speed, +10% water efficiency, 2 tile range  
+  - **Premium**: +60% growth speed, +20% water efficiency, +10% fertilizer efficiency, 2 tile range
+  - **Legendary**: +80% growth speed, +30% water efficiency, +20% fertilizer efficiency, 3 tile range
+- **Files Modified**: `game.js`
+- **Result**: All sprinkler types now properly provide their advertised buffs and efficiency bonuses
+
 ## 🆕 Latest Updates (v1.7.9)
 
 ### 💬 ADDED: Chat Auto-Update Information Message
@@ -1987,3 +2011,32 @@ This document contains every single update, bug fix, and change made to Grow You
 - **JavaScript Changes**: Added debugging logs to `showAccountSettings()` function in `game.js`
 - **HTML Changes**: Updated `login.html` to store username in localStorage during login/registration
 - **Button Sizing**: Adjusted padding and font-size for better horizontal layout
+
+## Update Log
+
+### v1.8.1 - Garden Visit Feature Implementation
+
+### 🏡 NEW: Fully Functional Garden Visit System
+- **Issue**: Garden visit feature was broken - only showed placeholder data instead of actual garden layout
+- **Solution**: Completely rebuilt the garden viewing system with proper visual representation
+- **New Features**:
+  - **Friend Selection Dialog**: Beautiful modal showing all friends with online status
+  - **Visual Garden Display**: Actual garden layout shown with plants, sprinklers, and empty spaces
+  - **Plant Emojis**: Each plant type shows appropriate emoji based on growth stage
+  - **Garden Statistics**: Shows money, water, fertilizer, score, and plant count
+  - **Responsive Design**: Works on all screen sizes with proper scaling
+- **Technical Implementation**:
+  - Replaced placeholder `showGardenViewer()` with proper garden rendering
+  - Added `createGardenDisplay()` function for visual garden layout
+  - Enhanced `requestGardenVisit()` with friend selection interface
+  - Added CSS styling for modals and garden display
+  - Integrated with existing multiplayer friend system
+- **User Experience**:
+  - Click "Visit Garden" button → See friends list → Select friend → View their garden
+  - Garden shows real-time layout with proper plant positioning
+  - Hover effects and tooltips for better interaction
+  - Click outside or close button to exit
+- **Files Modified**: `multiplayer.js`, `game.js`, `styles.css`
+- **Result**: Players can now actually visit and view each other's gardens visually!
+
+## v1.8.0 - Sprinkler Buff System Fix

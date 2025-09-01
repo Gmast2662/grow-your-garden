@@ -2676,3 +2676,129 @@ body {
         font-size: 0.7rem;
     }
 }
+
+/* Garden Viewer Modal Styles */
+.garden-viewer-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    overflow-y: auto;
+}
+
+.garden-viewer-content {
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+}
+
+.garden-info {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f5f5f5;
+    border-radius: 10px;
+    border: 1px solid #e0e0e0;
+}
+
+.garden-grid {
+    display: inline-grid;
+    gap: 2px;
+    background: #8B4513;
+    padding: 10px;
+    border-radius: 10px;
+    border: 3px solid #654321;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
+}
+
+.garden-cell {
+    border: 1px solid #654321;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: default;
+    transition: all 0.2s;
+}
+
+.garden-cell:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.plant-cell {
+    background: #90EE90;
+}
+
+.sprinkler-cell {
+    background: #87CEEB;
+}
+
+.empty-cell {
+    background: #8B4513;
+}
+
+/* Friend Selection Modal Styles */
+.friend-selection-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.friend-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    margin: 10px 0;
+    background: white;
+    border-radius: 10px;
+    border: 2px solid #e0e0e0;
+    transition: all 0.3s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.friend-item:hover {
+    border-color: #4CAF50;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transform: translateY(-2px);
+}
+
+.friends-list {
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .garden-viewer-content {
+        max-width: 95vw;
+        padding: 15px;
+    }
+    
+    .garden-grid {
+        padding: 5px;
+    }
+    
+    .friend-selection-modal > div {
+        max-width: 95vw;
+        margin: 10px;
+    }
+}

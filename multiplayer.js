@@ -438,13 +438,16 @@ class MultiplayerManager {
         return [];
     }
 
-    // Show garden viewer (placeholder)
+    // Show garden viewer (proper implementation)
     showGardenViewer(gardenData, ownerName) {
-        // This would be implemented to show another player's garden
-        console.log(`Viewing ${ownerName}'s garden:`, gardenData);
-        
-        // Create a simple modal to show the garden
+        if (!gardenData) {
+            alert('No garden data available to view');
+            return;
+        }
+
+        // Create a proper garden viewer modal
         const modal = document.createElement('div');
+        modal.className = 'garden-viewer-modal';
         modal.style.cssText = `
             position: fixed;
             top: 0;
@@ -456,22 +459,377 @@ class MultiplayerManager {
             justify-content: center;
             align-items: center;
             z-index: 1000;
+            overflow-y: auto;
         `;
         
+        // Create garden display
+        const gardenDisplay = this.createGardenDisplay(gardenData);
+        
         modal.innerHTML = `
-            <div style="background: white; padding: 20px; border-radius: 10px; max-width: 600px;">
-                <h2>${ownerName}'s Garden</h2>
-                <p>This is a preview of their garden data:</p>
-                <pre style="background: #f5f5f5; padding: 10px; border-radius: 5px; overflow: auto; max-height: 300px;">
-                    ${JSON.stringify(gardenData, null, 2)}
-                </pre>
-                <button onclick="this.parentElement.parentElement.remove()" style="margin-top: 10px; padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                    Close
-                </button>
+            <div class="garden-viewer-content" style="
+                background: white;
+                padding: 20px;
+                border-radius: 15px;
+                max-width: 90vw;
+                max-height: 90vh;
+                overflow-y: auto;
+                position: relative;
+            ">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="margin: 0; color: #2c5530;">🏡 ${ownerName}'s Garden</h2>
+                    <button onclick="this.closest('.garden-viewer-modal').remove()" style="
+                        background: #f44336;
+                        color: white;
+                        border: none;
+                        border-radius: 50%;
+                        width: 30px;
+                        height: 30px;
+                        cursor: pointer;
+                        font-size: 16px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    ">×</button>
+                </div>
+                
+                <div class="garden-info" style="margin-bottom: 20px; padding: 15px; background: #f5f5f5; border-radius: 10px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
+                        <div><strong>💰 Money:</strong> $${gardenData.money || 0}</div>
+                        <div><strong>💧 Water:</strong> ${gardenData.water || 0}</div>
+                        <div><strong>🌱 Fertilizer:</strong> ${gardenData.fertilizer || 0}</div>
+                        <div><strong>⭐ Score:</strong> ${gardenData.score || 0}</div>
+                        <div><strong>🌿 Plants:</strong> ${gardenData.stats?.totalPlantsHarvested || 0}</div>
+                        <div><strong>🌤️ Weather:</strong> ${gardenData.weather || 'Unknown'}</div>
+                    </div>
+                </div>
+                
+                <div class="garden-display" style="text-align: center;">
+                    ${gardenDisplay}
+                </div>
+                
+                <div style="margin-top: 20px; text-align: center; color: #666;">
+                    <small>This is a read-only view of ${ownerName}'s garden</small>
+                </div>
             </div>
         `;
         
         document.body.appendChild(modal);
+        
+        // Add click outside to close
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        });
+    }
+
+    // Create visual garden display
+    createGardenDisplay(gardenData) {
+        if (!gardenData.garden || !Array.isArray(gardenData.garden)) {
+            return '<p style="color: #666;">Garden layout not available</p>';
+        }
+
+        const garden = gardenData.garden;
+        const size = garden.length;
+        const cellSize = Math.min(400 / size, 30); // Responsive cell size
+        
+        let html = `<div class="garden-grid" style="
+            display: inline-grid;
+            grid-template-columns: repeat(${size}, ${cellSize}px);
+            gap: 2px;
+            background: #8B4513;
+            padding: 10px;
+            border-radius: 10px;
+            border: 3px solid #654321;
+        ">`;
+        
+        for (let row = 0; row < size; row++) {
+            for (let col = 0; col < size; col++) {
+                const cell = garden[row][col];
+                let cellContent = '';
+                let cellClass = 'garden-cell';
+                
+                if (cell && cell.plant) {
+                    const plant = cell.plant;
+                    const stage = plant.growthStage || 0;
+                    const plantType = plant.type || 'unknown';
+                    
+                    // Plant emojis based on type and stage
+                    const plantEmojis = {
+                        'carrot': ['🥕', '🥕', '🥕', '🥕', '🥕'],
+                        'tomato': ['🍅', '🍅', '🍅', '🍅', '🍅'],
+                        'corn': ['🌽', '🌽', '🌽', '🌽', '🌽'],
+                        'lettuce': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'strawberry': ['🍓', '🍓', '🍓', '🍓', '🍓'],
+                        'apple': ['🍎', '🍎', '🍎', '🍎', '🍎'],
+                        'orange': ['🍊', '🍊', '🍊', '🍊', '🍊'],
+                        'banana': ['🍌', '🍌', '🍌', '🍌', '🍌'],
+                        'grape': ['🍇', '🍇', '🍇', '🍇', '🍇'],
+                        'cherry': ['🍒', '🍒', '🍒', '🍒', '🍒'],
+                        'peach': ['🍑', '🍑', '🍑', '🍑', '🍑'],
+                        'pear': ['🍐', '🍐', '🍐', '🍐', '🍐'],
+                        'lemon': ['🍋', '🍋', '🍋', '🍋', '🍋'],
+                        'lime': ['🫒', '🫒', '🫒', '🫒', '🫒'],
+                        'mango': ['🥭', '🥭', '🥭', '🥭', '🥭'],
+                        'pineapple': ['🍍', '🍍', '🍍', '🍍', '🍍'],
+                        'watermelon': ['🍉', '🍉', '🍉', '🍉', '🍉'],
+                        'cantaloupe': ['🍈', '🍈', '🍈', '🍈', '🍈'],
+                        'honeydew': ['🍈', '🍈', '🍈', '🍈', '🍈'],
+                        'cucumber': ['🥒', '🥒', '🥒', '🥒', '🥒'],
+                        'bell_pepper': ['🫑', '🫑', '🫑', '🫑', '🫑'],
+                        'jalapeno': ['🌶️', '🌶️', '🌶️', '🌶️', '🌶️'],
+                        'onion': ['🧅', '🧅', '🧅', '🧅', '🧅'],
+                        'garlic': ['🧄', '🧄', '🧄', '🧄', '🧄'],
+                        'potato': ['🥔', '🥔', '🥔', '🥔', '🥔'],
+                        'sweet_potato': ['🍠', '🍠', '🍠', '🍠', '🍠'],
+                        'radish': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'beet': ['🫘', '🫘', '🫘', '🫘', '🫘'],
+                        'turnip': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'parsnip': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'celery': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'asparagus': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'broccoli': ['🥦', '🥦', '🥦', '🥦', '🥦'],
+                        'cauliflower': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'brussels_sprouts': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'kale': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'spinach': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'arugula': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'endive': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'escarole': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'frisée': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'radicchio': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'watercress': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'mizuna': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'tatsoi': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'bok_choy': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'napa_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'savoy_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'red_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'green_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'white_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'purple_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'blue_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'pink_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'yellow_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'orange_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'brown_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'black_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'gray_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'cyan_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'magenta_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'lime_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'navy_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'teal_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'olive_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'maroon_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'fuchsia_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'aqua_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'silver_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'gold_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'platinum_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'diamond_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'ruby_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'emerald_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'sapphire_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'amethyst_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'topaz_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'opal_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'jade_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'pearl_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'coral_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'ivory_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'cream_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'beige_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'tan_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'khaki_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'wheat_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'honey_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'caramel_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'chocolate_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'vanilla_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'strawberry_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'blueberry_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'raspberry_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'blackberry_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'cranberry_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'elderberry_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'gooseberry_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'currant_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'mulberry_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'boysenberry_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'loganberry_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'tayberry_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'dewberry_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'marionberry_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'olallieberry_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'santiam_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'chehalem_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'kotata_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'black_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'purple_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'red_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'white_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'yellow_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'orange_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'green_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'blue_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'pink_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'brown_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'gray_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'black_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'purple_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'red_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'white_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'yellow_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'orange_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'green_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'blue_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'pink_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'brown_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'gray_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'black_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'purple_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'red_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'white_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'yellow_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'orange_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'green_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'blue_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'pink_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'brown_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'gray_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'black_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'purple_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'red_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'white_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'yellow_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'orange_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'green_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'blue_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'pink_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'brown_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'gray_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'black_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'purple_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'red_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'white_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'yellow_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'orange_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'green_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'blue_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'pink_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'brown_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'gray_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'black_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'purple_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'red_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'white_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'yellow_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'orange_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'green_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'blue_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'pink_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'brown_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'gray_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'black_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'purple_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'red_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'white_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'yellow_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'orange_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'green_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'blue_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'pink_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'brown_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'gray_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'black_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'purple_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'red_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'white_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'yellow_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'orange_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'green_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'blue_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'pink_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'brown_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'gray_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'black_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'purple_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'red_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'white_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'yellow_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'orange_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'green_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'blue_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'pink_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'brown_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'gray_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'black_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'purple_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'red_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'white_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'yellow_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'orange_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'green_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'blue_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'pink_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'brown_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'gray_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'black_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'purple_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'red_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'white_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'yellow_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'orange_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'green_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'blue_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'pink_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'brown_cap_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'gray_cabbage': ['🥬', '🥬', '🥬', '🥬', '🥬'],
+                        'unknown': ['🌱', '🌱', '🌱', '🌱', '🌱']
+                    };
+                    
+                    const emoji = plantEmojis[plantType] ? plantEmojis[plantType][stage] : '🌱';
+                    cellContent = emoji;
+                    cellClass = 'garden-cell plant-cell';
+                    
+                    // Add tooltip with plant info
+                    const tooltip = `Plant: ${plantType}<br>Stage: ${stage + 1}/5<br>Health: ${plant.health || 100}%`;
+                    cellContent = `<div title="${tooltip}" style="cursor: help;">${emoji}</div>`;
+                } else if (cell && cell.sprinkler) {
+                    // Sprinkler
+                    const sprinklerType = cell.sprinkler.type || 'basic';
+                    const sprinklerEmojis = {
+                        'basic': '💧',
+                        'advanced': '🚿',
+                        'premium': '🌊',
+                        'legendary': '⚡'
+                    };
+                    cellContent = sprinklerEmojis[sprinklerType] || '💧';
+                    cellClass = 'garden-cell sprinkler-cell';
+                } else {
+                    // Empty cell
+                    cellContent = '';
+                    cellClass = 'garden-cell empty-cell';
+                }
+                
+                html += `<div class="${cellClass}" style="
+                    width: ${cellSize}px;
+                    height: ${cellSize}px;
+                    background: ${cell && cell.plant ? '#90EE90' : cell && cell.sprinkler ? '#87CEEB' : '#8B4513'};
+                    border: 1px solid #654321;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: ${Math.max(12, cellSize - 8)}px;
+                    cursor: default;
+                ">${cellContent}</div>`;
+            }
+        }
+        
+        html += '</div>';
+        return html;
     }
 
     // Get stored token

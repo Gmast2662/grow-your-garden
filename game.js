@@ -1070,7 +1070,7 @@ class GardenGame {
         
         // Always refresh friends list to ensure online status is up to date
         // This ensures that when friends come online/offline, the status is immediately reflected
-        this.loadFriendsList();
+            this.loadFriendsList();
     }
     
     toggleFriendsList() {
@@ -1400,10 +1400,160 @@ class GardenGame {
     }
     
     requestGardenVisit() {
-        if (!this.multiplayer) return;
+        if (!this.multiplayer) {
+            this.showMessage('Multiplayer not available', 'error');
+            return;
+        }
         
-        // For now, just show a message
-        this.showMessage('Garden visit feature coming soon!', 'info');
+        if (!this.multiplayer.isConnected) {
+            this.showMessage('Not connected to multiplayer server', 'error');
+            return;
+        }
+        
+        // Get friends list
+        this.multiplayer.getFriends().then(friends => {
+            if (!friends || friends.length === 0) {
+                this.showMessage('You need friends to visit gardens! Add some friends first.', 'info');
+                return;
+            }
+            
+            // Create friend selection dialog
+            this.showFriendSelectionDialog(friends);
+        }).catch(error => {
+            console.error('Error getting friends:', error);
+            this.showMessage('Failed to load friends list', 'error');
+        });
+    }
+    
+    showFriendSelectionDialog(friends) {
+        const modal = document.createElement('div');
+        modal.className = 'friend-selection-modal';
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        `;
+        
+        let friendsListHTML = '';
+        friends.forEach(friend => {
+            const status = friend.isOnline ? '🟢 Online' : '🔴 Offline';
+            const statusColor = friend.isOnline ? '#4CAF50' : '#f44336';
+            
+            friendsListHTML += `
+                <div class="friend-item" style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 15px;
+                    margin: 10px 0;
+                    background: white;
+                    border-radius: 10px;
+                    border: 2px solid #e0e0e0;
+                    transition: all 0.3s;
+                " onmouseover="this.style.borderColor='#4CAF50'" onmouseout="this.style.borderColor='#e0e0e0'">
+                    <div>
+                        <strong style="font-size: 1.1em;">${friend.username}</strong>
+                        <div style="color: ${statusColor}; font-size: 0.9em;">${status}</div>
+                    </div>
+                    <button onclick="if(window.game) window.game.visitFriendGarden('${friend.id}', '${friend.username}')" 
+                            style="
+                                background: #4CAF50;
+                                color: white;
+                                border: none;
+                                padding: 10px 20px;
+                                border-radius: 8px;
+                                cursor: pointer;
+                                font-size: 1rem;
+                                transition: all 0.3s;
+                            " 
+                            onmouseover="this.style.background='#45a049'" 
+                            onmouseout="this.style.background='#4CAF50'">
+                        🏡 Visit Garden
+                    </button>
+                </div>
+            `;
+        });
+        
+        modal.innerHTML = `
+            <div style="
+                background: white;
+                padding: 25px;
+                border-radius: 15px;
+                max-width: 500px;
+                max-height: 80vh;
+                overflow-y: auto;
+                position: relative;
+            ">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="margin: 0; color: #2c5530;">🏡 Visit Friend's Garden</h2>
+                    <button onclick="this.closest('.friend-selection-modal').remove()" style="
+                        background: #f44336;
+                        color: white;
+                        border: none;
+                        border-radius: 50%;
+                        width: 30px;
+                        height: 30px;
+                        cursor: pointer;
+                        font-size: 16px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    ">×</button>
+                </div>
+                
+                <p style="color: #666; margin-bottom: 20px;">
+                    Select a friend whose garden you'd like to visit:
+                </p>
+                
+                <div class="friends-list">
+                    ${friendsListHTML}
+                </div>
+                
+                <div style="margin-top: 20px; text-align: center;">
+                    <button onclick="this.closest('.friend-selection-modal').remove()" style="
+                        background: #666;
+                        color: white;
+                        border: none;
+                        padding: 12px 25px;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        font-size: 1rem;
+                    ">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // Add click outside to close
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        });
+    }
+    
+    visitFriendGarden(friendId, friendName) {
+        // Close the selection dialog
+        const modal = document.querySelector('.friend-selection-modal');
+        if (modal) {
+            modal.remove();
+        }
+        
+        // Show loading message
+        this.showMessage(`Requesting to visit ${friendName}'s garden...`, 'info');
+        
+        // Request the garden visit
+        this.multiplayer.requestGardenVisit(friendId);
     }
     
     sendFriendRequest() {
@@ -2927,6 +3077,28 @@ class GardenGame {
         return totalBonus;
     }
     
+    getSprinklerWaterBonus(row, col) {
+        let totalBonus = 0;
+        this.sprinklers.forEach(sprinkler => {
+            const distance = Math.max(Math.abs(sprinkler.row - row), Math.abs(sprinkler.col - col));
+            if (distance <= this.sprinklerTypes[sprinkler.type].range) {
+                totalBonus += this.sprinklerTypes[sprinkler.type].waterBonus;
+            }
+        });
+        return totalBonus;
+    }
+    
+    getSprinklerFertilizerBonus(row, col) {
+        let totalBonus = 0;
+        this.sprinklers.forEach(sprinkler => {
+            const distance = Math.max(Math.abs(sprinkler.row - row), Math.abs(sprinkler.col - col));
+            if (distance <= this.sprinklerTypes[sprinkler.type].range) {
+                totalBonus += this.sprinklerTypes[sprinkler.type].fertilizerBonus;
+            }
+        });
+        return totalBonus;
+    }
+    
     // Function to handle continuous growth from watering and fertilizing
     checkContinuousGrowth(row, col) {
         const cell = this.garden[row][col];
@@ -3133,8 +3305,11 @@ class GardenGame {
             
             const timeSinceLastCheck = now - cell.lastSprinklerGrowth;
             
-            // Growth rate: 1 stage per 30 seconds with sprinkler
+            // Growth rate: 1 stage per 30 seconds with sprinkler (base)
             let growthTimePerStage = 30000; // 30 seconds per stage (base)
+            
+            // Apply sprinkler growth bonus (faster growth with better sprinklers)
+            growthTimePerStage = growthTimePerStage / (1 + sprinklerBonus);
             
             // Apply custom growth rate multiplier
             const seedType = cell.plant.type;
@@ -3318,7 +3493,14 @@ class GardenGame {
         }
         
         if (this.water > 0) {
-            this.water--;
+            // Apply sprinkler water efficiency bonus
+            const waterBonus = this.getSprinklerWaterBonus(row, col);
+            const waterEfficiency = 1 + waterBonus; // e.g., 1.1 for 10% bonus
+            
+            // Use less water if sprinkler provides water efficiency
+            const waterUsed = waterBonus > 0 ? 0 : 1; // Free water if sprinkler provides efficiency
+            this.water -= waterUsed;
+            
             cell.watered = true;
             cell.wateredAt = now;
             cell.waterCooldown = now + 8000;
@@ -3326,14 +3508,16 @@ class GardenGame {
             // Start continuous growth when watered
             if (cell.plant && cell.plant.growthStage < this.growthStages.length - 1) {
                 const plantData = this.plantTypes[cell.plant.type];
-                this.showMessage(`${plantData.name} watered! Will grow continuously for 8 seconds!`, 'success');
+                const bonusText = waterBonus > 0 ? ` (${Math.round(waterBonus * 100)}% water efficiency from sprinkler!)` : '';
+                this.showMessage(`${plantData.name} watered! Will grow continuously for 8 seconds!${bonusText}`, 'success');
                 
                 // Set up continuous growth tracking
                 cell.waterGrowthStart = now;
                 cell.waterGrowthDuration = 8000; // 8 seconds of continuous growth
             } else {
                 const plantData = this.plantTypes[cell.plant.type];
-                this.showMessage(`${plantData.name} watered! (Already fully grown)`, 'success');
+                const bonusText = waterBonus > 0 ? ` (${Math.round(waterBonus * 100)}% water efficiency from sprinkler!)` : '';
+                this.showMessage(`${plantData.name} watered! (Already fully grown)${bonusText}`, 'success');
             }
             
             // Update daily challenge progress for watering
@@ -3366,7 +3550,14 @@ class GardenGame {
         }
         
         if (this.fertilizer > 0) {
-            this.fertilizer--;
+            // Apply sprinkler fertilizer efficiency bonus
+            const fertilizerBonus = this.getSprinklerFertilizerBonus(row, col);
+            const fertilizerEfficiency = 1 + fertilizerBonus; // e.g., 1.1 for 10% bonus
+            
+            // Use less fertilizer if sprinkler provides fertilizer efficiency
+            const fertilizerUsed = fertilizerBonus > 0 ? 0 : 1; // Free fertilizer if sprinkler provides efficiency
+            this.fertilizer -= fertilizerUsed;
+            
             cell.fertilized = true;
             cell.fertilizedAt = now;
             cell.fertilizerCooldown = now + 12000;
@@ -3374,14 +3565,16 @@ class GardenGame {
             // Start continuous growth when fertilized
             if (cell.plant && cell.plant.growthStage < this.growthStages.length - 1) {
                 const plantData = this.plantTypes[cell.plant.type];
-                this.showMessage(`${plantData.name} fertilized! Will grow continuously for 12 seconds!`, 'success');
+                const bonusText = fertilizerBonus > 0 ? ` (${Math.round(fertilizerBonus * 100)}% fertilizer efficiency from sprinkler!)` : '';
+                this.showMessage(`${plantData.name} fertilized! Will grow continuously for 12 seconds!${bonusText}`, 'success');
                 
                 // Set up continuous growth tracking
                 cell.fertilizerGrowthStart = now;
                 cell.fertilizerGrowthDuration = 12000; // 12 seconds of continuous growth
             } else {
                 const plantData = this.plantTypes[cell.plant.type];
-                this.showMessage(`${plantData.name} fertilized! (Already fully grown)`, 'success');
+                const bonusText = fertilizerBonus > 0 ? ` (${Math.round(fertilizerBonus * 100)}% fertilizer efficiency from sprinkler!)` : '';
+                this.showMessage(`${plantData.name} fertilized! (Already fully grown)${bonusText}`, 'success');
             }
             
             this.playSound('fertilizer');
