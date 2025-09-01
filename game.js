@@ -1162,8 +1162,13 @@ class GardenGame {
                 // Remove duplicates based on user ID only (not status/request_type)
                 const uniqueFriends = friends.filter((friend, index, self) => {
                     const friendId = friend.id || friend.user_id;
-                    return index === self.findIndex(f => (f.id || f.user_id) === friendId);
+                    // Find the first occurrence of this user ID
+                    const firstIndex = self.findIndex(f => (f.id || f.user_id) === friendId);
+                    // Only keep the first occurrence (index === firstIndex)
+                    return index === firstIndex;
                 });
+                
+                console.log('Unique friends after deduplication:', uniqueFriends); // Debug log
                 
                 console.log('Unique friends after deduplication:', uniqueFriends); // Debug log
                 
@@ -1181,8 +1186,8 @@ class GardenGame {
                         if (friend.id === this.multiplayer?.currentUser?.id) {
                             return false;
                         }
-                        // Check real-time online status
-                        const isOnline = friend.online === true || friend.isOnline === true;
+                        // Check real-time online status - server returns both 'online' and 'isOnline'
+                        const isOnline = friend.online === true || friend.isOnline === true || friend.is_online === 1;
                         return isOnline;
                     });
                     
@@ -1191,8 +1196,8 @@ class GardenGame {
                         if (friend.id === this.multiplayer?.currentUser?.id) {
                             return false;
                         }
-                        // Check real-time online status
-                        const isOnline = friend.online === true || friend.isOnline === true;
+                        // Check real-time online status - server returns both 'online' and 'isOnline'
+                        const isOnline = friend.online === true || friend.isOnline === true || friend.is_online === 1;
                         return !isOnline;
                     });
                     

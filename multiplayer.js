@@ -341,37 +341,63 @@ class MultiplayerManager {
 
     // Handle garden visit request
     handleGardenVisitRequest(data) {
+        console.log('🌱 Garden visit request received:', data);
         const message = `${data.visitorName} wants to visit your garden. Allow?`;
         const allowed = confirm(message);
         
         if (allowed) {
+            console.log('✅ User allowed garden visit, getting garden data...');
             // Try to get current garden data from different possible sources
             let gardenData = null;
+            let dataSource = 'none';
             
             if (window.game && typeof window.game.getGardenData === 'function') {
                 gardenData = window.game.getGardenData();
+                dataSource = 'window.game';
             } else if (window.menuSystem && window.menuSystem.currentGame && typeof window.menuSystem.currentGame.getGardenData === 'function') {
                 gardenData = window.menuSystem.currentGame.getGardenData();
+                dataSource = 'window.menuSystem.currentGame';
             } else if (window.currentGame && typeof window.currentGame.getGardenData === 'function') {
                 gardenData = window.currentGame.getGardenData();
+                dataSource = 'window.currentGame';
             }
             
-            console.log('Garden visit request - garden data:', gardenData);
-            this.respondToGardenVisit(data.visitorId, true, gardenData);
+            console.log(`🌱 Garden data source: ${dataSource}`);
+            console.log('🌱 Garden data retrieved:', gardenData);
+            
+            if (gardenData && gardenData.garden) {
+                console.log('✅ Garden data is valid, sending response');
+                this.respondToGardenVisit(data.visitorId, true, gardenData);
+            } else {
+                console.log('❌ Garden data is invalid or missing, sending response without data');
+                this.respondToGardenVisit(data.visitorId, true, gardenData);
+            }
         } else {
+            console.log('❌ User denied garden visit');
             this.respondToGardenVisit(data.visitorId, false);
         }
     }
 
     // Handle garden visit result
     handleGardenVisitResult(data) {
+        console.log('🌱 Garden visit result received:', data);
+        
         if (data.allowed) {
             console.log(`🌱 Visiting ${data.ownerName}'s garden`);
-            // Here you could open a garden viewer or update the UI
-            this.showGardenViewer(data.gardenData, data.ownerName);
+            if (data.gardenData && data.gardenData.garden) {
+                console.log('✅ Garden data is valid, showing garden viewer');
+                this.showGardenViewer(data.gardenData, data.ownerName);
+            } else {
+                console.log('❌ Garden data is missing or invalid');
+                alert(`Garden visit allowed but no garden data available from ${data.ownerName}`);
+            }
         } else {
             console.log('❌ Garden visit was denied');
-            alert('Garden visit was denied');
+            if (data.error) {
+                alert(`Garden visit denied: ${data.error}`);
+            } else {
+                alert('Garden visit was denied');
+            }
         }
     }
 
