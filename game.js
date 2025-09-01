@@ -1270,6 +1270,7 @@ class GardenGame {
                         <button id="addFriendBtn" ${!isConnected ? 'disabled' : ''}>
                             ${isConnected ? 'Add Friend' : 'Connecting...'}
                         </button>
+                        <button id="testFriendsBtn" style="margin-left: 10px; background: #ff9800;">Test Friends API</button>
                     </div>
                 `;
                 
@@ -1293,6 +1294,14 @@ class GardenGame {
                 if (addFriendBtn) {
                     addFriendBtn.addEventListener('click', () => {
                         this.sendFriendRequest();
+                    });
+                }
+                
+                // Add event listener for test friends button
+                const testFriendsBtn = document.getElementById('testFriendsBtn');
+                if (testFriendsBtn) {
+                    testFriendsBtn.addEventListener('click', () => {
+                        this.testFriendsAPI();
                     });
                 }
                 
@@ -1364,8 +1373,19 @@ class GardenGame {
                         }
                     });
                 });
+
             });
         }
+    }
+    
+    testFriendsAPI() {
+        if (!this.multiplayer) return;
+        
+        this.multiplayer.getFriends().then(friends => {
+            console.log('Friends API test result:', friends);
+        }).catch(error => {
+            console.error('Error testing friends API:', error);
+        });
     }
     
     loadChatMessages() {

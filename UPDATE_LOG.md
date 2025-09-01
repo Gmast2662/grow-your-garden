@@ -40,6 +40,8 @@
   - Improved error handling and user feedback
   - Added debug logging for troubleshooting
   - Enhanced garden visit system to properly retrieve and share garden data
+  - Added comprehensive debugging for friends API and garden visit system
+  - Added test button to manually test friends API functionality
 - **Files Modified**: `multiplayer.js`, `game.js`, `styles.css`
 - **Result**: Multiplayer system now works reliably with proper friend display, chat functionality, garden visits, and account isolation
 
