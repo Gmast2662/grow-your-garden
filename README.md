@@ -16,7 +16,7 @@ A feature-rich, browser-based gardening simulation game built with vanilla JavaS
 ## 🎮 Play Now
 
 ### **🌱 Unified Game Version**
-**[Play the Game](https://a77d04c2-208a-4362-afc6-b62940880bca-00-1kbap8jusfgj5.spock.replit.dev/login)** - Single-player and multiplayer in one game!
+**[Play the Game](https://grow-your-garden--avigmast.replit.app)** - Single-player and multiplayer in one game!
 
 
 *The game automatically detects if a multiplayer server is available and enables multiplayer features when connected.*
@@ -437,4 +437,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 **Made with ❤️ by Avi (Gmast)**
 
 *If you enjoy this game, consider giving it a ⭐ on GitHub!*
+
 
