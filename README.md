@@ -2,7 +2,9 @@
 
 A feature-rich, browser-based gardening simulation game built with vanilla JavaScript, HTML5 Canvas, and CSS3. Plant seeds, manage resources, upgrade tools, and grow your perfect garden!
 
-### Note that this game was not fully made by me (coded by AI), and I will no longer (and haven't) been working on this anymore. The link to the game should be working, not usually checking if the host is running though.
+
+## Note that this game was not fully made by me (coded by AI), and I will no longer (and haven't) been working on this anymore. The link to the game should be working, not usually checking if the host is running though. (App might just be published until 3/13/26, I will probably forget to republish.)
+
 
 - **This game is fully working and released as v1.7.3 with stable multiplayer features, admin controls, enhanced chat system, and comprehensive security features. Contact me or tell me in the Github.**
 - **I have fixed every bug, but there still may be some bugs I don't know about. So if you find any go to the issues page in the Github.**
@@ -437,5 +439,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 **Made with ❤️ by Avi (Gmast)**
 
 *If you enjoy this game, consider giving it a ⭐ on GitHub!*
+
 
 
